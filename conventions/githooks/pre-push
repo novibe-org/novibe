@@ -1,0 +1,69 @@
+#!/bin/sh
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+[ "$branch" = "main" ] && exit 0
+
+# Refuse a push to a branch whose pull request is already merged or closed.
+if command -v gh >/dev/null 2>&1; then
+  state=$(gh pr view "$branch" --json state -q .state 2>/dev/null)
+  case "$state" in
+    MERGED|CLOSED)
+      echo "pre-push: the PR for '$branch' is already $state — this push would orphan commits." >&2
+      echo "pre-push: branch off fresh main instead." >&2
+      exit 1
+      ;;
+  esac
+fi
+
+# Refuse a branch that contains all of another whose pull request is still open.
+if [ "${ALLOW_STACKED:-}" != "1" ] && command -v gh >/dev/null 2>&1; then
+  for other in $(gh pr list --state open --json headRefName,isCrossRepository \
+                 -q '.[] | select(.isCrossRepository == false) | .headRefName' 2>/dev/null \
+                 | grep -Fvx "main" | grep -Fvx "$branch"); do
+    other="origin/$other"
+    git rev-parse --verify --quiet "$other" >/dev/null || continue
+    if git merge-base --is-ancestor "$other" HEAD 2>/dev/null; then
+      echo "pre-push: '$branch' contains every commit of '$other', whose pull request is open." >&2
+      echo "pre-push: this branch's pull request would review that work as well as its own, and" >&2
+      echo "pre-push: landing this one lands it first." >&2
+      echo "pre-push: branch again from origin/main, or override: ALLOW_STACKED=1 git push" >&2
+      exit 1
+    fi
+  done
+fi
+
+# Hold added comments under a count and a share of the change, in the languages named.
+if [ "${ALLOW_COMMENTS:-}" != "1" ]; then
+  base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
+  budget=${COMMENT_BUDGET:-3}
+  share=${COMMENT_SHARE:-25}
+  set --
+  for glob in ${COMMENT_GLOBS:-*.ts *.js *.mjs *.java *.py *.go *.rb *.rs}; do
+    set -- "$@" "$glob"
+  done
+  comments=$(git diff "$base"..HEAD -- "$@" | grep -cE '^\+[[:space:]]*(//|/\*|\*|#)' || true)
+  lines=$(git diff "$base"..HEAD -- "$@" | grep -E '^\+' | grep -vc '^+++' || true)
+  [ "$lines" -gt 0 ] || lines=1
+  if [ "$comments" -gt "$budget" ] && [ $((comments * 100 / lines)) -gt "$share" ]; then
+    echo "pre-push: $comments of $lines added lines are comments ($((comments * 100 / lines))%, over $share%)." >&2
+    git diff "$base"..HEAD -- "$@" | grep -E '^\+[[:space:]]*(//|/\*|\*|#)' | head -15 >&2
+    echo "pre-push: delete the ones that restate the code, or override: ALLOW_COMMENTS=1 git push" >&2
+    exit 1
+  fi
+fi
+
+# Lint the specification, as feedback here and a gate in CI.
+if [ "${ALLOW_LINT:-}" != "1" ] && [ -x node_modules/.bin/gherkin-lint-plus ] && [ -d features ]; then
+  found=$(mktemp -t nvlint)
+  node_modules/.bin/gherkin-lint-plus -c conventions/.gherkin-lintrc \
+    -r conventions/gherkin-rules features >"$found" 2>&1 || true
+  if [ -s "$found" ]; then
+    echo "pre-push: the specification does not lint." >&2
+    cat "$found" >&2
+    rm -f "$found"
+    echo "pre-push: fix it, or override: ALLOW_LINT=1 git push" >&2
+    exit 1
+  fi
+  rm -f "$found"
+fi
+
+exit 0
