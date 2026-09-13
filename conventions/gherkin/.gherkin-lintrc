@@ -1,9 +1,9 @@
 {
-  "required-feature-tags": ["on", { "tags": ["@id:.+", "@source:.+"] }],
+  "required-feature-tags": ["on", { "tags": ["@id:.+"] }],
   "no-dupe-feature-tags": ["on", { "tags": ["@id:.+"] }],
   "no-comments": "on",
 
-  "allowed-tags": ["on", { "patterns": ["^@id:.+$", "^@source:.+$", "^@cites:.+$", "^@backlog$", "^@long-running$", "^@deviation$", "^@unverified$"] }],
+  "allowed-tags": ["on", { "patterns": ["^@id:.+$", "^@source:.+$", "^@backlog$", "^@long-running$"] }],
   "no-duplicate-tags": "on",
   "no-superfluous-tags": "on",
   "no-homogenous-tags": "on",
