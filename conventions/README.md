@@ -9,6 +9,7 @@ directory stands alone, and the guards inside it run on their own.
 | [`code/`](code/) | comments state a constraint the code cannot express |
 | [`gherkin/`](gherkin/) | what a feature file carries, and the tag vocabulary |
 | [`likec4/`](likec4/) | the architecture model validates |
+| [`copilot/`](copilot/) | Copilot ships the pull request without touching the spec or the design |
 | [`security/`](security/) | a credential is never committed in the first place |
 
 ## Adopting

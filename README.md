@@ -32,7 +32,6 @@ A guided flow, plus the specialists it runs — each also usable on its own:
 | **`requirements-engineer`** | pins *what* to build as business scenarios you can read and test |
 | **`architect`** | turns the spec into a clear C4 design (and a terse ADR only when it matters) |
 | **`developer`** | builds it test-first — red → green — so it's proven, not hoped |
-
 ## 📦 Install
 
 ```
@@ -44,11 +43,18 @@ A guided flow, plus the specialists it runs — each also usable on its own:
 
 Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks the
 spec-driven flow one step at a time and **pauses for your call between steps** — the spec and
-the model are the contract; code is their consequence:
+the model are the contract; code is their consequence. Start each slice in its own
+[Claude Code on the web](https://claude.ai/code) session, so slices run side by side:
 
 1. **Specify** it as business scenarios.
 2. **Design** it in the architecture model — look at it with `likec4 serve`.
-3. **Build** it test-first.
+3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
+   decisions in your prompt, or it builds what you wrote instead of what was reviewed.
+4. **Ship** it — turn on
+   [agent merge](https://docs.github.com/en/copilot/how-tos/github-copilot-app/managing-issues-and-pull-requests#merging-a-pull-request)
+   in the GitHub Copilot app: it answers review comments, fixes failing checks and merge
+   conflicts, and merges once GitHub allows. Turning it on is your decision to merge;
+   [`conventions/copilot`](conventions/copilot/) keeps it off the spec and the design.
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
 Skip NoVibe for trivial edits.
