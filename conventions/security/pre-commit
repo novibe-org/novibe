@@ -4,8 +4,8 @@ staged=$(git diff --cached --name-only --diff-filter=ACMR)
 
 # Refuse to stage a credential file, by path rather than by content.
 credentials=$(printf '%s\n' "$staged" \
-  | grep -Ev '(^|/)\.env\.(example|sample|template)$' \
-  | grep -E '(^|/)(secrets?\.ya?ml|\.env(\..+)?|[^/]+\.secret)$' || true)
+  | grep -Ev '(^|/)\.(env|dev\.vars)\.(example|sample|template)$' \
+  | grep -E '(^|/)(secrets?\.ya?ml|\.env(\..+)?|\.dev\.vars(\..+)?|[^/]+\.secret)$' || true)
 
 if [ -n "$credentials" ]; then
   echo "pre-commit: refusing to stage credential files:" >&2

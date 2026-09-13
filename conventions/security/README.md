@@ -5,8 +5,9 @@ it has no effect once a file is tracked, and a branch cut before the rule existe
 
 ## What `pre-commit` refuses
 
-- **A staged file whose *path* looks like a credential** — `.env`, `secrets.yaml`, `*.secret`,
-  with `.env.example` and friends allowed. Checking the path means it does not depend on
+- **A staged file whose *path* looks like a credential** — `.env`, `.dev.vars` (Cloudflare
+  Workers), `secrets.yaml`, `*.secret`, each with their environment suffixes, and with
+  `.example`, `.sample` and `.template` allowed. Checking the path means it does not depend on
   recognising what is inside. This one fails closed.
 - **A secret found by `gitleaks`** in the staged changes, when it is installed. This one fails
   open, so not having the tool does not block anybody.
