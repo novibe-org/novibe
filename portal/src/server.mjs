@@ -110,6 +110,7 @@ createServer(async (request, response) => {
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     response.end(page)
   } catch (failure) {
-    json(response, 500, { error: String(failure?.stack ?? failure) })
+    console.error(failure)
+    json(response, 500, { error: String(failure?.message ?? failure) })
   }
 }).listen(4173, '127.0.0.1', () => console.log('portal  http://localhost:4173'))
