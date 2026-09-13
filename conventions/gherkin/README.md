@@ -8,6 +8,11 @@ without breaking every reference to it.
 which is prose by design and is what a reader and any renderer both show. Where a scenario came
 from is a tag, which can be queried and linted; a comment can be neither.
 
+**No solutions in the spec.** A scenario says what someone can do and what they get, not which
+button they press or which status code comes back. `no-restricted-patterns` refuses the words
+that give a solution away — a starter list: a project whose product *is* an API drops the API
+words from its copy.
+
 The vocabulary is three tags, and a tag outside it fails the lint, so it cannot grow by
 accident:
 

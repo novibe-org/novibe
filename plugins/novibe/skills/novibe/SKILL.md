@@ -5,67 +5,19 @@ description: Drive a feature, integration, or design-bearing change the NoVibe w
 
 # NoVibe
 
-This is **spec-driven development**. AI made *typing* cheap; the work that matters — deciding
-what to build, designing it, proving it right — is the user's to own, and that ownership lives
-in the **specification phase**: co-create the feature spec first, then the architecture, in that
-order, with the driver deciding at every turn. So don't jump from a vague ask straight to code —
-guide the user through that work **first, in order**, and build to the intent they author.
+**The driver decides; the machine builds what they decided.** Any change beyond a typo runs these
+steps in order, for one small slice:
 
-Once the spec and the architecture are settled, they are the contract. The **developer** step
-executes that contract — and because the hard decisions were already made in the specification
-phase, this is the one step that can run **autonomously** (including in the background / auto
-mode) without becoming vibe-coding. Autonomy in execution is fine; autonomy in *deciding* is not.
+1. **Give the slice a place** — in a cloud session, the session is the place. Running locally on
+   the default branch? Enter a worktree named for the slice (`EnterWorktree`).
+2. **Requirements** — invoke `requirements-engineer`.
+3. **Architecture** — invoke `architect`.
+4. **Build** — start the `developer` agent, pointed at the spec, the model and the ADRs; never
+   restate what they decide.
 
-In Claude Code, run the developer step as a background **Agent** (optionally `isolation:
-worktree`) rather than inline: it can TDD the slice, open the PR, and wait out asynchronous
-bot/CI/Sonar feedback without occupying the driver's session. But the **driver is a reviewer
-too** — their own comment on the PR is a decision, not a bot finding, and decisions don't
-belong to the developer step. When that happens, the agent stops and reports back rather than
-resolving it on its own; the driver picks it up from the orchestrating session, the same seat
-they never left during requirements and architecture.
+**Steps 2 and 3 run here, in the foreground** — never in a background agent: the driver shapes
+them as they go. Move on only when the driver agrees the step is done.
 
-## When to use
-
-Any change beyond a typo: a feature, an integration, a refactor with design impact.
-
-**Skipping is the driver's call, not yours.** Don't decide on your own that the flow — or any
-step in it — doesn't apply. If a step looks unnecessary, **propose skipping it and get an
-explicit yes** first. Talking yourself out of it ("no real architecture change", "this
-project doesn't do specs", "it's trivial") is the exact vibe-coding drift this skill exists to
-stop.
-
-**Absence is not permission to skip.** No C4 model, no feature spec, no tests yet → that means
-**create the first one**, not bypass the step.
-
-## The flow — one step at a time
-
-**Pipeline (one small vertical slice):** rough idea → Gherkin spec → C4 model → working code.
-
-Run these in order. **During specification (steps 1–2), pause for the driver's review after
-each step** — this is where they decide. Step 3 executes what was decided.
-
-1. **Requirements Engineer** — understand *what* to build and its constraints: functional + non-functional. → invoke the `requirements-engineer` skill.
-2. **Architect** — capture the design as an architecture model that stays **context for future development and documentation for future readers**. → invoke the `architect` skill.
-3. **Developer** — build **only what's specified**, in **small test-driven steps**, against the approved spec and model; don't run ahead of them. → invoke the `developer` skill.
-
-## Principles
-
-- **Every step lands pushed, one draft PR per slice** — the requirements step opens a draft PR
-  on the slice branch; every later step commits and pushes that branch; the developer step flips
-  the PR ready when the runner proves the slice. One container, visible from minute one;
-  local-only step results are invisible progress.
-- **Discuss before deciding** — during requirements and architecture, options + a
-  recommendation, get a nod, then act. This is where the driver's decisions live.
-- **Hand over artifacts, not briefings** — when the developer step runs (especially as a
-  background agent), point it at the spec, the C4 model and the ADRs; never re-explain the
-  decisions in prose. A prompt that restates a decision can go stale the moment the driver
-  changes one — and then the agent builds the superseded plan.
-- **The spec is the contract** — feature files change only in the requirements step; the
-  BDD runner, not the agent, says when a slice is done.
-- **Specification runs in the foreground; execution does not have to.** Requirements and
-  Architecture always run visibly, where the driver can watch and steer at every turn — never
-  spawn background tasks or agents for these two steps unless the driver explicitly asks. The
-  point there is to **build the spec incrementally, together** — small visible steps the driver
-  shapes as they go — not to hide work and come back with a big mess to untangle. The Developer
-  step is different: once the spec is approved, it may run autonomously, including in the
-  background or auto mode — it has nothing left to decide, only to build correctly.
+**Skipping is the driver's call.** A step that looks unnecessary — propose skipping it and wait
+for an explicit yes. No spec, no model, no tests yet means create the first one, not skip the
+step.

@@ -16,6 +16,20 @@ it has no effect once a file is tracked, and a branch cut before the rule existe
 
 If something is already tracked, `git rm --cached <path>` — the file stays on disk.
 
+## On GitHub
+
+Turn on what finds known problems the same way every time — free on public repositories; private
+ones need GitHub's security products:
+
+- **Code scanning** (CodeQL, default setup) — known vulnerability patterns, with Copilot Autofix
+  proposing the fix.
+- **Secret scanning with push protection** — a token or key refused at the push.
+- **Dependency review** — a new dependency with a known vulnerability.
+
+What a scanner cannot see — a new entry point without an authorization check, input used before
+the boundary validates it, one tenant's data reachable by another — is for review:
+[`copilot/skills/security-review`](../copilot/skills/security-review/).
+
 ## If you add a gitleaks allowlist
 
 Anchor the patterns **and** set `regexTarget = "secret"`:

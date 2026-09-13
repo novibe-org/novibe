@@ -2,6 +2,11 @@
   "required-feature-tags": ["on", { "tags": ["@id:.+"] }],
   "no-dupe-feature-tags": ["on", { "tags": ["@id:.+"] }],
   "no-comments": "on",
+  "no-restricted-patterns": ["on", { "Global": [
+    "\\b(click|tap|press)(s|es|ed)?\\b",
+    "\\b(button|dropdown|checkbox|text ?field)s?\\b",
+    "\\bendpoints?\\b", "\\bstatus code\\b", "\\bHTTP\\b", "\\bJSON\\b", "\\bSQL\\b"
+  ] }],
 
   "allowed-tags": ["on", { "patterns": ["^@id:.+$", "^@backlog$", "^@long-running$"] }],
   "no-duplicate-tags": "on",

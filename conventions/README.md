@@ -5,9 +5,13 @@ directory stands alone, and the guards inside it run on their own.
 
 | | |
 |---|---|
+| [`claude/`](claude/) | every Claude session, local or on the web, turns the guards on |
 | [`git/`](git/) | a branch per slice, and what must not be pushed |
 | [`code/`](code/) | comments state a constraint the code cannot express |
 | [`gherkin/`](gherkin/) | what a feature file carries, and the tag vocabulary |
+| [`likec4/`](likec4/) | the architecture model validates |
+| [`phases/`](phases/) | a commit is spec, design or code — never a mix |
+| [`copilot/`](copilot/) | Copilot ships the pull request without touching the spec or the design, and reviews code against the architecture |
 | [`security/`](security/) | a credential is never committed in the first place |
 
 ## Adopting
