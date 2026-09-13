@@ -8,7 +8,8 @@ it has no effect once a file is tracked, and a branch cut before the rule existe
 - **A staged file whose *path* looks like a credential** — `.env`, [`.dev.vars`](https://developers.cloudflare.com/workers/configuration/secrets/) (Cloudflare
   Workers), `secrets.yaml`, `*.secret`, each with their environment suffixes, and with
   `.example`, `.sample` and `.template` allowed. Checking the path means it does not depend on
-  recognising what is inside. This one fails closed.
+  recognising what is inside. This one fails closed **and takes no override** — an escape hatch
+  here is the only failure it exists to prevent.
 - **A secret found by [`gitleaks`](https://github.com/gitleaks/gitleaks)** in the staged
   changes, when it is installed. This one fails
   open, so not having the tool does not block anybody.

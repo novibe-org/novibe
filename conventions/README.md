@@ -22,5 +22,6 @@ refuses, so call the ones you want from your own `pre-push` or `pre-commit`. Thi
 does exactly that, in [`.githooks/`](../.githooks).
 
 These are the files this repository uses, not copies of them — so a guard that stops working
-stops working here first. Every guard is overridable, because one you cannot override is one
-people delete.
+stops working here first. Every guard is overridable except one: the credential path check refuses and means it, because
+a bypass on that one is the only thing it exists to prevent. The rest take an override, since a
+guard you cannot override is a guard people delete.

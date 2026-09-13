@@ -61,7 +61,7 @@ mechanically. This repo ships the guards it uses itself, in
 Activate the hook per clone:
 
 ```
-git config core.hooksPath conventions/githooks
+git config core.hooksPath .githooks
 ```
 
 It refuses an orphaned push, a branch stacked on an open pull request, a diff that is mostly
