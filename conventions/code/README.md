@@ -12,8 +12,8 @@ A diff whose added comment lines exceed **both** a count (`COMMENT_BUDGET`, 3) a
 the added lines (`COMMENT_SHARE`, 25%). A share as well as a count because a new file earns its
 header, while a refactor that is a quarter comments is narrating.
 
-`COMMENT_GLOBS` names the languages. **Set it.** The version this replaced hardcoded `*.ts`, so
-copied into a Java or Python project it silently never fired — and a guard you believe you have
-is worse than none.
+`COMMENT_GLOBS` names the files it reads — `*.ts *.js *.mjs *.java *.py *.go *.rb *.rs` by
+default. Set it if your language is missing, or to narrow it: a guard that matches nothing
+passes quietly, and a guard you believe you have is worse than none.
 
 Override with `ALLOW_COMMENTS=1`, deliberately.

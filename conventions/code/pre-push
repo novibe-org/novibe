@@ -6,10 +6,12 @@
 base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
 budget=${COMMENT_BUDGET:-3}
 share=${COMMENT_SHARE:-25}
+set -f
 set --
-for glob in ${COMMENT_GLOBS:-*.ts *.js *.mjs *.java *.py *.go *.rb *.rs}; do
+for glob in ${COMMENT_GLOBS:-. :(exclude)*.md :(exclude)*.markdown :(exclude)*.rst :(exclude)*.txt}; do
   set -- "$@" "$glob"
 done
+set +f
 comments=$(git diff "$base"..HEAD -- "$@" | grep -cE '^\+[[:space:]]*(//|/\*|\*|#)' || true)
 lines=$(git diff "$base"..HEAD -- "$@" | grep -E '^\+' | grep -vc '^+++' || true)
 [ "$lines" -gt 0 ] || lines=1
