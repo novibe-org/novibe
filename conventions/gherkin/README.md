@@ -8,19 +8,18 @@ without breaking every reference to it.
 which is prose by design and is what a reader and any renderer both show. Where a scenario came
 from is a tag, which can be queried and linted; a comment can be neither.
 
-The vocabulary is four tags, and a tag outside it fails the lint, so it cannot grow by
+The vocabulary is three tags, and a tag outside it fails the lint, so it cannot grow by
 accident:
 
 | | |
 |---|---|
 | `@id:<slug>` | identity, required on every feature |
-| `@source:<origin>` | optional: where the rule came from — a standard, a policy, us |
 | `@backlog` | not built yet: future by declaration, not by absence |
 | `@long-running` | slow enough to want excluding from the inner loop deliberately |
 
-Add to `allowed-tags` when your project needs more. A rewrite needs several — a citation into
-the system being replaced, a departure kept on purpose, something reading could not settle —
-and the `novibe-rewrite` plugin says what they are for.
+Add to `allowed-tags` what your project actually needs — where a rule came from, who owns it,
+whatever you will really filter on. A rewrite needs several of its own, and the
+`novibe-rewrite` plugin says what they are for.
 
 ## The linter
 
