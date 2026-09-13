@@ -6,7 +6,7 @@ description: Implement a change test-first — red → green → refactor — tu
 # Developer
 
 **In:** the Gherkin spec (`features/<domain>/<feature>.feature`), the C4 model
-(`docs/architecture/current/`), and the ADRs that constrain the slice (`docs/adrs/`).
+(`docs/architecture/`), and the ADRs that constrain the slice (`docs/adrs/`).
 **Out:** **working code** for the feature slice.
 
 **The artifacts are the contract — not the prompt.** Whoever hands you the slice points at the

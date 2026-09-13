@@ -8,6 +8,7 @@ directory stands alone, and the guards inside it run on their own.
 | [`git/`](git/) | a branch per slice, and what must not be pushed |
 | [`code/`](code/) | comments state a constraint the code cannot express |
 | [`gherkin/`](gherkin/) | what a feature file carries, and the tag vocabulary |
+| [`likec4/`](likec4/) | the architecture model validates |
 | [`security/`](security/) | a credential is never committed in the first place |
 
 ## Adopting

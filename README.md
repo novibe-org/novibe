@@ -47,7 +47,7 @@ spec-driven flow one step at a time and **pauses for your call between steps** �
 the model are the contract; code is their consequence:
 
 1. **Specify** it as business scenarios.
-2. **Design** it in the architecture model.
+2. **Design** it in the architecture model — look at it with `likec4 serve`.
 3. **Build** it test-first.
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
@@ -65,7 +65,8 @@ git config core.hooksPath .githooks
 ```
 
 It refuses an orphaned push, a branch stacked on an open pull request, a diff that is mostly
-added comments, and a specification that does not lint — each overridable, each fail-open.
+added comments, a specification that does not lint, and an architecture model that does not
+validate — each overridable, each fail-open.
 [`conventions/README.md`](conventions/README.md) says what each one is for.
 
 <div align="center">
