@@ -14,18 +14,13 @@ description: Turn a Gherkin spec into a C4 architecture model for one slice — 
 1. **Read the model** — none yet? This slice starts it, in the layout below, with just enough to
    place the slice.
 2. **Grill the design into the model** — in arc42's order, each box before its parts, a runtime
-   view for each flow in the spec. Ask in rounds: every question the model lets you ask yet, numbered, each with your
-   recommendation; write each answer into the model before the next round.
+   view for each flow in the spec. Ask in rounds: every question the model lets you ask yet, each
+   with your recommendation; write each answer into the model before the next round.
 
-   ```
-   ❓ **Q1** - **<title>**: <the question, with its options>
-
-   ➡️ <your recommendation>
-
-   ---
-
-   ❓ **Q2** - …
-   ```
+   **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
+   calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
+   with nothing to choose between goes in plain text. No such tool in this session? Number the
+   questions and put your recommendation under each.
 
    **Facts are yours, decisions are the driver's** — look up what the code and the model can tell
    you; ask everything someone could have decided differently. A question about behaviour is the
