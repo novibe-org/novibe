@@ -1,0 +1,425 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>portal</title>
+<style>
+  :root { --ink:#16181d; --dim:#6b7280; --line:#e3e6ea; --ground:#fbfcfd; --panel:#fff;
+          --pass:#1a7f45; --fail:#c02525; --soft:#b0741a; --idle:#7c8697; --future:#d7dbe1;
+          --card:#f6f8fa; --syntax:#6a4fb6; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e6e8ec; --dim:#9aa3b2; --line:#2b3038; --ground:#14161a; --panel:#1a1d22;
+            --future:#343a43; --card:#20242b;
+            --syntax:#ab97ee; } }
+  * { box-sizing:border-box }
+  body { margin:0; font:14px/1.5 ui-sans-serif, system-ui, sans-serif; color:var(--ink);
+         background:var(--ground) }
+  header { padding:12px 20px; border-bottom:1px solid var(--line); background:var(--panel);
+           display:flex; gap:16px; align-items:center; position:sticky; top:0; z-index:3 }
+  h1 { font-size:15px; margin:0 }
+  .dim { color:var(--dim); font-size:12px }
+  button { font:inherit; color:var(--ink); background:var(--panel); border:1px solid var(--line);
+           border-radius:6px; padding:3px 9px; cursor:pointer }
+  button:hover { border-color:var(--dim) }
+  main { display:grid; grid-template-columns:minmax(340px, 1fr) minmax(420px, 1.05fr);
+         gap:18px; padding:16px 20px 60px; align-items:start }
+  @media (max-width: 900px) { main { grid-template-columns:1fr } }
+  #out { min-width:0 }
+  #detail { position:sticky; top:70px; max-height:calc(100vh - 90px); overflow:auto;
+            border:1px solid var(--line); border-radius:9px; background:var(--panel);
+            padding:16px 18px; min-width:0 }
+  .epic { border:1px solid var(--line); border-radius:9px; background:var(--panel);
+          margin-bottom:14px; overflow:hidden }
+  .epic > header { position:static; border-bottom:1px solid var(--line); background:none;
+                   padding:10px 14px; gap:10px }
+  .epic h2 { font-size:14.5px; margin:0; flex:0 0 auto }
+  .epic h2[contenteditable]:focus { outline:2px solid var(--dim); border-radius:3px }
+  .why { color:var(--dim); font-size:12.5px; margin:0; padding:8px 14px 0; max-width:80ch }
+  .bar { flex:0 0 130px; height:6px; border-radius:3px; background:var(--future); display:flex;
+         overflow:hidden }
+  .bar i { height:100% }
+  .count { color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums }
+  .push { margin-left:auto; display:flex; gap:6px; align-items:center }
+  ul { list-style:none; margin:0; padding:6px 10px 10px; display:flex; flex-direction:column;
+       gap:4px }
+  .feature { background:var(--card); border:1px solid var(--line); border-radius:6px }
+  .feature[open] { border-color:var(--dim) }
+  .row { display:flex; gap:9px; align-items:center; padding:4px 10px; cursor:pointer;
+         border-radius:5px }
+  .row:hover { background:var(--ground) }
+  .feature.picked { border-color:var(--dim); box-shadow:inset 3px 0 0 var(--ink) }
+  .missing { color:var(--soft) }
+  .row[draggable=true], .epic > header[draggable=true] { cursor:grab }
+  .row.over { box-shadow:inset 0 2px 0 var(--syntax) }
+  section.epic.over { outline:2px dashed var(--syntax); outline-offset:-2px }
+  .fname { font-family:ui-monospace, monospace; font-size:13px }
+  .fpath { color:var(--dim); font-size:11.5px; font-family:ui-monospace, monospace }
+  .ftitle { color:var(--dim); font-size:12.5px }
+  #detail .assign { margin:0 0 14px; font-size:12px; color:var(--dim);
+                    display:flex; gap:7px; align-items:center }
+  .unnamed { color:var(--soft); font-size:10.5px; border:1px solid var(--soft);
+             border-radius:999px; padding:0 6px }
+  select { font:inherit; font-size:12px; color:var(--ink); background:var(--panel);
+           border:1px solid var(--line); border-radius:6px; padding:2px 4px; max-width:190px }
+  .orphans { border-style:dashed; border-color:var(--soft) }
+  .badge { flex:0 0 62px; font-size:9.5px; letter-spacing:.04em; font-weight:700 }
+  .PASSED{color:var(--pass)} .FAILED{color:var(--fail)} .UNDEFINED,.PENDING{color:var(--soft)}
+  .future{color:var(--dim);opacity:.7} .not-run{color:var(--idle)}
+  .saving { color:var(--dim); font-size:11.5px }
+  .warn { color:var(--soft); font-weight:600 }
+  header select { max-width:280px }
+
+  /* ---- the detail pane ------------------------------------------------ */
+  #detail article { min-width:0 }
+  .meta { background:var(--card); border:1px solid var(--line); border-radius:8px;
+          padding:12px 14px; margin-bottom:6px }
+  .fhead { display:flex; align-items:center; gap:10px }
+  #detail h2 { margin:0; font-size:15px; font-family:ui-monospace, monospace }
+  #detail .sub { margin:3px 0 9px; font-size:14px; font-weight:600; line-height:1.35 }
+  #detail .narrative { margin:9px 0 0; color:var(--dim); font-size:12.8px; max-width:70ch }
+  #detail .where { margin:0 0 0 auto; font-size:11px; font-family:ui-monospace, monospace;
+                   overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  #detail .where a { color:var(--dim) }
+  #detail .assign { margin:9px 0 0; font-size:12px; color:var(--dim); display:flex; gap:9px;
+                    align-items:center; min-width:0 }
+  .tags { margin:0; display:flex; gap:5px; flex-wrap:wrap }
+  .tag { font-size:10.5px; font-family:ui-monospace, monospace; color:var(--dim);
+         border:1px solid var(--line); border-radius:999px; padding:0 6px; white-space:nowrap }
+
+  /* ---- a scenario ----------------------------------------------------- */
+  .scenario { border-top:1px solid var(--line); padding:13px 2px 6px }
+  .scenario:first-of-type { border-top:0 }
+  .shead { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap }
+  .skeyword { color:var(--dim); font-size:11.5px; font-weight:700; white-space:nowrap;
+              text-transform:uppercase; letter-spacing:.04em }
+  .sname { font-size:13.5px; font-weight:600 }
+  .snarrative { color:var(--dim); font-size:12.5px; margin:5px 0 0 }
+
+  /* One grid per scenario, so every keyword shares a column and the steps line up. */
+  .steps { display:grid; grid-template-columns:max-content minmax(0, 1fr); column-gap:12px;
+           row-gap:3px; margin:8px 0 0; padding-left:11px; border-left:2px solid var(--line) }
+  .kw { justify-self:end; color:var(--dim); font-weight:700; font-size:12.3px;
+        font-family:ui-monospace, monospace; padding-top:1px }
+  .kw.ex { color:var(--syntax) }
+  .txt { font-size:13.1px; line-height:1.55 }
+  .ph { color:var(--syntax); font-family:ui-monospace, monospace; font-size:12.3px }
+  .wide { grid-column:1 / -1 }
+  .exname { font-size:12px; color:var(--dim) }
+  .doc { margin:4px 0; padding:8px 10px; background:var(--card); border:1px solid var(--line);
+         border-radius:5px; font-size:12px; white-space:pre-wrap; overflow-x:auto }
+
+  table.gherkin { border-collapse:collapse; margin:5px 0; font-size:11.8px;
+                  font-family:ui-monospace, monospace; display:block; overflow-x:auto;
+                  max-width:100% }
+  table.gherkin th, table.gherkin td { border:1px solid var(--line); padding:2px 9px;
+                                       text-align:left; white-space:nowrap }
+  table.gherkin th { color:var(--dim); font-weight:600; background:var(--card) }
+
+  /* A scenario says what became of it, in the same words the list uses. */
+  .shead .badge { flex:0 0 auto; border:1px solid currentColor; border-radius:999px;
+                  padding:0 7px; font-size:9.5px }
+  .empty { color:var(--dim); padding:40px 6px }
+</style>
+<header>
+  <h1>portal</h1>
+  <span class="bar" id="totalbar" style="width:200px"></span>
+  <span class="dim" id="totals"></span>
+  <select id="ref" title="which branch's specification"></select>
+  <span class="push">
+    <span class="saving" id="saving"></span>
+    <button id="add">New epic</button>
+    <span class="dim" id="stale"></span>
+  </span>
+</header>
+<main>
+  <section id="out"></section>
+  <aside id="detail"></aside>
+</main>
+<script type="module">
+const C = { PASSED:'var(--pass)', FAILED:'var(--fail)', AMBIGUOUS:'var(--fail)', UNDEFINED:'var(--soft)', SKIPPED:'var(--idle)',
+            PENDING:'var(--soft)', 'not-run':'var(--idle)', future:'var(--future)' }
+const SEV = ['FAILED','AMBIGUOUS','UNDEFINED','PENDING','SKIPPED','not-run','PASSED','future']
+
+let project, plan, timer, selected = null
+
+const featureAt = (id) => project.features.find((f) => f.id === id)
+const assigned = () => new Set(plan.epics.flatMap((e) => e.features))
+
+function counts(features) {
+  const tally = {}
+  for (const f of features.filter(Boolean)) {
+    for (const s of f.scenarios) tally[s.status] = (tally[s.status] ?? 0) + 1
+  }
+  return tally
+}
+
+/** Part-way through a feature, what is left to do is yellow rather than idle grey. */
+function bar(tally, started) {
+  const total = Object.values(tally).reduce((a, b) => a + b, 0) || 1
+  const left = (k) => k === 'not-run' || k === 'future'
+  const colour = (k) => (started && left(k) ? 'var(--soft)' : C[k])
+  return SEV.filter((k) => tally[k])
+    .map((k) => `<i style="width:${tally[k] / total * 100}%;background:${colour(k)}"></i>`).join('')
+}
+
+const green = (features) => features.filter(Boolean).reduce((n, f) => n + f.green, 0)
+const scenarios = (features) => features.filter(Boolean).reduce((n, f) => n + f.total, 0)
+
+async function persist() {
+  clearTimeout(timer)
+  document.getElementById('saving').textContent = 'saving…'
+  timer = setTimeout(async () => {
+    try {
+      const response = await fetch(`/api/plan?project=${encodeURIComponent(project.name)}`,
+        { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(plan) })
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+    } catch (failure) {
+      document.getElementById('saving').textContent = `not saved — ${failure.message}`
+      return
+    }
+    document.getElementById('saving').textContent = 'saved'
+    setTimeout(() => (document.getElementById('saving').textContent = ''), 1200)
+  }, 250)
+}
+
+function rows(ids, epicId) {
+  return ids.map((id) => {
+    const feature = featureAt(id)
+    if (!feature) return `<div class="row missing"><span class="fname">${escaped(id)}</span>
+      <span class="dim">— nothing answers to this id any more</span></div>`
+
+    const domain = feature.path.split('/').slice(1, -1).join('/')
+
+    return `<div class="feature${id === selected ? ' picked' : ''}">
+      <div class="row" draggable="true" data-id="${escaped(id)}">
+        ${domain ? `<span class="fpath">${domain}</span>` : ''}
+        <span class="fname">${escaped(feature.identified ? feature.id
+          : feature.path.split('/').pop().replace(/\.feature$/, ''))}</span>
+        ${feature.identified ? '' : '<span class="unnamed" title="no @id: tag — referred to by path">no id</span>'}
+        <span class="push">
+          <span class="count">${feature.green}/${feature.total}</span>
+          <span class="bar" style="flex-basis:64px">${bar(counts([feature]), feature.green > 0)}</span>
+        </span>
+      </div></div>`
+  }).join('')
+}
+
+const escaped = (text) => String(text)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+
+/** A placeholder is the whole point of an outline, so it is shown as one. */
+const withPlaceholders = (text) =>
+  escaped(text).replace(/&lt;([^&]+?)&gt;/g, '<em class="ph">&lt;$1&gt;</em>')
+
+const table = (rows, header) => `<table class="gherkin">
+  ${header ? `<thead><tr>${header.map((c) => `<th>${escaped(c)}</th>`).join('')}</tr></thead>` : ''}
+  <tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${escaped(c)}</td>`).join('')}</tr>`).join('')}</tbody>
+</table>`
+
+function detail() {
+  const feature = featureAt(selected)
+  if (!feature) return '<p class="empty">Pick a feature to read it.</p>'
+
+  const holder = plan.epics.find((e) => e.features.includes(selected))
+  const options = ['<option value="">— not in an epic</option>',
+    ...plan.epics.map((e) =>
+      `<option value="${e.id}"${e.id === holder?.id ? ' selected' : ''}>${e.title}</option>`)]
+
+  const link = project.source
+    ? `<a href="${project.source}/${feature.path}" target="_blank">${feature.path}</a>`
+    : feature.path
+
+  return `<article>
+    <div class="meta">
+    <div class="fhead">
+      <h2>${feature.identified ? feature.id : feature.path.split('/').pop().replace(/\.feature$/, '')}</h2>
+      <span class="push"><span class="count">${feature.green}/${feature.total}</span>
+        <span class="bar" style="flex-basis:80px">${bar(counts([feature]), feature.green > 0)}</span></span>
+    </div>
+    <p class="sub">${escaped(feature.name)}</p>
+    <p class="tags">${feature.tags.map((t) => `<span class="tag">${escaped(t)}</span>`).join('')}</p>
+    <p class="assign">Epic <select data-assign="${escaped(feature.id)}">${options.join('')}</select>
+      <span class="where">${link}</span></p>
+    ${feature.description ? `<p class="narrative">${escaped(feature.description)}</p>` : ''}
+    </div>
+
+    ${feature.scenarios.map(scenario).join('')}
+  </article>`
+}
+
+/**
+ * Laid out the way the file is: one keyword column, so Given, When and Then line up and the
+ * shape of a scenario can be read without reading it.
+ */
+function scenario(s) {
+  const own = s.own.filter((t) => t !== '@backlog')
+
+  return `<section class="scenario">
+    <div class="shead">
+      <span class="badge ${s.status}">${s.status === 'future' ? 'backlog' : s.status}</span>
+      <span class="skeyword">${s.keyword}:</span>
+      <span class="sname">${escaped(s.name)}</span>
+      ${own.length ? `<span class="push">${own.map((t) => `<span class="tag">${escaped(t)}</span>`).join('')}</span>` : ''}
+    </div>
+    ${s.description ? `<p class="snarrative">${escaped(s.description)}</p>` : ''}
+    <div class="steps">
+      ${s.steps.map((step) => `<span class="kw">${step.keyword}</span>
+        <span class="txt">${withPlaceholders(step.text)}</span>
+        ${step.doc ? `<pre class="doc wide">${escaped(step.doc)}</pre>` : ''}
+        ${step.table ? `<div class="wide">${table(step.table.slice(1), step.table[0])}</div>` : ''}`).join('')}
+      ${s.examples.map((e) => `<span class="kw ex">Examples</span>
+        <div class="txt">${e.name ? `<span class="exname">${escaped(e.name)}</span>` : ''}
+          ${table(e.rows, e.header)}</div>`).join('')}
+    </div>
+  </section>`
+}
+
+function render() {
+  const all = project.features
+  document.getElementById('totalbar').innerHTML = bar(counts(all))
+  document.getElementById('totals').textContent =
+    `${all.length} features · ${scenarios(all)} scenarios · ${green(all)} green`
+  const ran = project.runs[0]?.ranAt
+  const o = project.outcome
+  // A red run and a red backlog look identical unless the run says which it was.
+  const red = o && o.passed < o.exercised
+  const mismatch = o && !o.describes
+  document.getElementById('stale').innerHTML = !ran ? 'no run'
+    : mismatch ? `<b class="warn">run ${new Date(ran).toLocaleTimeString()} does not match this branch</b>`
+    : red ? `<b class="warn">run ${new Date(ran).toLocaleTimeString()}: ${o.passed} of ${o.exercised} passed</b>`
+    : `run ${new Date(ran).toLocaleTimeString()} — ${o.passed} of ${o.exercised} passed`
+
+  const inEpics = assigned()
+  const loose = all.filter((f) => !inEpics.has(f.id)).map((f) => f.id)
+
+  document.getElementById('detail').innerHTML = detail()
+  document.getElementById('out').innerHTML = plan.epics.map((epic) => {
+    const features = epic.features.map(featureAt).filter(Boolean)
+    return `<section class="epic" data-epic="${escaped(epic.id)}">
+      <header draggable="true" data-epic-drag="${escaped(epic.id)}">
+        <h2 contenteditable data-title="${escaped(epic.id)}">${escaped(epic.title)}</h2>
+        <span class="count">${green(features)}/${scenarios(features)}</span>
+        <span class="bar">${bar(counts(features))}</span>
+        <span class="push"><button data-drop="${escaped(epic.id)}">remove</button></span>
+      </header>
+      ${epic.description ? `<p class="why">${epic.description}</p>` : ''}
+      <ul>${rows(epic.features, epic.id) || '<div class="row dim">Nothing picked yet.</div>'}</ul>
+    </section>`
+  }).join('') + (loose.length ? `<section class="epic orphans" data-epic="">
+      <header><h2>Not in any epic</h2>
+        <span class="count">${green(loose.map(featureAt))}/${scenarios(loose.map(featureAt))}</span>
+        <span class="bar">${bar(counts(loose.map(featureAt)))}</span></header>
+      <ul>${rows(loose, '')}</ul></section>` : '')
+}
+
+document.body.addEventListener('click', (event) => {
+  const row = event.target.closest('[data-id]')
+  if (!row || event.target.matches('select, option, button')) return
+  selected = row.dataset.id
+  render()
+})
+
+document.body.addEventListener('change', (event) => {
+  const path = event.target.dataset.assign
+  if (!path) return
+  for (const epic of plan.epics) epic.features = epic.features.filter((p) => p !== path)
+  const target = plan.epics.find((e) => e.id === event.target.value)
+  if (target) target.features.push(path)
+  render(); persist()
+})
+
+document.body.addEventListener('click', (event) => {
+  const id = event.target.dataset.drop
+  if (!id) return
+  plan.epics = plan.epics.filter((e) => e.id !== id)
+  render(); persist()
+})
+
+document.body.addEventListener('blur', (event) => {
+  const id = event.target.dataset?.title
+  if (!id) return
+  plan.epics.find((e) => e.id === id).title = event.target.textContent.trim()
+  persist()
+}, true)
+
+// Dropping a feature says two things at once — which epic it belongs to and where in that
+// epic's order it sits — which is why it beats a dropdown and a pair of arrows.
+let dragging = null
+let draggingEpic = null
+
+document.body.addEventListener('dragstart', (event) => {
+  const row = event.target.closest('[data-id]')
+  const head = event.target.closest('[data-epic-drag]')
+  dragging = row ? row.dataset.id : null
+  draggingEpic = row ? null : head?.dataset.epicDrag ?? null
+  if (!dragging && !draggingEpic) return
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/plain', dragging ?? draggingEpic)
+})
+
+document.body.addEventListener('dragend', () => {
+  dragging = draggingEpic = null
+  document.querySelectorAll('.over').forEach((e) => e.classList.remove('over'))
+})
+
+document.body.addEventListener('dragover', (event) => {
+  const section = event.target.closest?.('[data-epic]')
+  if ((!dragging && !draggingEpic) || !section) return
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'move'
+  document.querySelectorAll('.over').forEach((e) => e.classList.remove('over'))
+  ;(event.target.closest('[data-id]') ?? section).classList.add('over')
+})
+
+document.body.addEventListener('drop', (event) => {
+  const section = event.target.closest?.('[data-epic]')
+  if ((!dragging && !draggingEpic) || !section) return
+  event.preventDefault()
+
+  if (draggingEpic) {
+    const from = plan.epics.findIndex((e) => e.id === draggingEpic)
+    const to = plan.epics.findIndex((e) => e.id === section.dataset.epic)
+    if (from >= 0 && to >= 0 && from !== to) {
+      plan.epics.splice(to, 0, ...plan.epics.splice(from, 1))
+    }
+    draggingEpic = null
+    render(); persist()
+    return
+  }
+
+  const onto = event.target.closest('[data-id]')?.dataset.id
+  if (onto === dragging) return
+
+  for (const epic of plan.epics) epic.features = epic.features.filter((f) => f !== dragging)
+
+  const target = plan.epics.find((e) => e.id === section.dataset.epic)
+  if (target) {
+    const at = onto ? target.features.indexOf(onto) : -1
+    if (at >= 0) target.features.splice(at, 0, dragging)
+    else target.features.push(dragging)
+  }
+  dragging = null
+  render(); persist()
+})
+
+document.getElementById('add').addEventListener('click', () => {
+  const title = prompt('What does this epic prove or ship?')
+  if (!title) return
+  plan.epics.push({ id: crypto.randomUUID().slice(0, 8), title, description: '', features: [] })
+  render(); persist()
+})
+
+async function show(ref) {
+  const query = ref ? `?ref=${encodeURIComponent(ref)}` : ''
+  project = (await (await fetch('/api/projects' + query)).json())[0]
+  plan = project.plan
+
+  const picker = document.getElementById('ref')
+  picker.innerHTML = project.branches.map((b) =>
+    `<option value="${b}"${b === project.ref ? ' selected' : ''}>${b}${b === project.head ? ' (checked out)' : ''}</option>`).join('')
+  render()
+}
+
+document.getElementById('ref').addEventListener('change', (event) => show(event.target.value))
+await show()
+</script>
+

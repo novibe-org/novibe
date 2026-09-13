@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "name": "your-project",
+      "root": "../path/to/your/checkout",
+      "runs": [
+        "target/cucumber.ndjson"
+      ],
+      "source": "https://github.com/your-org/your-project/blob/main"
+    }
+  ]
+}
