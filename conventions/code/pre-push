@@ -1,24 +1,37 @@
 #!/bin/sh
-[ "${ALLOW_COMMENTS:-}" = "1" ] && exit 0
 [ "$(git symbolic-ref --short HEAD 2>/dev/null)" = "main" ] && exit 0
+base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
 
 # Hold added comments under a count and a share of the change, in the languages named.
-base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
-budget=${COMMENT_BUDGET:-3}
-share=${COMMENT_SHARE:-25}
-set -f
-set --
-for glob in ${COMMENT_GLOBS:-. :(exclude)*.md :(exclude)*.markdown :(exclude)*.rst :(exclude)*.txt}; do
-  set -- "$@" "$glob"
-done
-set +f
-comments=$(git diff "$base"..HEAD -- "$@" | grep -cE '^\+[[:space:]]*(//|/\*|\*|#)' || true)
-lines=$(git diff "$base"..HEAD -- "$@" | grep -E '^\+' | grep -vc '^+++' || true)
-[ "$lines" -gt 0 ] || lines=1
-if [ "$comments" -gt "$budget" ] && [ $((comments * 100 / lines)) -gt "$share" ]; then
-  echo "pre-push: $comments of $lines added lines are comments ($((comments * 100 / lines))%, over $share%)." >&2
-  git diff "$base"..HEAD -- "$@" | grep -E '^\+[[:space:]]*(//|/\*|\*|#)' | head -15 >&2
-  echo "pre-push: delete the ones that restate the code, or override: ALLOW_COMMENTS=1 git push" >&2
-  exit 1
+if [ "${ALLOW_COMMENTS:-}" != "1" ]; then
+  budget=${COMMENT_BUDGET:-3}
+  share=${COMMENT_SHARE:-25}
+  set -f
+  set --
+  for glob in ${COMMENT_GLOBS:-. :(exclude)*.md :(exclude)*.markdown :(exclude)*.rst :(exclude)*.txt}; do
+    set -- "$@" "$glob"
+  done
+  set +f
+  comments=$(git diff "$base"..HEAD -- "$@" | grep -cE '^\+[[:space:]]*(//|/\*|\*|#)' || true)
+  lines=$(git diff "$base"..HEAD -- "$@" | grep -E '^\+' | grep -vc '^+++' || true)
+  [ "$lines" -gt 0 ] || lines=1
+  if [ "$comments" -gt "$budget" ] && [ $((comments * 100 / lines)) -gt "$share" ]; then
+    echo "pre-push: $comments of $lines added lines are comments ($((comments * 100 / lines))%, over $share%)." >&2
+    git diff "$base"..HEAD -- "$@" | grep -E '^\+[[:space:]]*(//|/\*|\*|#)' | head -15 >&2
+    echo "pre-push: delete the ones that restate the code, or override: ALLOW_COMMENTS=1 git push" >&2
+    exit 1
+  fi
+fi
+
+# Refuse a non-ASCII character written as a \u escape in JSON: a parser reads it, a person does not.
+if [ "${ALLOW_ESCAPES:-}" != "1" ]; then
+  escaped=$(git diff "$base"..HEAD -- '*.json' | grep -E '^\+' | grep -v '^+++' \
+    | grep -E '\\u(00[a-fA-F][0-9a-fA-F]|0[1-9a-fA-F][0-9a-fA-F]{2}|[1-9a-fA-F][0-9a-fA-F]{3})' || true)
+  if [ -n "$escaped" ]; then
+    echo "pre-push: JSON writes these characters as \\u escapes; write the characters themselves." >&2
+    printf '%s\n' "$escaped" | head -15 >&2
+    echo "pre-push: fix it, or override: ALLOW_ESCAPES=1 git push" >&2
+    exit 1
+  fi
 fi
 exit 0

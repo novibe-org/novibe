@@ -22,8 +22,8 @@ the spec don't count. No runner yet? Setting it up is the first task.
 3. **Minimal implementation → green.**
 4. **Refactor** with the scenario green, and commit.
 5. **Repeat** until every scenario is green or tagged `@backlog`.
-6. **Push and mark the PR ready** (`gh pr ready`), its description tied to the scenarios it
-   satisfies.
+6. **Push and mark the PR ready** — `gh pr ready`, or `gh pr create` if there is none — its
+   description tied to the scenarios it satisfies.
 
 **The spec is read-only** — a scenario that is wrong or unimplementable goes back to the
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their

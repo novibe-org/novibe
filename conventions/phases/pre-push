@@ -4,17 +4,24 @@
 base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
 
 # A spec: commit touches only the spec, an arch: commit only the model and ADRs, any other neither.
+# A merge is held to the same rule for what its conflict resolution changed.
 features=${FEATURES_DIR:-features}
 model=${ARCHITECTURE_DIR:-docs/architecture}
 adrs=${ADRS_DIR:-docs/adrs}
 found=$(mktemp -t nvphase)
-git rev-list --no-merges "$base"..HEAD | while read -r sha; do
+git rev-list "$base"..HEAD | while read -r sha; do
   case "$(git log -1 --format=%s "$sha")" in
     spec:*|spec\(*) phase=spec ;;
     arch:*|arch\(*) phase=arch ;;
     *) phase=code ;;
   esac
-  git diff-tree --no-commit-id --name-only -r "$sha" | while IFS= read -r file; do
+  if [ "$(git rev-list --parents -n 1 "$sha" | wc -w)" -gt 2 ]; then
+    files=$(git show --remerge-diff --format= --name-only "$sha")
+  else
+    files=$(git diff-tree --no-commit-id --name-only -r "$sha")
+  fi
+  printf '%s\n' "$files" | while IFS= read -r file; do
+    [ -n "$file" ] || continue
     case "$file" in
       "$features"/*) kind=spec ;;
       "$model"/*|"$adrs"/*) kind=arch ;;

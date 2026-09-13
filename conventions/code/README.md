@@ -18,3 +18,10 @@ Narrow it if a generated or vendored tree is noisy: a guard that matches nothing
 and one you believe you have is worse than none.
 
 Override with `ALLOW_COMMENTS=1`, deliberately.
+
+**A JSON file writes its characters, not their escapes.** `"requirements-engineer \u2192
+architect"` parses the same as `"requirements-engineer → architect"`, but only one of them reads
+like what it says — and the escaped one arrives unnoticed from any tool that writes ASCII-only
+JSON. `pre-push` refuses an added line in a `.json` file with a non-ASCII character written as a
+`\u` escape; control-character escapes such as `\u0009` still pass. Override with
+`ALLOW_ESCAPES=1`.

@@ -55,7 +55,7 @@ never a technical layer. Epics are transient and live in the portal.
 **Every feature carries an `@id:`** — kebab-case, named for the behaviour, not its domain. The
 portal refers to features by id, so **an id never changes once pushed**.
 
-**No plan in the files** — no epic, priority or status tags, no `epic.md`. Tags follow
+**No plan in the files** — no epic or priority tags, no status tag but `@backlog`, no `epic.md`. Tags follow
 [`conventions/gherkin`](https://github.com/novibe-org/novibe/tree/main/conventions/gherkin).
 Picking up a `@backlog` feature or scenario means removing the tag here.
 
