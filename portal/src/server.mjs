@@ -111,6 +111,6 @@ createServer(async (request, response) => {
     response.end(page)
   } catch (failure) {
     console.error(failure)
-    json(response, 500, { error: String(failure?.message ?? failure) })
+    json(response, 500, { error: 'the portal failed; its log says why' })
   }
 }).listen(4173, '127.0.0.1', () => console.log('portal  http://localhost:4173'))
