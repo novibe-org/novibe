@@ -11,9 +11,9 @@ the diff of what changed since they last looked. Squashing is their call at merg
 
 - **A push to a branch whose pull request is already merged or closed.** Drivers merge fast and
   those commits are orphaned. Start again from the updated default branch.
-- **A branch that contains every commit of another whose pull request is open.** Its pull
-  request would review that work as well as its own, and landing it lands the other first.
-  Override with `ALLOW_STACKED=1`.
+- **A push carrying another open pull request's commits.** Usually it means the branch was cut
+  from that branch rather than from `main`. Its pull request then reviews work that is not its
+  own, and merging it merges the other one too. Override with `ALLOW_STACKED=1`.
 
 Squash merges are handled. Asking whether a branch's commits are ancestors of `main` calls
 every squash-merged branch unmerged for ever, because squashing puts the content in `main`

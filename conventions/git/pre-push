@@ -14,7 +14,7 @@ if command -v gh >/dev/null 2>&1; then
   esac
 fi
 
-# Refuse a branch that contains all of another whose pull request is still open.
+# Refuse a push carrying commits from another branch whose pull request is still open.
 if [ "${ALLOW_STACKED:-}" != "1" ] && command -v gh >/dev/null 2>&1; then
   for other in $(gh pr list --state open --json headRefName,isCrossRepository \
                  -q '.[] | select(.isCrossRepository == false) | .headRefName' 2>/dev/null \
