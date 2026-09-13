@@ -134,9 +134,9 @@
   <aside id="detail"></aside>
 </main>
 <script type="module">
-const C = { PASSED:'var(--pass)', FAILED:'var(--fail)', UNDEFINED:'var(--soft)',
+const C = { PASSED:'var(--pass)', FAILED:'var(--fail)', AMBIGUOUS:'var(--fail)', UNDEFINED:'var(--soft)', SKIPPED:'var(--idle)',
             PENDING:'var(--soft)', 'not-run':'var(--idle)', future:'var(--future)' }
-const SEV = ['FAILED','UNDEFINED','PENDING','not-run','PASSED','future']
+const SEV = ['FAILED','AMBIGUOUS','UNDEFINED','PENDING','SKIPPED','not-run','PASSED','future']
 
 let project, plan, timer, selected = null
 
@@ -167,8 +167,14 @@ async function persist() {
   clearTimeout(timer)
   document.getElementById('saving').textContent = 'saving…'
   timer = setTimeout(async () => {
-    await fetch(`/api/plan?project=${encodeURIComponent(project.name)}`,
-      { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(plan) })
+    try {
+      const response = await fetch(`/api/plan?project=${encodeURIComponent(project.name)}`,
+        { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(plan) })
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+    } catch (failure) {
+      document.getElementById('saving').textContent = `not saved — ${failure.message}`
+      return
+    }
     document.getElementById('saving').textContent = 'saved'
     setTimeout(() => (document.getElementById('saving').textContent = ''), 1200)
   }, 250)
@@ -177,16 +183,16 @@ async function persist() {
 function rows(ids, epicId) {
   return ids.map((id) => {
     const feature = featureAt(id)
-    if (!feature) return `<div class="row missing"><span class="fname">${id}</span>
+    if (!feature) return `<div class="row missing"><span class="fname">${escaped(id)}</span>
       <span class="dim">— nothing answers to this id any more</span></div>`
 
     const domain = feature.path.split('/').slice(1, -1).join('/')
 
     return `<div class="feature${id === selected ? ' picked' : ''}">
-      <div class="row" draggable="true" data-id="${id}">
+      <div class="row" draggable="true" data-id="${escaped(id)}">
         ${domain ? `<span class="fpath">${domain}</span>` : ''}
-        <span class="fname">${feature.identified ? feature.id
-          : feature.path.split('/').pop().replace(/\.feature$/, '')}</span>
+        <span class="fname">${escaped(feature.identified ? feature.id
+          : feature.path.split('/').pop().replace(/\.feature$/, ''))}</span>
         ${feature.identified ? '' : '<span class="unnamed" title="no @id: tag — referred to by path">no id</span>'}
         <span class="push">
           <span class="count">${feature.green}/${feature.total}</span>
@@ -198,6 +204,7 @@ function rows(ids, epicId) {
 
 const escaped = (text) => String(text)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
 /** A placeholder is the whole point of an outline, so it is shown as one. */
 const withPlaceholders = (text) =>
@@ -229,8 +236,8 @@ function detail() {
         <span class="bar" style="flex-basis:80px">${bar(counts([feature]), feature.green > 0)}</span></span>
     </div>
     <p class="sub">${escaped(feature.name)}</p>
-    <p class="tags">${feature.tags.map((t) => `<span class="tag">${t}</span>`).join('')}</p>
-    <p class="assign">Epic <select data-assign="${feature.id}">${options.join('')}</select>
+    <p class="tags">${feature.tags.map((t) => `<span class="tag">${escaped(t)}</span>`).join('')}</p>
+    <p class="assign">Epic <select data-assign="${escaped(feature.id)}">${options.join('')}</select>
       <span class="where">${link}</span></p>
     ${feature.description ? `<p class="narrative">${escaped(feature.description)}</p>` : ''}
     </div>
@@ -251,7 +258,7 @@ function scenario(s) {
       <span class="badge ${s.status}">${s.status === 'future' ? 'backlog' : s.status}</span>
       <span class="skeyword">${s.keyword}:</span>
       <span class="sname">${escaped(s.name)}</span>
-      ${own.length ? `<span class="push">${own.map((t) => `<span class="tag">${t}</span>`).join('')}</span>` : ''}
+      ${own.length ? `<span class="push">${own.map((t) => `<span class="tag">${escaped(t)}</span>`).join('')}</span>` : ''}
     </div>
     ${s.description ? `<p class="snarrative">${escaped(s.description)}</p>` : ''}
     <div class="steps">
@@ -287,12 +294,12 @@ function render() {
   document.getElementById('detail').innerHTML = detail()
   document.getElementById('out').innerHTML = plan.epics.map((epic) => {
     const features = epic.features.map(featureAt).filter(Boolean)
-    return `<section class="epic" data-epic="${epic.id}">
-      <header draggable="true" data-epic-drag="${epic.id}">
-        <h2 contenteditable data-title="${epic.id}">${epic.title}</h2>
+    return `<section class="epic" data-epic="${escaped(epic.id)}">
+      <header draggable="true" data-epic-drag="${escaped(epic.id)}">
+        <h2 contenteditable data-title="${escaped(epic.id)}">${escaped(epic.title)}</h2>
         <span class="count">${green(features)}/${scenarios(features)}</span>
         <span class="bar">${bar(counts(features))}</span>
-        <span class="push"><button data-drop="${epic.id}">remove</button></span>
+        <span class="push"><button data-drop="${escaped(epic.id)}">remove</button></span>
       </header>
       ${epic.description ? `<p class="why">${epic.description}</p>` : ''}
       <ul>${rows(epic.features, epic.id) || '<div class="row dim">Nothing picked yet.</div>'}</ul>

@@ -6,10 +6,10 @@ import { IdGenerator } from '@cucumber/messages'
  * to appear in the backlog before anyone has run it, and a run only ever reports the scenarios
  * its filter admitted.
  */
-function* scenariosIn(children) {
+function* scenariosIn(children, inherited = []) {
   for (const child of children ?? []) {
-    if (child.scenario) yield child.scenario
-    if (child.rule) yield* scenariosIn(child.rule.children)
+    if (child.scenario) yield [child.scenario, inherited]
+    if (child.rule) yield* scenariosIn(child.rule.children, [...inherited, ...tagsOf(child.rule)])
   }
 }
 
@@ -37,13 +37,13 @@ export async function specFrom(paths, read) {
         name: feature.name,
         description: (feature.description ?? '').trim(),
         tags: inherited,
-        scenarios: [...scenariosIn(feature.children)].map((scenario) => ({
+        scenarios: [...scenariosIn(feature.children)].map(([scenario, fromRule]) => ({
           name: scenario.name,
           keyword: scenario.keyword.trim(),
           line: scenario.location.line,
           description: (scenario.description ?? '').trim(),
-          tags: [...new Set([...inherited, ...tagsOf(scenario)])],
-          own: tagsOf(scenario),
+          tags: [...new Set([...inherited, ...fromRule, ...tagsOf(scenario)])],
+          own: [...fromRule, ...tagsOf(scenario)],
           steps: (scenario.steps ?? []).map((step) => ({
             keyword: step.keyword.trim(),
             text: step.text,

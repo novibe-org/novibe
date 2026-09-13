@@ -130,5 +130,5 @@ export async function scan(paths) {
     scenario.ranAt = Math.max(0, ...scenario.examples.map((e) => e.ranAt ?? 0)) || null
   }
 
-  return { runs: runs.map((r) => ({ path: r.path, ranAt: r.ranAt })), scenarios: all }
+  return { runs: runs.map((r) => ({ path: r.path, ranAt: r.ranAt })), scenarios: all, documents: written }
 }

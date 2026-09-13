@@ -112,4 +112,4 @@ createServer(async (request, response) => {
   } catch (failure) {
     json(response, 500, { error: String(failure?.stack ?? failure) })
   }
-}).listen(4173, () => console.log('portal  http://localhost:4173'))
+}).listen(4173, '127.0.0.1', () => console.log('portal  http://localhost:4173'))
