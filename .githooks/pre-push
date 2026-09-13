@@ -1,34 +1,7 @@
 #!/bin/sh
-# Two guards. Fail-open when offline / gh absent.
-# 1. Refuse to push to a branch whose PR is already merged or closed — pushed commits
-#    would be orphaned.
-# 2. Comment budget: more than $COMMENT_BUDGET added // lines in .ts across the outgoing
-#    diff must be consciously overridden (ALLOW_COMMENTS=1 git push) — near-zero comments
-#    is the convention, and agents drift.
-
-branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
-[ "$branch" = "main" ] && exit 0
-
-if command -v gh >/dev/null 2>&1; then
-  state=$(gh pr view "$branch" --json state -q .state 2>/dev/null)
-  case "$state" in
-    MERGED|CLOSED)
-      echo "pre-push: the PR for '$branch' is already $state — this push would orphan commits." >&2
-      echo "pre-push: branch off fresh main instead (git checkout main && git pull && git checkout -b <new>)." >&2
-      exit 1
-      ;;
-  esac
-fi
-
-if [ "${ALLOW_COMMENTS:-}" != "1" ]; then
-  base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
-  added=$(git diff "$base"..HEAD -- '*.ts' | grep -c '^+\s*//' || true)
-  budget=${COMMENT_BUDGET:-3}
-  if [ "$added" -gt "$budget" ]; then
-    echo "pre-push: $added added // comment lines in .ts (budget $budget). The convention is near-zero:" >&2
-    git diff "$base"..HEAD -- '*.ts' | grep '^+\s*//' | head -15 >&2
-    echo "pre-push: delete the restating ones, or override deliberately: ALLOW_COMMENTS=1 git push" >&2
-    exit 1
-  fi
-fi
+# What this repository runs. The guards themselves are in conventions/, and stand alone.
+here=$(cd "$(dirname "$0")/../conventions" && pwd)
+"$here/git/pre-push"     "$@" || exit 1
+"$here/code/pre-push"    "$@" || exit 1
+"$here/gherkin/pre-push" "$@" || exit 1
 exit 0

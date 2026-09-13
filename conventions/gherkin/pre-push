@@ -1,0 +1,20 @@
+#!/bin/sh
+[ "${ALLOW_LINT:-}" = "1" ] && exit 0
+[ -x node_modules/.bin/gherkin-lint-plus ] || exit 0
+[ -d "${FEATURES_DIR:-features}" ] || exit 0
+
+# Lint the specification, as feedback here and a gate in CI.
+found=$(mktemp -t nvlint)
+node_modules/.bin/gherkin-lint-plus -c conventions/gherkin/.gherkin-lintrc \
+  "${FEATURES_DIR:-features}" >"$found" 2>&1
+status=$?
+if [ "$status" -ne 0 ] || [ -s "$found" ]; then
+  [ -s "$found" ] || echo "pre-push: the linter failed to run (exit $status)." >&2
+  [ -s "$found" ] && echo "pre-push: the specification does not lint." >&2
+  cat "$found" >&2
+  rm -f "$found"
+  echo "pre-push: fix it, or override: ALLOW_LINT=1 git push" >&2
+  exit 1
+fi
+rm -f "$found"
+exit 0

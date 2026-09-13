@@ -1,0 +1,26 @@
+{
+  "required-feature-tags": ["on", { "tags": ["@id:.+"] }],
+  "no-dupe-feature-tags": ["on", { "tags": ["@id:.+"] }],
+  "no-comments": "on",
+
+  "allowed-tags": ["on", { "patterns": ["^@id:.+$", "^@backlog$", "^@long-running$"] }],
+  "no-duplicate-tags": "on",
+  "no-superfluous-tags": "on",
+  "no-homogenous-tags": "on",
+  "one-space-between-tags": "on",
+  "no-partially-commented-tag-lines": "on",
+
+  "no-dupe-feature-names": "on",
+  "no-dupe-scenario-names": "on",
+  "no-unnamed-features": "on",
+  "no-unnamed-scenarios": "on",
+  "no-empty-file": "on",
+  "no-files-without-scenarios": "on",
+  "no-scenario-outlines-without-examples": "on",
+  "no-examples-in-scenarios": "on",
+  "no-unused-variables": "on",
+  "use-and": "on",
+
+  "no-trailing-spaces": "on",
+  "no-multiple-empty-lines": "on"
+}

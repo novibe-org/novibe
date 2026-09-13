@@ -1,0 +1,33 @@
+#!/bin/sh
+branch=$(git symbolic-ref --short HEAD 2>/dev/null) || exit 0
+[ "$branch" = "main" ] && exit 0
+
+# Refuse a push to a branch whose pull request is already merged or closed.
+if [ "${ALLOW_ORPHANED:-}" != "1" ] && command -v gh >/dev/null 2>&1; then
+  state=$(gh pr view "$branch" --json state -q .state 2>/dev/null)
+  case "$state" in
+    MERGED|CLOSED)
+      echo "pre-push: the PR for '$branch' is already $state — this push would orphan commits." >&2
+      echo "pre-push: branch off fresh main instead, or override: ALLOW_ORPHANED=1 git push" >&2
+      exit 1
+      ;;
+  esac
+fi
+
+# Refuse a push carrying commits from another branch whose pull request is still open.
+if [ "${ALLOW_STACKED:-}" != "1" ] && command -v gh >/dev/null 2>&1; then
+  for other in $(gh pr list --state open --limit 200 --json headRefName,isCrossRepository \
+                 -q '.[] | select(.isCrossRepository == false) | .headRefName' 2>/dev/null \
+                 | grep -Fvx "main" | grep -Fvx "$branch"); do
+    other="origin/$other"
+    git rev-parse --verify --quiet "$other" >/dev/null || continue
+    if git merge-base --is-ancestor "$other" HEAD 2>/dev/null; then
+      echo "pre-push: '$branch' contains every commit of '$other', whose pull request is open." >&2
+      echo "pre-push: this branch's pull request would review that work as well as its own, and" >&2
+      echo "pre-push: landing this one lands it first." >&2
+      echo "pre-push: branch again from origin/main, or override: ALLOW_STACKED=1 git push" >&2
+      exit 1
+    fi
+  done
+fi
+exit 0
