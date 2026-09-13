@@ -16,7 +16,19 @@ If something is already tracked, `git rm --cached <path>` — the file stays on 
 
 ## If you add a gitleaks allowlist
 
-Anchor the patterns **and** set `regexTarget = "secret"`. Anchoring alone tests the regex
-against the rule's whole match, key name and separator included, so `^value$` matches nothing
-and the allowlist allows nothing — which looks like it worked, right up until the eight
-findings it was meant to permit come back.
+Anchor the patterns **and** set `regexTarget = "secret"`:
+
+```toml
+[[rules]]
+id = "generic-api-key"
+[rules.allowlist]
+regexTarget = "secret"
+regexes = ['''^the-exact-value-that-is-not-a-secret$''']
+```
+
+Anchoring alone tests the regex against the rule's whole match — key name and separator
+included — so `^value$` matches nothing and the allowlist allows nothing. That looks like it
+worked, right until the findings it was meant to permit all come back.
+
+Allow the value, not the rule and not the file. A muted rule stays muted over code nobody has
+written yet.
