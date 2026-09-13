@@ -17,18 +17,13 @@ description: Turn a rough idea into a Gherkin requirements spec for one small ve
    (who, what, why, and what this vertical slice holds versus what waits), then **its rules**
    (`Rule:`), then **the examples** (`Scenario`) that pin each rule down. Ask in
    [rounds](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling): every
-   question the file lets you ask yet, numbered, each with your recommendation; write each answer
-   into the file before the next round.
+   question the file lets you ask yet, each with your recommendation; write each answer into the
+   file before the next round.
 
-   ```
-   ❓ **Q1** - **<title>**: <the question, with its options>
-
-   ➡️ <your recommendation>
-
-   ---
-
-   ❓ **Q2** - …
-   ```
+   **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
+   calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
+   with nothing to choose between goes in plain text. No such tool in this session? Number the
+   questions and put your recommendation under each.
 
    **Facts are yours, decisions are the driver's** — look up what the code can tell you; ask
    everything someone could have decided differently. Catching yourself picking a default means
