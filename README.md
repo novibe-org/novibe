@@ -41,7 +41,7 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
 
 ```
-/plugin marketplace add novibe-org/nv-plugins
+/plugin marketplace add novibe-org/novibe
 /plugin install novibe
 ```
 

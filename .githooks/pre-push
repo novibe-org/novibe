@@ -1,9 +1,21 @@
 #!/bin/sh
 # Each guard in pre-push.d stands alone; this is the order this repository runs them in.
 here=$(cd "$(dirname "$0")/pre-push.d" && pwd)
-"$here/git.sh"     "$@" || exit 1
-"$here/code.sh"    "$@" || exit 1
-"$here/gherkin.sh" "$@" || exit 1
-"$here/likec4.sh"  "$@" || exit 1
-"$here/phases.sh"  "$@" || exit 1
+[ -t 0 ] || refs=$(cat)
+
+# The guards check HEAD, so what is pushed has to be HEAD, and only that.
+if [ "${ALLOW_OTHER_REFS:-}" != "1" ]; then
+  pushed=$(printf '%s\n' "${refs:-}" | awk 'NF == 4 && $1 != "(delete)"')
+  count=$(printf '%s\n' "$pushed" | grep -c . || true)
+  if [ "$count" -gt 1 ] || { [ "$count" -eq 1 ] && [ "$(printf '%s\n' "$pushed" | awk '{print $2}')" != "$(git rev-parse HEAD)" ]; }; then
+    echo "pre-push: push the branch you have checked out, and only that one — the guards check HEAD." >&2
+    printf '%s\n' "$pushed" | awk '{print "  " $1 " -> " $3}' >&2
+    echo "pre-push: check it out and push it, or override: ALLOW_OTHER_REFS=1 git push" >&2
+    exit 1
+  fi
+fi
+
+for guard in git code gherkin likec4 phases; do
+  printf '%s\n' "${refs:-}" | "$here/$guard.sh" "$@" || exit 1
+done
 exit 0
