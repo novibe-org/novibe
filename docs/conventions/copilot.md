@@ -10,5 +10,5 @@ ignores the model and the ADRs.
 
 Copy them into your repository — or add their lines to the ones you have:
 
-- [`copilot-instructions.md`](copilot-instructions.md) to `.github/copilot-instructions.md`
-- [`skills/`](skills/) to `.github/skills/` — `architecture-review` and `security-review`
+- [`.github/copilot-instructions.md`](../../.github/copilot-instructions.md)
+- [`.github/skills/`](../../.github/skills/) — `architecture-review` and `security-review`

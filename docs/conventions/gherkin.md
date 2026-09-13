@@ -33,7 +33,7 @@ from its git URL rather than npm:
 
 ```sh
 npm i -D github:StefanStuehrmann/gherkin-lint-plus
-npx gherkin-lint-plus -c conventions/gherkin/.gherkin-lintrc features
+npx gherkin-lint-plus -c .gherkin-lintrc features
 ```
 
 It carries `required-feature-tags`, `no-dupe-feature-tags` and `no-comments`, which the rest of

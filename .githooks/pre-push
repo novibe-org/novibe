@@ -1,9 +1,9 @@
 #!/bin/sh
-# What this repository runs. The guards themselves are in conventions/, and stand alone.
-here=$(cd "$(dirname "$0")/../conventions" && pwd)
-"$here/git/pre-push"     "$@" || exit 1
-"$here/code/pre-push"    "$@" || exit 1
-"$here/gherkin/pre-push" "$@" || exit 1
-"$here/likec4/pre-push"  "$@" || exit 1
-"$here/phases/pre-push"  "$@" || exit 1
+# Each guard in pre-push.d stands alone; this is the order this repository runs them in.
+here=$(cd "$(dirname "$0")/pre-push.d" && pwd)
+"$here/git.sh"     "$@" || exit 1
+"$here/code.sh"    "$@" || exit 1
+"$here/gherkin.sh" "$@" || exit 1
+"$here/likec4.sh"  "$@" || exit 1
+"$here/phases.sh"  "$@" || exit 1
 exit 0

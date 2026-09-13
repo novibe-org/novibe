@@ -29,7 +29,7 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 |---|---|
 | [**The plugin**](plugins/novibe/) | a guided flow for Claude Code, and the specialists it runs |
 | [**The portal**](portal/) | the specification, what the last run proved, and the plan — in one page |
-| [**Conventions**](conventions/) | the guard rails that keep an agentic workflow honest, checked by git hooks |
+| [**Conventions**](docs/conventions/) | the guard rails that keep an agentic workflow honest, checked by git hooks |
 
 ## 🧭 The plugin
 
@@ -81,13 +81,13 @@ itself; take the ones you want:
 
 | | Refuses |
 |---|---|
-| [`git/`](conventions/git/) | a push to a merged or closed pull request, and a branch stacked on another open one |
-| [`code/`](conventions/code/) | a diff that is mostly added comments |
-| [`security/`](conventions/security/) | a commit of a file whose path looks like a credential — the one guard without an override |
-| [`gherkin/`](conventions/gherkin/) | a feature file without an `@id:`, with an unknown tag, with comments, or naming a click, a button or an endpoint |
-| [`likec4/`](conventions/likec4/) | an architecture model that does not validate |
-| [`phases/`](conventions/phases/) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
-| [`copilot/`](conventions/copilot/) | — instructions that keep agent merge off the spec and the design, and review skills that flag code contradicting the architecture or creating a security problem |
+| [git](docs/conventions/git.md) | a push to a merged or closed pull request, and a branch stacked on another open one |
+| [code](docs/conventions/code.md) | a diff that is mostly added comments |
+| [security](docs/conventions/security.md) | a commit of a file whose path looks like a credential — the one guard without an override |
+| [gherkin](docs/conventions/gherkin.md) | a feature file without an `@id:`, with an unknown tag, with comments, or naming a click, a button or an endpoint |
+| [likec4](docs/conventions/likec4.md) | an architecture model that does not validate |
+| [phases](docs/conventions/phases.md) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
+| [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design, and review skills that flag code contradicting the architecture or creating a security problem |
 
 Claude sessions turn the hooks on themselves, locally and on the web, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
@@ -96,7 +96,17 @@ Claude sessions turn the hooks on themselves, locally and on the web, through
 git config core.hooksPath .githooks
 ```
 
-[`conventions/README.md`](conventions/README.md) says how to adopt them in another repository.
+This repository is set up the way a NoVibe project should be, so adopting means copying from where
+each file already lives:
+
+| Copy | For |
+|---|---|
+| [`.githooks/`](.githooks/) | the entry hooks, and the guards in `pre-push.d/` and `pre-commit.d/` |
+| [`.gherkin-lintrc`](.gherkin-lintrc) | the feature-file lint |
+| [`.claude/settings.json`](.claude/settings.json) | the hook that turns the guards on, and the plugin |
+| [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`.github/skills/`](.github/skills/) | Copilot's instructions and review skills |
+
+[`docs/conventions/`](docs/conventions/) says what each rule is for.
 
 <div align="center">
 

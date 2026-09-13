@@ -56,7 +56,7 @@ never a technical layer. Epics are transient and live in the portal.
 portal refers to features by id, so **an id never changes once pushed**.
 
 **No plan in the files** — no epic or priority tags, no status tag but `@backlog`, no `epic.md`. Tags follow
-[`conventions/gherkin`](https://github.com/novibe-org/novibe/tree/main/conventions/gherkin).
+[`.gherkin-lintrc`](https://github.com/novibe-org/novibe/blob/main/.gherkin-lintrc).
 Picking up a `@backlog` feature or scenario means removing the tag here.
 
 ## Done when
