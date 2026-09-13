@@ -8,7 +8,7 @@ git cat-file -e "HEAD:$features" 2>/dev/null || exit 0
 tree=$(mktemp -d -t nvlint)
 found=$(mktemp -t nvlint)
 git archive HEAD "$features" | tar -x -C "$tree"
-node_modules/.bin/gherkin-lint-plus -c conventions/gherkin/.gherkin-lintrc \
+node_modules/.bin/gherkin-lint-plus -c .gherkin-lintrc \
   "$tree/$features" >"$found" 2>&1
 status=$?
 if [ "$status" -ne 0 ] || [ -s "$found" ]; then

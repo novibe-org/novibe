@@ -28,7 +28,7 @@ ones need GitHub's security products:
 
 What a scanner cannot see — a new entry point without an authorization check, input used before
 the boundary validates it, one tenant's data reachable by another — is for review:
-[`copilot/skills/security-review`](../copilot/skills/security-review/).
+[`.github/skills/security-review`](../../.github/skills/security-review/).
 
 ## If you add a gitleaks allowlist
 
