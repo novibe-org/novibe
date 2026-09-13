@@ -6,3 +6,5 @@
 - A review comment that asks for different behaviour or a different design is not a fix: reply
   that it reopens the spec or the design, and leave the pull request unmerged.
 - Push new commits. Never force-push or rewrite the pull request's history.
+- When reviewing, apply the `architecture-review` and `security-review` skills in
+  `.github/skills/`.

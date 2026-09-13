@@ -34,8 +34,8 @@ description: Turn a Gherkin spec into a C4 architecture model for one slice — 
    repo structure: plain [MADR](https://adr.github.io/madr/), kept short, next number in
    `docs/adrs/`. Default to none. What a scenario already says is not an ADR decision; an ADR
    carries only the why beyond one feature.
-4. **Push** — once no question is open and the driver agrees: commit to the slice's branch and
-   push.
+4. **Push** — once no question is open and the driver agrees: commit as `arch: …` to the slice's
+   branch and push.
 
 ## Rules for the model
 

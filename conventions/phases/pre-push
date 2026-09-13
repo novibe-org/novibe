@@ -1,0 +1,35 @@
+#!/bin/sh
+[ "${ALLOW_PHASE:-}" = "1" ] && exit 0
+[ "$(git symbolic-ref --short HEAD 2>/dev/null)" = "main" ] && exit 0
+base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
+
+# A spec: commit touches only the spec, an arch: commit only the model and ADRs, any other neither.
+features=${FEATURES_DIR:-features}
+model=${ARCHITECTURE_DIR:-docs/architecture}
+adrs=${ADRS_DIR:-docs/adrs}
+found=$(mktemp -t nvphase)
+git rev-list --no-merges "$base"..HEAD | while read -r sha; do
+  case "$(git log -1 --format=%s "$sha")" in
+    spec:*|spec\(*) phase=spec ;;
+    arch:*|arch\(*) phase=arch ;;
+    *) phase=code ;;
+  esac
+  git diff-tree --no-commit-id --name-only -r "$sha" | while IFS= read -r file; do
+    case "$file" in
+      "$features"/*) kind=spec ;;
+      "$model"/*|"$adrs"/*) kind=arch ;;
+      *) kind=code ;;
+    esac
+    [ "$kind" = "$phase" ] || echo "  $(git log -1 --format='%h %s' "$sha")  ->  $file" >>"$found"
+  done
+done
+if [ -s "$found" ]; then
+  echo "pre-push: these commits touch files outside their phase:" >&2
+  cat "$found" >&2
+  rm -f "$found"
+  echo "pre-push: spec: for $features, arch: for $model and $adrs, any other commit for the rest." >&2
+  echo "pre-push: split the commit, or override: ALLOW_PHASE=1 git push" >&2
+  exit 1
+fi
+rm -f "$found"
+exit 0

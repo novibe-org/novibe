@@ -33,8 +33,9 @@ description: Turn a rough idea into a Gherkin requirements spec for one small ve
    **Facts are yours, decisions are the driver's** — look up what the code can tell you; ask
    everything someone could have decided differently. Catching yourself picking a default means
    you skipped a question. How to build it is the architect's question, not yours.
-3. **Push and open a draft PR** — once no question is open and the driver agrees: commit on the
-   session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
+3. **Push and open a draft PR** — once no question is open, re-read the file against the rules
+   below and raise what you find as one last round. When the driver agrees: commit as `spec: …` on
+   the session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
    developer step proves the slice. Give the driver the feature's id to pick into an epic.
 
 ## Rules for the spec
