@@ -12,15 +12,14 @@ directory stands alone, and the guards inside it run on their own.
 
 ## Adopting
 
-Copy the guard you want into your own hook, or point git at the directory and let it run all
-of them:
+Point an assistant at this directory — *"set up the git and gherkin conventions from
+novibe-org/novibe in this repository"*. Each topic says what it asks for and ships the guard
+that enforces it, which is enough to wire it the way that project already runs hooks: husky,
+lefthook, a framework, or plain `core.hooksPath`.
 
-```sh
-git config core.hooksPath conventions/githooks
-```
-
-`githooks/pre-push` and `githooks/pre-commit` name the guards this repository runs. Drop a line
-to drop a topic.
+By hand it is the same thing. Every guard is a standalone script that exits non-zero when it
+refuses, so call the ones you want from your own `pre-push` or `pre-commit`. This repository
+does exactly that, in [`.githooks/`](../.githooks).
 
 These are the files this repository uses, not copies of them — so a guard that stops working
 stops working here first. Every guard is overridable, because one you cannot override is one

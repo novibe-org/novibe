@@ -1,8 +1,0 @@
-#!/bin/sh
-# What this repository runs. Each guard is standalone: copy the ones you want, or name them
-# here. The first failure stops the push.
-here=$(cd "$(dirname "$0")" && pwd)
-"$here/git/pre-push"     "$@" || exit 1
-"$here/code/pre-push"    "$@" || exit 1
-"$here/gherkin/pre-push" "$@" || exit 1
-exit 0
