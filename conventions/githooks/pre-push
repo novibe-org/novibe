@@ -54,8 +54,7 @@ fi
 # Lint the specification, as feedback here and a gate in CI.
 if [ "${ALLOW_LINT:-}" != "1" ] && [ -x node_modules/.bin/gherkin-lint-plus ] && [ -d features ]; then
   found=$(mktemp -t nvlint)
-  node_modules/.bin/gherkin-lint-plus -c conventions/.gherkin-lintrc \
-    -r conventions/gherkin-rules features >"$found" 2>&1 || true
+  node_modules/.bin/gherkin-lint-plus -c conventions/.gherkin-lintrc features >"$found" 2>&1 || true
   if [ -s "$found" ]; then
     echo "pre-push: the specification does not lint." >&2
     cat "$found" >&2

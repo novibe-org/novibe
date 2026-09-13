@@ -8,14 +8,13 @@ first.
 |---|---|
 | `githooks/pre-push` | four guards, all overridable, all fail-open when `gh` is absent |
 | `.gherkin-lintrc` | what a feature file must carry, and the tag vocabulary |
-| `gherkin-rules/` | three rules the linter does not ship yet — see below |
 
 ## Adopting them
 
 ```sh
 git config core.hooksPath conventions/githooks
-npm i -D gherkin-lint-plus
-npx gherkin-lint-plus -c conventions/.gherkin-lintrc -r conventions/gherkin-rules features
+npm i -D github:StefanStuehrmann/gherkin-lint-plus
+npx gherkin-lint-plus -c conventions/.gherkin-lintrc features
 ```
 
 Copy the two config files if you would rather keep them at your project root; the hook reads
@@ -38,11 +37,13 @@ them by path, so keep the paths together.
 Each is overridable — `ALLOW_STACKED=1`, `ALLOW_COMMENTS=1`, `ALLOW_LINT=1` — because a guard
 you cannot override is a guard people delete.
 
-## The three rules
+## Which linter
 
-`required-feature-tags`, `no-dupe-feature-tags` and `no-comments` are not in `gherkin-lint-plus`
-yet; they are carried here so the config works today. They are proposed upstream, and when that
-lands this directory goes and the config names them like any other rule.
+[`StefanStuehrmann/gherkin-lint-plus`](https://github.com/StefanStuehrmann/gherkin-lint-plus),
+installed from the git URL above rather than from npm. It carries three rules the published
+package does not have — `required-feature-tags`, `no-dupe-feature-tags` and `no-comments` —
+which the rest of the flow depends on: `@id:` is how a plan refers to a feature across renames,
+and a feature file with comments is one whose narrative is missing.
 
-They exist because the rest of the flow depends on them: `@id:` is how a plan refers to a
-feature across renames, and a feature file with comments is one whose narrative is missing.
+They were offered upstream and the pull request is still open months later, so the fork is the
+recommendation until that changes.
