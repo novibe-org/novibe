@@ -5,7 +5,7 @@ description: Turn a Gherkin spec into a C4 architecture model for one slice — 
 
 # Architect
 
-**In:** the Gherkin spec at `features/<epic>/<feature>.feature`.
+**In:** the Gherkin spec at `features/<domain>/<feature>.feature`.
 **Out:** a **C4 model** at `docs/architecture/` (LikeC4) — plus, only when a crucial
 cross-cutting decision was actually made, one terse ADR in `docs/adrs/`. Model and ADR together
 are what the developer step is handed.
@@ -38,7 +38,7 @@ why we use **LikeC4**: it separates model and view, and emits Mermaid that rende
 3. **Agree, regenerate, commit** — iterate on the `.c4` with the driver; when you both agree it's
    settled, regenerate diagrams (`likec4 export markdown` for a browsable per-project README if
    your `likec4` has it — check `likec4 export --help`, it may still be pending release — else
-   `pnpm gen:diagrams`), commit the model to the `feat/<slug>` branch **and push** — the branch
+   `pnpm gen:diagrams`), commit the model to the slice's branch **and push** — the branch
    carries the slice's draft PR, and the step isn't closed until it's on the remote. Never
    hand-edit a generated file.
 4. **ADR only if warranted** — a crucial cross-cutting decision (integration pattern,

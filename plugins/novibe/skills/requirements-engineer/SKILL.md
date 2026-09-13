@@ -6,48 +6,58 @@ description: Turn a rough idea into a Gherkin requirements spec for one small ve
 # Requirements Engineer
 
 **In:** a rough idea.
-**Out:** a **Gherkin** spec at `features/<epic>/<feature>.feature`.
+**Out:** a **Gherkin** spec at `features/<domain>/<feature>.feature`.
 
-**Build the right thing** — what gets built is what's actually needed, before anyone builds it
-*right*. **Requirements come from the user — elicit them, don't invent them.** Work top-down,
-just-in-time; never specify the whole world.
+**Requirements come from the driver — elicit them, don't invent them.**
 
-1. **Get the epic** — the higher-level *why*: read `features/<epic>/epic.md` if it
-   exists, else sketch it *good enough* with the user.
-2. **Pick one feature** — a small **vertical slice** that advances the epic; detail only this.
-3. **Write the scenarios** — business outcomes, not mechanism (*"refused as unauthenticated"*, not
-   *"returns 401"*); `As a … I want … so that …`; a `Scenario` per case; `Scenario Outline` +
-   `Examples` when data varies. The spec executes verbatim through a BDD runner, so keep steps
-   declarative yet concrete enough to bind.
+1. **Find where it lives** — read `features/` first. If a feature already covers this behaviour,
+   the slice extends that file.
+2. **Grill it into the feature file** — in the order the file is built, as in
+   [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/): **the feature**
+   (who, what, why, and what this vertical slice holds versus what waits), then **its rules**
+   (`Rule:`), then **the examples** (`Scenario`) that pin each rule down. Ask in
+   [rounds](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling): every
+   question the file lets you ask yet, numbered, each with your recommendation; write each answer
+   into the file before the next round.
 
-   **One scenario per choice — and one for every choice.** A scenario earns its place when someone
-   could have decided it differently: that search reaches every page, that a category is a place
-   rather than a filter. Anything that follows *necessarily* from a scenario already written is
-   not a second scenario, it is the same decision restated — cut it, or the spec reads as ceremony
-   and the driver stops reading it. The rule runs the other way too, and that half is easier to
-   miss: **if something a user will notice has no scenario, that is a missing requirement, not a
-   detail to settle in code.** Both failures look like judgement in the moment; together they make
-   the spec's size arbitrary, which is worse than either.
+   ```
+   ❓ **Q1** - **<title>**: <the question, with its options>
 
-   **Scale the asking to the change, not only the writing.** A single control usually contains one
-   choice, and a scenario or two settles it — interviewing the driver about it is ceremony. A
-   change that redraws how something is found or used contains several, most of which the driver
-   has a view on and you cannot infer: ask them, one at a time, *before* writing the spec. The
-   tell is noticing yourself pick a default — that is a question you skipped, and it will surface
-   later as something built that nobody chose.
-4. **Open the feature branch and its draft PR** — create `feat/<slug>`, commit the spec, push,
-   and open a **draft PR** (`gh pr create --draft`) titled for the slice. The draft is the slice's
-   container from minute one: the spec is a reviewable diff immediately, later steps push the same
-   branch, and the PR stays draft until the developer step proves the slice.
+   ➡️ <your recommendation>
 
-**Layout** — specs live in `features/` at the **repo root**, next to `src/` — not under `docs/`.
-They are executable source, not prose; the BDD runners of every ecosystem look there by convention.
-One feature = one `.feature` in the epic's folder (`features/<epic>/`); the **filename is a
-kebab-case slug** — the feature's stable handle. Features belong to the epic **by folder** (no
-cross-refs); `epic.md` holds the *why*.
+   ---
 
-**No internal planning docs** — the spec is the sharable, living artifact, not a `.claude/plan`.
+   ❓ **Q2** - …
+   ```
+
+   **Facts are yours, decisions are the driver's** — look up what the code can tell you; ask
+   everything someone could have decided differently. Catching yourself picking a default means
+   you skipped a question. How to build it is the architect's question, not yours.
+3. **Push and open a draft PR** — once no question is open and the driver agrees: commit on the
+   session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
+   developer step proves the slice. Give the driver the feature's id to pick into an epic.
+
+## Rules for the spec
+
+**Outcomes, never solutions** — what someone can do and what they get, never how: no screens,
+clicks, endpoints, status codes, tables or technologies (*"refused as unauthenticated"*, not
+*"returns 401"*). A solution here is a design decided before the architect saw it. Ideas arrive as
+solutions — ask what they are for. The exception is a mechanism the driver needs for itself (the
+CSV a partner imports).
+
+**One scenario per decision, and one for every decision** — a scenario that follows necessarily
+from another is ceremony; something a user will notice with no scenario is a missing requirement.
+
+**Folders are feature domains** — what the system does, in the driver's language; never an epic,
+never a technical layer. Epics are transient and live in the portal.
+
+**Every feature carries an `@id:`** — kebab-case, named for the behaviour, not its domain. The
+portal refers to features by id, so **an id never changes once pushed**.
+
+**No plan in the files** — no epic, priority or status tags, no `epic.md`. Tags follow
+[`conventions/gherkin`](https://github.com/novibe-org/novibe/tree/main/conventions/gherkin).
+Picking up a `@backlog` feature or scenario means removing the tag here.
 
 ## Done when
 
-The driver agrees the Gherkin scenarios capture the intended behaviour for one small vertical slice.
+No question is open, and the driver agrees the spec captures the slice.

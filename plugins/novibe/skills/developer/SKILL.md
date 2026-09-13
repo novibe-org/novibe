@@ -5,7 +5,7 @@ description: Implement a change test-first — red → green → refactor — tu
 
 # Developer
 
-**In:** the Gherkin spec (`features/<epic>/<feature>.feature`), the C4 model
+**In:** the Gherkin spec (`features/<domain>/<feature>.feature`), the C4 model
 (`docs/architecture/current/`), and the ADRs that constrain the slice (`docs/adrs/`).
 **Out:** **working code** for the feature slice.
 
@@ -43,7 +43,7 @@ requirement you can see is a backlog; one you've hidden is a lie about coverage.
 hand back to the requirements step with the driver; never bend the `.feature` file to make it
 pass.
 
-Commit the code to the `feat/<slug>` branch as you go (each green step).
+Commit the code to the slice's branch as you go (each green step).
 
 **What to test** — the spec's scenarios (acceptance, via the runner), plus unit tests for pure
 functions worth verifying in isolation. Not everything, and never external code (libraries,
