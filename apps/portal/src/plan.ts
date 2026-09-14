@@ -28,7 +28,6 @@ export const ChangeSchema = z.discriminatedUnion("change", [
   z.object({
     change: z.literal("take out"),
     feature: z.string(),
-    epic: z.number().int(),
   }),
 ]);
 
