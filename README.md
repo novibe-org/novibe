@@ -66,6 +66,9 @@ Skip NoVibe for trivial edits.
 
 ## 🗺️ The portal
 
+**Mostly for big projects and planning in advance** — a small project can pick its next slice
+without it.
+
 Features live in the repository by domain; **epics don't** — which feature goes into which epic,
 and in what order, is a decision people keep changing, so it lives in the portal instead. The
 portal reads the feature files straight out of a branch, shows what the last test run proved for
