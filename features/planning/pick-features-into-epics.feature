@@ -9,10 +9,16 @@ Feature: Picking features into epics
     When I start the epic "Refunds"
     Then I see "Checkout", then "Refunds" holding no features yet
 
-  Scenario: An epic needs a title
+  Scenario Outline: An epic needs a title of its own
     Given the epic "Checkout"
-    When I start an epic without a title
+    When I start an epic titled "<title>"
     Then I still see only the epic "Checkout"
+
+    Examples:
+      | title    |
+      |          |
+      | Checkout |
+      | checkout |
 
   Scenario: A picked feature goes to the end of the epic
     Given the epic "Checkout" holds "Paying with a saved card"
