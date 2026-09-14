@@ -28,7 +28,7 @@ the same place.
 
 ## Consequences
 
-- A running `wrangler dev` and a test run share wrangler's local state and can lock each other.
+- A test run keeps its plan in memory, apart from the plan `wrangler dev` keeps on disk.
 - Hosting needs its own D1 database with the migrations applied.
 
 Shapes the views `portal`, `readFeatures`, `changePlan` and `local`.
