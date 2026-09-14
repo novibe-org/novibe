@@ -122,6 +122,7 @@ export async function changed(
       .where(eq(picks.repository, repository))
       .orderBy(asc(picks.position), asc(picks.id));
     const epic = picked.find(({ feature }) => feature === change.feature)?.epic;
+    if (epic === undefined) return { refused: "that feature is not in any epic", status: 404 };
     const order = moved(
       picked.filter((pick) => pick.epic === epic).map(({ feature }) => feature),
       change.feature,
