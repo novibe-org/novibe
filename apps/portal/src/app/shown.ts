@@ -1,7 +1,18 @@
 import type { Feature, Part } from "../feature";
 
-export const keyOf = (feature: Feature) =>
-  feature.broken ? feature.path : (feature.id ?? feature.path);
+export function duplicateIdsIn(features: Feature[]): Set<string> {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+  for (const feature of features) {
+    if (feature.broken || !feature.id) continue;
+    if (seen.has(feature.id)) duplicates.add(feature.id);
+    seen.add(feature.id);
+  }
+  return duplicates;
+}
+
+export const keyOf = (feature: Feature, duplicates: ReadonlySet<string>) =>
+  feature.broken || !feature.id || duplicates.has(feature.id) ? feature.path : feature.id;
 
 export const cx = (...names: (string | false | undefined)[]) => names.filter(Boolean).join(" ");
 

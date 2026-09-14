@@ -19,7 +19,7 @@ function byDomain(features: Feature[]): [string, Feature[]][] {
   return [...domains];
 }
 
-function Listed({ feature }: { feature: Feature }) {
+function Listed({ feature, duplicates }: { feature: Feature; duplicates: ReadonlySet<string> }) {
   if (feature.broken) {
     return (
       <div className={classes.row}>
@@ -42,7 +42,10 @@ function Listed({ feature }: { feature: Feature }) {
           <span className={cx(classes.pill, classes.soft)}>no id</span>
         </>
       )}
-      <Link to={`/?feature=${encodeURIComponent(keyOf(feature))}`} className={classes.title}>
+      <Link
+        to={`/?feature=${encodeURIComponent(keyOf(feature, duplicates))}`}
+        className={classes.title}
+      >
         {feature.title}
       </Link>
       <span className={classes.push}>
@@ -53,7 +56,15 @@ function Listed({ feature }: { feature: Feature }) {
   );
 }
 
-export function FeatureList({ features, picked }: { features: Feature[]; picked?: string }) {
+export function FeatureList({
+  features,
+  duplicates,
+  picked,
+}: {
+  features: Feature[];
+  duplicates: ReadonlySet<string>;
+  picked?: string;
+}) {
   return (
     <>
       {byDomain(features).map(([domain, listed]) => (
@@ -68,9 +79,12 @@ export function FeatureList({ features, picked }: { features: Feature[]; picked?
             {listed.map((feature) => (
               <li
                 key={feature.path}
-                className={cx(classes.feature, keyOf(feature) === picked && classes.picked)}
+                className={cx(
+                  classes.feature,
+                  keyOf(feature, duplicates) === picked && classes.picked,
+                )}
               >
-                <Listed feature={feature} />
+                <Listed feature={feature} duplicates={duplicates} />
               </li>
             ))}
           </ul>

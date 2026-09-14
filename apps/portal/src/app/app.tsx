@@ -5,7 +5,7 @@ import classes from "./app.module.css";
 import { Link } from "./link";
 import { FeatureList } from "./list";
 import { AsWritten } from "./reading";
-import { counted, keyOf, scenariosIn } from "./shown";
+import { counted, duplicateIdsIn, keyOf, scenariosIn } from "./shown";
 
 const NARROW = "(max-width: 900px)";
 
@@ -61,11 +61,12 @@ export function App() {
   const pane = useRef<HTMLElement>(null);
   const read = answer === "failed" ? undefined : answer;
   const listed = read?.features ?? [];
+  const duplicates = duplicateIdsIn(listed);
   const reader = listed.find(
-    (feature): feature is Readable => !feature.broken && keyOf(feature) === reading,
+    (feature): feature is Readable => !feature.broken && keyOf(feature, duplicates) === reading,
   );
 
-  const readerKey = reader && keyOf(reader);
+  const readerKey = reader && keyOf(reader, duplicates);
   useEffect(() => {
     if (!readerKey) return;
     pane.current?.scrollTo({ top: 0 });
@@ -87,7 +88,7 @@ export function App() {
         {listed.length > 0 && (
           <>
             <div className={classes.column}>
-              <FeatureList features={listed} picked={reader && keyOf(reader)} />
+              <FeatureList features={listed} duplicates={duplicates} picked={readerKey} />
             </div>
             <aside ref={pane} className={classes.detail}>
               {reader ? (
