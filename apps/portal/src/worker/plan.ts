@@ -10,12 +10,14 @@ export async function planOf(database: D1Database, repository: string): Promise<
     db.select().from(epics).where(eq(epics.repository, repository)).orderBy(asc(epics.id)),
     db.select().from(picks).where(eq(picks.repository, repository)).orderBy(asc(picks.id)),
   ]);
+  const byEpic = new Map<number, string[]>();
+  for (const { epic, feature } of picked) {
+    const features = byEpic.get(epic);
+    if (features) features.push(feature);
+    else byEpic.set(epic, [feature]);
+  }
   return {
-    epics: started.map(({ id, title }) => ({
-      id,
-      title,
-      features: picked.filter((pick) => pick.epic === id).map(({ feature }) => feature),
-    })),
+    epics: started.map(({ id, title }) => ({ id, title, features: byEpic.get(id) ?? [] })),
   };
 }
 
