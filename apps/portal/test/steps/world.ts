@@ -84,6 +84,7 @@ BeforeAll(async () => {
       vars: {
         GITHUB_API_URL: `http://127.0.0.1:${port}`,
         REPOSITORY,
+        REF: "main",
         GITHUB_TOKEN: TOKEN,
       },
     }),

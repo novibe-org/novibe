@@ -64,7 +64,7 @@ export const BrokenSchema = z.object({ ...located, broken: z.literal(true) });
 
 export const FeatureSchema = z.discriminatedUnion("broken", [ReadableSchema, BrokenSchema]);
 
-export const FeaturesSchema = z.object({ features: z.array(FeatureSchema) });
+export const FeaturesSchema = z.object({ ref: z.string(), features: z.array(FeatureSchema) });
 
 export type Row = z.infer<typeof RowSchema>;
 export type Step = z.infer<typeof StepSchema>;

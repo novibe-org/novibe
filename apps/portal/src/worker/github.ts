@@ -22,7 +22,7 @@ async function fromGitHub(env: Env, route: string, accept: string): Promise<Resp
 export async function featureFilesOnMain(env: Env) {
   const listing = await fromGitHub(
     env,
-    "git/trees/main?recursive=1",
+    `git/trees/${encodeURIComponent(env.REF)}?recursive=1`,
     "application/vnd.github+json",
   );
   const { tree } = TreeSchema.parse(await listing.json());

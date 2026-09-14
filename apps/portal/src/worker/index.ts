@@ -11,6 +11,7 @@ export default {
     try {
       const files = await featureFilesOnMain(env);
       return Response.json({
+        ref: env.REF,
         features: files.map(({ path, text }) => parsed(path, text)),
       } satisfies Features);
     } catch (failure) {

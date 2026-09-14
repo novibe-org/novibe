@@ -21,17 +21,17 @@ function useReading(): string | undefined {
   return path;
 }
 
-function useFeatures(): Feature[] | "failed" | undefined {
-  const [features, setFeatures] = useState<Feature[] | "failed">();
+function useFeatures(): Features | "failed" | undefined {
+  const [answer, setAnswer] = useState<Features | "failed">();
   useEffect(() => {
     fetch("/api/features")
       .then(async (response) => {
         if (!response.ok) throw new Error(`features answered ${response.status}`);
-        setFeatures(((await response.json()) as Features).features);
+        setAnswer((await response.json()) as Features);
       })
-      .catch(() => setFeatures("failed"));
+      .catch(() => setAnswer("failed"));
   }, []);
-  return features;
+  return answer;
 }
 
 function totalsOf(features: Feature[]): string {
@@ -56,11 +56,12 @@ function Notice({ children }: { children: ReactNode }) {
 }
 
 export function App() {
-  const features = useFeatures();
+  const answer = useFeatures();
   const reading = useReading();
   const pane = useRef<HTMLElement>(null);
-  const listed = Array.isArray(features) ? features : [];
-  const read = listed.find(
+  const read = answer === "failed" ? undefined : answer;
+  const listed = read?.features ?? [];
+  const reader = listed.find(
     (feature): feature is Readable => !feature.broken && feature.path === reading,
   );
 
@@ -76,22 +77,20 @@ export function App() {
         <Title order={1} className={classes.brand}>
           <Link to="/">portal</Link>
         </Title>
-        <span className={classes.tag}>main</span>
+        {read && <span className={classes.tag}>{read.ref}</span>}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
       </header>
       <main className={classes.layout}>
-        {features === "failed" && <Notice>The portal could not read main.</Notice>}
-        {Array.isArray(features) && features.length === 0 && (
-          <Notice>Main has no features yet.</Notice>
-        )}
+        {answer === "failed" && <Notice>The portal could not read main.</Notice>}
+        {read && listed.length === 0 && <Notice>Main has no features yet.</Notice>}
         {listed.length > 0 && (
           <>
             <div className={classes.column}>
-              <FeatureList features={listed} picked={read?.path} />
+              <FeatureList features={listed} picked={reader?.path} />
             </div>
             <aside ref={pane} className={classes.detail}>
-              {read ? (
-                <AsWritten feature={read} />
+              {reader ? (
+                <AsWritten feature={reader} />
               ) : (
                 <p className={classes.empty}>Pick a feature to read it.</p>
               )}
