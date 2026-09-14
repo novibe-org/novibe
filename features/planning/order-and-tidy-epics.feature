@@ -24,6 +24,11 @@ Feature: Ordering and tidying epics
     When I move "Paying with a saved card" to the end of "Checkout"
     Then I see "Checkout" holding "Paying by invoice", then "Paying with a saved card"
 
+  Scenario: A feature put into another epic before a feature there takes that place
+    Given the epic "Checkout" holds "Paying with a saved card", and the epic "Refunds" holds "Refunding a payment"
+    When I put "Refunding a payment" into "Checkout" before "Paying with a saved card"
+    Then I see "Checkout" holding "Refunding a payment", then "Paying with a saved card", and "Refunds" holding no features
+
   Scenario: A renamed epic keeps its place and its features
     Given the epics "Checkout" and "Refunds", and "Checkout" holds "Paying with a saved card"
     When I rename "Checkout" to "Saved cards"

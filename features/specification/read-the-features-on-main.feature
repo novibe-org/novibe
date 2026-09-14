@@ -12,7 +12,7 @@ Feature: Reading the features on main
   Scenario: Features are listed by domain, then by title, both alphabetically
     Given main holds "Refunding a payment" in "payments", "Earning points" in "rewards" and "Paying with a saved card" in "payments"
     When I open the portal
-    Then I see "payments" with "Paying with a saved card" then "Refunding a payment", then "rewards" with "Earning points"
+    Then I see one list: "Paying with a saved card" in "payments", "Refunding a payment" in "payments", then "Earning points" in "rewards"
 
   Scenario: Reading a feature shows it as written
     Given main holds the feature "Paying with a saved card" with a narrative, a rule and two scenarios

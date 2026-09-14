@@ -40,11 +40,11 @@ Feature: Picking features into epics
     When I pick "Paying with a saved card" into "Refunds" and take it out again before that is saved
     Then I see "Paying with a saved card" as not in any epic
 
-  Scenario: Features in no epic show after the epics, as before
+  Scenario: Features in no epic show in one list after the epics, each with its domain
     Given the epic "Checkout" holds "Paying with a saved card"
-    And main also holds "Refunding a payment" in "payments" and "Earning points" in "rewards"
+    And main also holds "Earning points" in "rewards" and "Refunding a payment" in "payments"
     When I open the portal
-    Then after "Checkout" I see "payments" with "Refunding a payment", then "rewards" with "Earning points", as not in any epic
+    Then after "Checkout" I see not in any epic "Refunding a payment" in "payments", then "Earning points" in "rewards"
 
   Scenario: Only a feature with an id can be picked into an epic
     Given the epic "Checkout" and the feature "Refunding a payment" without an id
