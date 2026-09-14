@@ -59,3 +59,8 @@ Feature: Reading the features on main
       Given the feature "Paying with a saved card" holds the scenario "Paying in two currencies" tagged "@backlog"
       When I read "Paying with a saved card"
       Then I see "Paying in two currencies" marked as backlog
+
+    Scenario: A scenario in a feature tagged backlog reads as backlog
+      Given main holds the feature "Earning points" tagged "@backlog" with the scenario "Earning points on a purchase"
+      When I read "Earning points"
+      Then I see "Earning points on a purchase" marked as backlog
