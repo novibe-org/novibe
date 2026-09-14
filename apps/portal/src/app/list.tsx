@@ -12,7 +12,9 @@ function byDomain(features: Feature[]): [string, Feature[]][] {
   );
   const domains = new Map<string, Feature[]>();
   for (const feature of sorted) {
-    domains.set(feature.domain, [...(domains.get(feature.domain) ?? []), feature]);
+    const listed = domains.get(feature.domain);
+    if (listed) listed.push(feature);
+    else domains.set(feature.domain, [feature]);
   }
   return [...domains];
 }
