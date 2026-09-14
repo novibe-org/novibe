@@ -104,11 +104,12 @@ When("I start the epic {string}", async function (this: PortalWorld, title: stri
   await page.getByRole("button", { name: "Start epic" }).click();
 });
 
-When("I start an epic without a title", async function (this: PortalWorld) {
+When("I start an epic titled {string}", async function (this: PortalWorld, title: string) {
   await this.open();
   const page = this.page();
+  await page.getByRole("textbox", { name: "Epic title" }).fill(title);
   await page.getByRole("button", { name: "Start epic" }).click();
-  await page.getByRole("alert").waitFor();
+  await page.getByRole("alert").waitFor({ timeout: 5_000 });
 });
 
 When("I pick {string} into {string}", async function (this: PortalWorld, title, epic) {

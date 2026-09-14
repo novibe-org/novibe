@@ -28,13 +28,25 @@ export function goneFrom(plan: Plan, features: Feature[]): string[] {
   return plan.epics.flatMap((epic) => epic.features).filter((id) => !onMain.has(id));
 }
 
+export type Refusal = Refused & { status: 404 | 409 };
+
+const NO_SUCH_EPIC: Refusal = { refused: "there is no such epic", status: 404 };
+const TITLE_TAKEN: Refusal = { refused: "an epic needs a title of its own", status: 409 };
+
+const sameTitle = (one: string, other: string) => one.toLowerCase() === other.toLowerCase();
+
 export async function changed(
   database: D1Database,
   repository: string,
   change: Change,
-): Promise<Plan | Refused> {
+): Promise<Plan | Refusal> {
   const db = drizzle(database);
   if (change.change === "start") {
+    const started = await db
+      .select({ title: epics.title })
+      .from(epics)
+      .where(eq(epics.repository, repository));
+    if (started.some(({ title }) => sameTitle(title, change.title))) return TITLE_TAKEN;
     await db.insert(epics).values({ repository, title: change.title });
     return planOf(database, repository);
   }
@@ -48,7 +60,7 @@ export async function changed(
     .from(epics)
     .where(and(eq(epics.id, change.epic), eq(epics.repository, repository)))
     .get();
-  if (!epic) return { refused: "there is no such epic" };
+  if (!epic) return NO_SUCH_EPIC;
   await db.batch([
     db.delete(picks).where(inAnyEpic),
     db.insert(picks).values({ repository, feature: change.feature, epic: epic.id }),
