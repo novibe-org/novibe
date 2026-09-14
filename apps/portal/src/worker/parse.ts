@@ -90,7 +90,7 @@ export function parsed(path: string, text: string): Feature {
       domain,
       broken: false,
       title: feature.name,
-      id: tags.find((tag) => tag.startsWith(ID_TAG))?.slice(ID_TAG.length),
+      id: tags.find((tag) => tag.startsWith(ID_TAG))?.slice(ID_TAG.length) || undefined,
       tags,
       backlog: tags.includes(BACKLOG_TAG),
       narrative: asWritten(feature.description),

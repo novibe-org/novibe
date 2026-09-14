@@ -12,7 +12,9 @@ export function duplicateIdsIn(features: Feature[]): Set<string> {
 }
 
 export const keyOf = (feature: Feature, duplicates: ReadonlySet<string>) =>
-  feature.broken || !feature.id || duplicates.has(feature.id) ? feature.path : feature.id;
+  feature.broken || !feature.id || duplicates.has(feature.id)
+    ? `path:${feature.path}`
+    : `id:${feature.id}`;
 
 export const cx = (...names: (string | false | undefined)[]) => names.filter(Boolean).join(" ");
 
