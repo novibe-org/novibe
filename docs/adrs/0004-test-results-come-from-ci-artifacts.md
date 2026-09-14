@@ -15,20 +15,25 @@ serves it.
   scenario's place in the feature files.
 - **The Worker reads main's latest finished run** through GitHub's Actions API with the same
   read-only token, which then also needs Actions: read. A run still in progress is skipped.
-- **Read on every open, like the features.** The portal keeps no copy of the features or the
-  results, so nothing it shows can drift from what GitHub holds.
+- **Only what cannot change is cached.** Main's file list and main's latest finished run are asked
+  of GitHub on every open. A feature file, fetched by its content hash, and a results artifact,
+  fetched by its id, never change, so their responses go through Cloudflare's Cache API. The
+  portal only reads, so nothing it shows can drift from what GitHub holds.
 
 ## Alternatives
 
-- Keeping features per commit and results per run in D1: a faster open, but a second copy of what
-  GitHub holds, which can drift.
+- Keeping features per commit and results per run in D1: a second copy the portal would have to
+  keep in step with GitHub, which can drift.
+- No cache at all: nothing kept, but every open downloads every feature file and the artifact.
 - CI committing the results to a branch: simpler to read, but CI would need write access and the
   repository would collect bot commits.
 - The Cucumber JSON report: simpler, but it represents outlines and rules less faithfully.
 
 ## Consequences
 
-- Each open also downloads the latest results artifact, so opening stays slow.
+- A new commit's changed files and a new run's artifact are downloaded once; after that, an open
+  only asks GitHub what is latest.
+- Cached responses were fetched with the token, which is fine while the portal runs only locally.
 - Results exist only for runs made after CI starts uploading them, and only while GitHub keeps
   the artifact.
 

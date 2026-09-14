@@ -1,7 +1,7 @@
 model {
   extend novibe.portal {
     worker = container 'Portal Worker' {
-      technology 'Cloudflare Worker · Cucumber Gherkin parser · Cucumber Messages · zod · Drizzle ORM'
+      technology 'Cloudflare Worker · Cache API · Cucumber Gherkin parser · Cucumber Messages · zod · Drizzle ORM'
       description 'Serves the app, turns the feature files on main into features with what the tests proved, and keeps the plan.'
     }
     app = container 'Portal app' {
