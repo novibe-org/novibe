@@ -14,9 +14,10 @@ the same place.
   reads, and the same plan shows whichever ref is previewed. Under `wrangler dev` it persists on
   the driver's machine.
 - **Drizzle from the start.** Drizzle defines the tables, their types and the migrations.
-- **One change per call.** The app sends a single change — start an epic, pick a feature, take it
-  out — and the Worker applies it in one transaction and holds the rules: an epic needs a title,
-  and a feature with an id is in at most one epic.
+- **One change per call.** The app sends a single change, and the Worker holds the plan's rules:
+  it checks the plan, then writes the change in one batch. With one driver changing the plan
+  locally, nothing interleaves between the check and the write; hosting the plan for several
+  people would revisit that.
 - **The Worker joins the plan with the features**, marking a feature no longer on main as gone;
   the app only shows the answer.
 
