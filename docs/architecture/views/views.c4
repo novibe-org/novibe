@@ -21,10 +21,11 @@ views {
   dynamic view readFeatures {
     title 'Runtime: the driver reads the features on main'
     driver -> novibe.portal.app 'opens the portal'
-    novibe.portal.app -> novibe.portal.worker 'every feature, with the plan'
+    novibe.portal.app -> novibe.portal.worker 'every feature, with its results and the plan'
     novibe.portal.worker -> github 'the feature files on main'
+    novibe.portal.worker -> github 'main\'s latest finished test run, with its results'
     novibe.portal.worker -> novibe.portal.plan 'this repository\'s epics'
-    novibe.portal.worker -> novibe.portal.app 'each feature parsed · the epics, a feature gone from main marked'
+    novibe.portal.worker -> novibe.portal.app 'each feature parsed, with its results · the epics, a feature gone from main marked'
     novibe.portal.app -> driver 'the epics with their features, then the rest by domain · or: none yet'
     driver -> novibe.portal.app 'reads one'
     novibe.portal.app -> driver 'the feature as written'
