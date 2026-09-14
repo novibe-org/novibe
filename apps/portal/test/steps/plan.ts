@@ -1,5 +1,5 @@
 import { expect } from "expect";
-import type { Page } from "playwright";
+import type { Locator, Page } from "playwright";
 import type { PortalWorld } from "./world";
 import { featureFile, slug } from "./written";
 
@@ -23,6 +23,30 @@ export const featuresIn = (page: Page, epic: string) =>
   epicOn(page, epic)
     .getByRole("listitem")
     .evaluateAll((items) => items.map((item) => item.querySelector("a")?.textContent));
+
+export const headOf = (page: Page, epic: string) =>
+  epicOn(page, epic).getByRole("heading", { name: epic, exact: true });
+
+export const rowOf = (page: Page, epic: string, feature: string) =>
+  epicOn(page, epic).getByRole("listitem").filter({ hasText: feature });
+
+export const listedIn = (group: Locator) =>
+  group
+    .getByRole("listitem")
+    .evaluateAll((items) =>
+      items.map((item) => [
+        item.querySelector("a")?.textContent,
+        item.querySelector("span")?.textContent,
+      ]),
+    );
+
+export async function dragOnto(source: Locator, target: Locator, half: "upper" | "lower") {
+  await target.waitFor();
+  const box = await target.boundingBox();
+  if (!box) throw new Error("there is nothing to drop onto");
+  const y = half === "upper" ? box.height / 4 : (box.height * 3) / 4;
+  await source.dragTo(target, { targetPosition: { x: box.width / 2, y } });
+}
 
 export function mainHolds(
   world: PortalWorld,

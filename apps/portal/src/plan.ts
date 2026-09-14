@@ -26,6 +26,7 @@ export const ChangeSchema = z.discriminatedUnion("change", [
     change: z.literal("pick"),
     feature: z.string().min(1, "only a feature with an id can be picked"),
     epic: z.number().int(),
+    before: z.string().optional(),
   }),
   z.object({
     change: z.literal("take out"),

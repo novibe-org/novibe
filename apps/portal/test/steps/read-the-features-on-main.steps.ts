@@ -120,36 +120,38 @@ When("I read {string}", async function (this: PortalWorld, title: string) {
 Then(
   "I see {string} listed with {string} and {string}",
   async function (this: PortalWorld, title: string, id: string, domain: string) {
-    const listed = this.page()
-      .getByRole("region", { name: domain })
-      .getByRole("listitem")
-      .filter({ hasText: title });
+    const listed = this.page().getByRole("listitem").filter({ hasText: title });
     await listed.getByText(id, { exact: true }).waitFor();
+    await listed.getByText(domain, { exact: true }).waitFor();
   },
 );
 
 Then(
-  "I see {string} with {string} then {string}, then {string} with {string}",
+  "I see one list: {string} in {string}, {string} in {string}, then {string} in {string}",
   async function (
     this: PortalWorld,
-    firstDomain: string,
     first: string,
+    firstDomain: string,
     second: string,
-    lastDomain: string,
+    secondDomain: string,
     last: string,
+    lastDomain: string,
   ) {
-    await this.page().getByRole("region", { name: lastDomain }).waitFor();
-    const seen = await this.page()
-      .getByRole("region")
-      .evaluateAll((regions) =>
-        regions.map((region) => [
-          region.getAttribute("aria-label"),
-          ...Array.from(region.querySelectorAll("li a"), (link) => link.textContent),
+    const list = this.page().getByRole("group", { name: "not in any epic", exact: true });
+    await list.getByRole("listitem").filter({ hasText: last }).waitFor();
+    expect(await list.getByRole("list").count()).toBe(1);
+    const seen = await list
+      .getByRole("listitem")
+      .evaluateAll((items) =>
+        items.map((item) => [
+          item.querySelector("a")?.textContent,
+          item.querySelector("span")?.textContent,
         ]),
       );
     expect(seen).toEqual([
-      [firstDomain, first, second],
-      [lastDomain, last],
+      [first, firstDomain],
+      [second, secondDomain],
+      [last, lastDomain],
     ]);
   },
 );

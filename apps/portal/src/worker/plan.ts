@@ -1,4 +1,4 @@
-import { and, asc, eq, max } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import type { Feature } from "../feature";
 import type { Change, Plan, Refused } from "../plan";
@@ -143,21 +143,30 @@ export async function changed(
     await db.delete(picks).where(inAnyEpic);
     return planOf(database, repository);
   }
-  const [epic, last] = await db.batch([
+  const [epic, held] = await db.batch([
     db
       .select({ id: epics.id })
       .from(epics)
       .where(and(eq(epics.id, change.epic), ofRepository)),
     db
-      .select({ position: max(picks.position) })
+      .select({ feature: picks.feature })
       .from(picks)
-      .where(and(eq(picks.repository, repository), eq(picks.epic, change.epic))),
+      .where(and(eq(picks.repository, repository), eq(picks.epic, change.epic)))
+      .orderBy(asc(picks.position), asc(picks.id)),
   ]);
-  if (!epic[0]) return NO_SUCH_EPIC;
-  const position = (last[0]?.position ?? -1) + 1;
-  await db.batch([
-    db.delete(picks).where(inAnyEpic),
-    db.insert(picks).values({ repository, feature: change.feature, epic: epic[0].id, position }),
-  ]);
+  const into = epic[0]?.id;
+  if (into === undefined) return NO_SUCH_EPIC;
+  const others = held.map(({ feature }) => feature).filter((feature) => feature !== change.feature);
+  const order = moved([...others, change.feature], change.feature, change.before);
+  if (!order) return { refused: "it goes only before a feature of that epic", status: 404 };
+  const placed = order.map((feature, position) =>
+    feature === change.feature
+      ? db.insert(picks).values({ repository, feature, epic: into, position })
+      : db
+          .update(picks)
+          .set({ position })
+          .where(and(eq(picks.repository, repository), eq(picks.feature, feature))),
+  );
+  await db.batch([db.delete(picks).where(inAnyEpic), ...placed]);
   return planOf(database, repository);
 }

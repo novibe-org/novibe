@@ -1,94 +1,13 @@
 import { Button, Group, Menu, Modal, NativeSelect, Text, TextInput, Title } from "@mantine/core";
-import { type DragEvent, type FormEvent, useRef, useState } from "react";
+import { type FormEvent, useState } from "react";
 import type { Feature, Readable } from "../feature";
 import type { Change, Epic } from "../plan";
 import classes from "./app.module.css";
+import type { Over } from "./dragging";
 import { Rows } from "./list";
-import { counted, cx, droppedBefore } from "./shown";
+import { counted, cx } from "./shown";
 
 export type Changing = (change: Change) => Promise<boolean>;
-
-type Dragged = { epic: number; feature?: string };
-
-type Over = { moving: "epic" | "feature"; epic: number; feature?: string; after: boolean };
-
-const elementOf = (event: DragEvent) =>
-  event.target instanceof Element ? event.target : undefined;
-
-const pastMiddle = (event: DragEvent, element: Element) => {
-  const box = element.getBoundingClientRect();
-  return event.clientY > box.top + box.height / 2;
-};
-
-function useDragging(epics: Epic[], change: Changing) {
-  const dragged = useRef<Dragged>(undefined);
-  const [over, setOver] = useState<Over>();
-
-  const overAt = (event: DragEvent): Over | undefined => {
-    const from = dragged.current;
-    const section = elementOf(event)?.closest<HTMLElement>("[data-epic]");
-    if (!from || !section) return undefined;
-    const epic = Number(section.dataset.epic);
-    if (from.feature === undefined) {
-      return { moving: "epic", epic, after: pastMiddle(event, section) };
-    }
-    if (epic !== from.epic) return undefined;
-    const row = elementOf(event)?.closest<HTMLElement>("[data-feature]");
-    if (!row) return { moving: "feature", epic, after: true };
-    return { moving: "feature", epic, feature: row.dataset.feature, after: pastMiddle(event, row) };
-  };
-
-  const onDragStart = (event: DragEvent) => {
-    const element = elementOf(event);
-    const section = element?.closest<HTMLElement>("[data-epic]");
-    const row = element?.closest<HTMLElement>("[data-feature]");
-    const head = element?.closest("[data-epic-drag]");
-    dragged.current = undefined;
-    if (!section || !(row || head)) return;
-    dragged.current = { epic: Number(section.dataset.epic), feature: row?.dataset.feature };
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", row?.dataset.feature ?? String(section.dataset.epic));
-  };
-
-  const onDragOver = (event: DragEvent) => {
-    const place = overAt(event);
-    if (!place) {
-      setOver(undefined);
-      return;
-    }
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-    setOver((now) =>
-      now?.epic === place.epic && now.feature === place.feature && now.after === place.after
-        ? now
-        : place,
-    );
-  };
-
-  const onDragEnd = () => {
-    dragged.current = undefined;
-    setOver(undefined);
-  };
-
-  const onDrop = (event: DragEvent) => {
-    const place = overAt(event);
-    const from = dragged.current;
-    onDragEnd();
-    if (!place || !from) return;
-    event.preventDefault();
-    if (from.feature === undefined) {
-      const epicOrder = epics.map(({ id }) => id);
-      const move = droppedBefore(epicOrder, from.epic, place.epic, place.after);
-      if (move) void change({ change: "move epic", epic: from.epic, ...move });
-      return;
-    }
-    const featureOrder = epics.find(({ id }) => id === from.epic)?.features ?? [];
-    const move = droppedBefore(featureOrder, from.feature, place.feature, place.after);
-    if (move) void change({ change: "move feature", feature: from.feature, ...move });
-  };
-
-  return { over, dragging: { onDragStart, onDragOver, onDrop, onDragEnd } };
-}
 
 function Gone({ id }: { id: string }) {
   return (
@@ -284,7 +203,6 @@ function EpicPanel({
                 features={byId.get(id) ?? []}
                 duplicates={duplicates}
                 picked={picked}
-                draggable
                 drop={dropOn(id)}
               />
             ),
@@ -302,6 +220,7 @@ export function Epics({
   duplicates,
   picked,
   refused,
+  over,
   change,
 }: {
   epics: Epic[];
@@ -310,10 +229,10 @@ export function Epics({
   duplicates: ReadonlySet<string>;
   picked?: string;
   refused?: string;
+  over?: Over;
   change: Changing;
 }) {
   const [title, setTitle] = useState("");
-  const { over, dragging } = useDragging(epics, change);
   const byId = new Map<string, Readable[]>();
   for (const feature of features) {
     if (!feature.broken && feature.id) {
@@ -325,7 +244,7 @@ export function Epics({
     if (await change({ change: "start", title })) setTitle("");
   };
   return (
-    <fieldset aria-label="epics" className={classes.group} {...dragging}>
+    <fieldset aria-label="epics" className={classes.group}>
       <form className={classes.start} onSubmit={start}>
         <TextInput
           aria-label="Epic title"

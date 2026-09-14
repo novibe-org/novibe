@@ -1,14 +1,16 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
-import type { Locator } from "playwright";
 import {
+  dragOnto,
   epicHolding,
   epicOn,
   epicsOn,
   epicTitlesOn,
   eventually,
   featuresIn,
+  headOf,
   mainHolds,
+  rowOf,
   seeNotInAnyEpic,
 } from "./plan";
 import type { PortalWorld } from "./world";
@@ -21,19 +23,8 @@ async function fromTheMenuOf(world: PortalWorld, epic: string, action: string) {
   await page.getByRole("menuitem", { name: action, exact: true }).click();
 }
 
-async function dragOnto(source: Locator, target: Locator, half: "upper" | "lower") {
-  await target.waitFor();
-  const box = await target.boundingBox();
-  if (!box) throw new Error("there is nothing to drop onto");
-  const y = half === "upper" ? box.height / 4 : (box.height * 3) / 4;
-  await source.dragTo(target, { targetPosition: { x: box.width / 2, y } });
-}
-
-const headOf = (world: PortalWorld, epic: string) =>
-  epicOn(world.page(), epic).getByRole("heading", { name: epic, exact: true });
-
-const rowOf = (world: PortalWorld, epic: string, feature: string) =>
-  epicOn(world.page(), epic).getByRole("listitem").filter({ hasText: feature });
+const holderOf = (world: PortalWorld, feature: string) =>
+  world.plan?.epics.find(({ features }) => features.includes(slug(feature)))?.title ?? "";
 
 async function epicHoldingInOrder(world: PortalWorld, epic: string, titles: string[]) {
   for (const title of titles) mainHolds(world, title);
@@ -61,28 +52,47 @@ Given(
   },
 );
 
+Given(
+  "the epic {string} holds {string}, and the epic {string} holds {string}",
+  async function (this: PortalWorld, first: string, held: string, second: string, other) {
+    await epicHoldingInOrder(this, first, [held]);
+    await epicHoldingInOrder(this, second, [other]);
+  },
+);
+
 When("I move {string} before {string}", async function (this: PortalWorld, moving, before) {
   await this.open();
+  const page = this.page();
   if (this.plan?.epics.some(({ title }) => title === moving)) {
-    await dragOnto(headOf(this, moving), epicOn(this.page(), before), "upper");
+    await dragOnto(headOf(page, moving), epicOn(page, before), "upper");
     return;
   }
-  const holder = this.plan?.epics.find(({ features }) => features.includes(slug(moving)));
-  const epic = holder?.title ?? "";
-  await dragOnto(rowOf(this, epic, moving), rowOf(this, epic, before), "upper");
+  const epic = holderOf(this, moving);
+  await dragOnto(rowOf(page, epic, moving), rowOf(page, epic, before), "upper");
 });
 
 When("I move {string} to the end", async function (this: PortalWorld, moving: string) {
   await this.open();
-  const last = epicsOn(this.page()).getByRole("region").last();
-  await dragOnto(headOf(this, moving), last, "lower");
+  const page = this.page();
+  await dragOnto(headOf(page, moving), epicsOn(page).getByRole("region").last(), "lower");
 });
 
 When(
   "I move {string} to the end of {string}",
   async function (this: PortalWorld, moving: string, epic: string) {
     await this.open();
-    await dragOnto(rowOf(this, epic, moving), headOf(this, epic), "lower");
+    const page = this.page();
+    await dragOnto(rowOf(page, epic, moving), headOf(page, epic), "lower");
+  },
+);
+
+When(
+  "I put {string} into {string} before {string}",
+  async function (this: PortalWorld, feature: string, epic: string, before: string) {
+    await this.open();
+    const page = this.page();
+    const from = rowOf(page, holderOf(this, feature), feature);
+    await dragOnto(from, rowOf(page, epic, before), "upper");
   },
 );
 
@@ -100,6 +110,17 @@ Then(
   async function (this: PortalWorld, epic: string, first: string, second: string, third) {
     await eventually(async () => {
       expect(await featuresIn(this.page(), epic)).toEqual([first, second, third]);
+    });
+  },
+);
+
+Then(
+  "I see {string} holding {string}, then {string}, and {string} holding no features",
+  async function (this: PortalWorld, epic: string, first: string, second: string, other) {
+    const page = this.page();
+    await eventually(async () => {
+      expect(await featuresIn(page, epic)).toEqual([first, second]);
+      expect(await featuresIn(page, other)).toEqual([]);
     });
   },
 );

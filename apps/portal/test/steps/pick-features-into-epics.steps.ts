@@ -1,19 +1,31 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import {
+  dragOnto,
   epicHolding,
   epicOn,
   epicSelectOn,
   epicsOn,
+  epicTitlesOn,
   eventually,
   featuresIn,
+  headOf,
+  listedIn,
   mainHolds,
   notInAnyEpicOn,
   reading,
+  rowOf,
   seeNotInAnyEpic,
 } from "./plan";
 import type { PortalWorld } from "./world";
 import { slug } from "./written";
+
+function listedRowOf(world: PortalWorld, title: string) {
+  const page = world.page();
+  const holder = world.plan?.epics.find(({ features }) => features.includes(slug(title)));
+  if (holder) return rowOf(page, holder.title, title);
+  return notInAnyEpicOn(page).getByRole("listitem").filter({ hasText: title });
+}
 
 Given("the epic {string}", async function (this: PortalWorld, title: string) {
   await this.change({ change: "start", title });
@@ -86,8 +98,9 @@ When("I start an epic titled {string}", async function (this: PortalWorld, title
 });
 
 When("I pick {string} into {string}", async function (this: PortalWorld, title, epic) {
-  await reading(this, title);
-  await epicSelectOn(this.page()).selectOption({ label: epic });
+  if (!this.holdsTitled(title)) mainHolds(this, title);
+  await this.open();
+  await dragOnto(listedRowOf(this, title), headOf(this.page(), epic), "lower");
 });
 
 When("I try to pick {string} into {string}", async function (this: PortalWorld, title, epic) {
@@ -128,10 +141,9 @@ When(
 );
 
 When("I take {string} out of {string}", async function (this: PortalWorld, title, epic) {
-  await reading(this, title);
-  const select = epicSelectOn(this.page());
-  expect(await select.locator("option:checked").textContent()).toBe(epic);
-  await select.selectOption({ label: "not in any epic" });
+  await this.open();
+  const page = this.page();
+  await dragOnto(rowOf(page, epic, title), notInAnyEpicOn(page), "upper");
 });
 
 When("I open the portal again later", async function (this: PortalWorld) {
@@ -161,10 +173,7 @@ Then(
 );
 
 Then("I still see only the epic {string}", async function (this: PortalWorld, title: string) {
-  const seen = await epicsOn(this.page())
-    .getByRole("region")
-    .evaluateAll((regions) => regions.map((region) => region.getAttribute("aria-label")));
-  expect(seen).toEqual([title]);
+  expect(await epicTitlesOn(this.page())).toEqual([title]);
 });
 
 Then(
@@ -196,30 +205,29 @@ Then("I see {string} still as not in any epic", async function (this: PortalWorl
 });
 
 Then(
-  "after {string} I see {string} with {string}, then {string} with {string}, as not in any epic",
+  "after {string} I see not in any epic {string} in {string}, then {string} in {string}",
   async function (
     this: PortalWorld,
     epic: string,
-    firstDomain: string,
     first: string,
-    lastDomain: string,
+    firstDomain: string,
     last: string,
+    lastDomain: string,
   ) {
     const page = this.page();
-    await notInAnyEpicOn(page).getByRole("region", { name: lastDomain, exact: true }).waitFor();
-    const seen = await page.getByRole("region").evaluateAll((regions) =>
-      regions.map((region) => ({
-        group: region.closest("fieldset")?.getAttribute("aria-label"),
-        name: region.getAttribute("aria-label"),
-        features: Array.from(region.querySelectorAll("li a"), (link) => link.textContent),
-      })),
-    );
-    expect(seen.map(({ group, name }) => [group, name])).toEqual([
-      ["epics", epic],
-      ["not in any epic", firstDomain],
-      ["not in any epic", lastDomain],
+    const list = notInAnyEpicOn(page);
+    await list.getByRole("listitem").filter({ hasText: last }).waitFor();
+    expect(await epicTitlesOn(page)).toEqual([epic]);
+    const afterTheEpics = await list.evaluate((group) => {
+      const epics = group.ownerDocument.querySelector('fieldset[aria-label="epics"]');
+      return epics?.compareDocumentPosition(group) === Node.DOCUMENT_POSITION_FOLLOWING;
+    });
+    expect(afterTheEpics).toBe(true);
+    expect(await list.getByRole("list").count()).toBe(1);
+    expect(await listedIn(list)).toEqual([
+      [first, firstDomain],
+      [last, lastDomain],
     ]);
-    expect(seen.slice(1).map(({ features }) => features)).toEqual([[first], [last]]);
   },
 );
 
