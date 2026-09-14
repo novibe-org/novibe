@@ -1,0 +1,13 @@
+deployment {
+  zone machine 'The driver\'s machine' {
+    node dev 'wrangler dev' {
+      worker = instanceOf novibe.portal.worker
+    }
+    node browser 'Browser' {
+      app = instanceOf novibe.portal.app
+    }
+  }
+  zone githubCom 'GitHub' {
+    repository = instanceOf github
+  }
+}

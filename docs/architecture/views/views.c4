@@ -1,0 +1,38 @@
+views {
+
+  view context {
+    title 'Context'
+    include novibe, driver, github
+    autoLayout LeftRight
+  }
+
+  view novibe of novibe {
+    title 'Level 1: NoVibe'
+    include *, driver, github
+    autoLayout LeftRight
+  }
+
+  view portal of novibe.portal {
+    title 'Level 2: portal'
+    include *, driver, github
+    autoLayout LeftRight
+  }
+
+  dynamic view readFeatures {
+    title 'Runtime: the driver reads the features on main'
+    driver -> novibe.portal.app 'opens the portal'
+    novibe.portal.app -> novibe.portal.worker 'every feature'
+    novibe.portal.worker -> github 'the feature files on main'
+    novibe.portal.worker -> novibe.portal.app 'each parsed: title, id, domain, backlog · or broken, or no id'
+    novibe.portal.app -> driver 'the features by domain, then title · or: none yet'
+    driver -> novibe.portal.app 'reads one'
+    novibe.portal.app -> driver 'the feature as written'
+    autoLayout TopBottom
+  }
+
+  deployment view local {
+    title 'Deployment: on the driver\'s machine'
+    include machine.**, githubCom.**
+    autoLayout LeftRight
+  }
+}

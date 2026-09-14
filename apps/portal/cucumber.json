@@ -1,0 +1,8 @@
+{
+  "default": {
+    "paths": ["../../features/specification/*.feature"],
+    "import": ["test/steps/**/*.ts"],
+    "tags": "not @backlog",
+    "format": ["progress"]
+  }
+}
