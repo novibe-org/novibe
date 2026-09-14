@@ -89,6 +89,28 @@ export async function changed(
     if (first) await db.batch([first, ...rest]);
     return planOf(database, repository);
   }
+  if (change.change === "move feature") {
+    const picked = await db
+      .select({ feature: picks.feature, epic: picks.epic })
+      .from(picks)
+      .where(eq(picks.repository, repository))
+      .orderBy(asc(picks.position), asc(picks.id));
+    const epic = picked.find(({ feature }) => feature === change.feature)?.epic;
+    const order = moved(
+      picked.filter((pick) => pick.epic === epic).map(({ feature }) => feature),
+      change.feature,
+      change.before,
+    );
+    if (!order) return { refused: "it moves only among the features of its epic", status: 404 };
+    const [first, ...rest] = order.map((feature, position) =>
+      db
+        .update(picks)
+        .set({ position })
+        .where(and(eq(picks.repository, repository), eq(picks.feature, feature))),
+    );
+    if (first) await db.batch([first, ...rest]);
+    return planOf(database, repository);
+  }
   const inAnyEpic = and(eq(picks.repository, repository), eq(picks.feature, change.feature));
   if (change.change === "take out") {
     await db.delete(picks).where(inAnyEpic);

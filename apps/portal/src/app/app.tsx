@@ -152,7 +152,7 @@ export function App() {
               <aside ref={pane} className={classes.detail}>
                 {reader ? (
                   <AsWritten feature={reader}>
-                    <EpicOf feature={reader} epics={epics} change={change} />
+                    <EpicOf feature={reader} epics={epics} features={listed} change={change} />
                   </AsWritten>
                 ) : (
                   <p className={classes.empty}>Pick a feature to read it.</p>

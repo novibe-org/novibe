@@ -165,13 +165,52 @@ export function Epics({
   );
 }
 
+function PlaceIn({
+  epic,
+  feature,
+  features,
+  change,
+}: {
+  epic: Epic;
+  feature: string;
+  features: Feature[];
+  change: Changing;
+}) {
+  const titleOf = (id: string) =>
+    features.find((listed): listed is Readable => !listed.broken && listed.id === id)?.title ?? id;
+  const next = epic.features[epic.features.indexOf(feature) + 1];
+  return (
+    <NativeSelect
+      label="Place"
+      size="xs"
+      className={classes.epicOf}
+      value={next ?? ""}
+      onChange={(event) =>
+        void change({
+          change: "move feature",
+          feature,
+          before: event.currentTarget.value || undefined,
+        })
+      }
+      data={[
+        ...epic.features
+          .filter((other) => other !== feature)
+          .map((other) => ({ value: other, label: `before ${titleOf(other)}` })),
+        { value: "", label: "at the end" },
+      ]}
+    />
+  );
+}
+
 export function EpicOf({
   feature,
   epics,
+  features,
   change,
 }: {
   feature: Readable;
   epics: Epic[];
+  features: Feature[];
   change: Changing;
 }) {
   const { id } = feature;
@@ -183,18 +222,21 @@ export function EpicOf({
     );
   };
   return (
-    <NativeSelect
-      label="Epic"
-      size="xs"
-      className={classes.epicOf}
-      disabled={!id}
-      description={id ? undefined : "Only a feature with an id can be picked into an epic."}
-      value={holder ? String(holder.id) : ""}
-      onChange={(event) => move(event.currentTarget.value)}
-      data={[
-        { value: "", label: "not in any epic" },
-        ...epics.map((epic) => ({ value: String(epic.id), label: epic.title })),
-      ]}
-    />
+    <>
+      <NativeSelect
+        label="Epic"
+        size="xs"
+        className={classes.epicOf}
+        disabled={!id}
+        description={id ? undefined : "Only a feature with an id can be picked into an epic."}
+        value={holder ? String(holder.id) : ""}
+        onChange={(event) => move(event.currentTarget.value)}
+        data={[
+          { value: "", label: "not in any epic" },
+          ...epics.map((epic) => ({ value: String(epic.id), label: epic.title })),
+        ]}
+      />
+      {id && holder && <PlaceIn epic={holder} feature={id} features={features} change={change} />}
+    </>
   );
 }
