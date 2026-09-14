@@ -58,11 +58,19 @@ function Listed({ feature, duplicates }: { feature: Feature; duplicates: Readonl
 
 type Listing = { features: Feature[]; duplicates: ReadonlySet<string>; picked?: string };
 
-export function Rows({ features, duplicates, picked }: Listing) {
+export function Rows({
+  features,
+  duplicates,
+  picked,
+  draggable,
+  drop,
+}: Listing & { draggable?: boolean; drop?: string }) {
   return features.map((feature) => (
     <li
       key={feature.path}
-      className={cx(classes.feature, keyOf(feature, duplicates) === picked && classes.picked)}
+      className={cx(classes.feature, keyOf(feature, duplicates) === picked && classes.picked, drop)}
+      draggable={draggable}
+      data-feature={draggable && !feature.broken ? feature.id : undefined}
     >
       <Listed feature={feature} duplicates={duplicates} />
     </li>

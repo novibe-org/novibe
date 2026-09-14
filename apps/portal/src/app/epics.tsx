@@ -1,12 +1,94 @@
 import { Button, Group, Menu, Modal, NativeSelect, Text, TextInput, Title } from "@mantine/core";
-import { type FormEvent, useState } from "react";
+import { type DragEvent, type FormEvent, useRef, useState } from "react";
 import type { Feature, Readable } from "../feature";
 import type { Change, Epic } from "../plan";
 import classes from "./app.module.css";
 import { Rows } from "./list";
-import { counted, cx } from "./shown";
+import { counted, cx, droppedBefore } from "./shown";
 
 export type Changing = (change: Change) => Promise<boolean>;
+
+type Dragged = { epic: number; feature?: string };
+
+type Over = { moving: "epic" | "feature"; epic: number; feature?: string; after: boolean };
+
+const elementOf = (event: DragEvent) =>
+  event.target instanceof Element ? event.target : undefined;
+
+const pastMiddle = (event: DragEvent, element: Element) => {
+  const box = element.getBoundingClientRect();
+  return event.clientY > box.top + box.height / 2;
+};
+
+function useDragging(epics: Epic[], change: Changing) {
+  const dragged = useRef<Dragged>(undefined);
+  const [over, setOver] = useState<Over>();
+
+  const overAt = (event: DragEvent): Over | undefined => {
+    const from = dragged.current;
+    const section = elementOf(event)?.closest<HTMLElement>("[data-epic]");
+    if (!from || !section) return undefined;
+    const epic = Number(section.dataset.epic);
+    if (from.feature === undefined) {
+      return { moving: "epic", epic, after: pastMiddle(event, section) };
+    }
+    if (epic !== from.epic) return undefined;
+    const row = elementOf(event)?.closest<HTMLElement>("[data-feature]");
+    if (!row) return { moving: "feature", epic, after: true };
+    return { moving: "feature", epic, feature: row.dataset.feature, after: pastMiddle(event, row) };
+  };
+
+  const onDragStart = (event: DragEvent) => {
+    const element = elementOf(event);
+    const section = element?.closest<HTMLElement>("[data-epic]");
+    const row = element?.closest<HTMLElement>("[data-feature]");
+    const head = element?.closest("[data-epic-drag]");
+    dragged.current = undefined;
+    if (!section || !(row || head)) return;
+    dragged.current = { epic: Number(section.dataset.epic), feature: row?.dataset.feature };
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", row?.dataset.feature ?? String(section.dataset.epic));
+  };
+
+  const onDragOver = (event: DragEvent) => {
+    const place = overAt(event);
+    if (!place) {
+      setOver(undefined);
+      return;
+    }
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    setOver((now) =>
+      now?.epic === place.epic && now.feature === place.feature && now.after === place.after
+        ? now
+        : place,
+    );
+  };
+
+  const onDragEnd = () => {
+    dragged.current = undefined;
+    setOver(undefined);
+  };
+
+  const onDrop = (event: DragEvent) => {
+    const place = overAt(event);
+    const from = dragged.current;
+    onDragEnd();
+    if (!place || !from) return;
+    event.preventDefault();
+    if (from.feature === undefined) {
+      const epicOrder = epics.map(({ id }) => id);
+      const move = droppedBefore(epicOrder, from.epic, place.epic, place.after);
+      if (move) void change({ change: "move epic", epic: from.epic, ...move });
+      return;
+    }
+    const featureOrder = epics.find(({ id }) => id === from.epic)?.features ?? [];
+    const move = droppedBefore(featureOrder, from.feature, place.feature, place.after);
+    if (move) void change({ change: "move feature", feature: from.feature, ...move });
+  };
+
+  return { over, dragging: { onDragStart, onDragOver, onDrop, onDragEnd } };
+}
 
 function Gone({ id }: { id: string }) {
   return (
@@ -131,6 +213,7 @@ function EpicPanel({
   gone,
   duplicates,
   picked,
+  over,
   change,
 }: {
   epic: Epic;
@@ -139,14 +222,30 @@ function EpicPanel({
   gone: ReadonlySet<string>;
   duplicates: ReadonlySet<string>;
   picked?: string;
+  over?: Over;
   change: Changing;
 }) {
   const [renaming, setRenaming] = useState(false);
   const [removing, setRemoving] = useState(false);
   const held = epic.features.filter((id) => gone.has(id) || byId.has(id));
+  const lineAt = (after: boolean) => (after ? classes.dropAfter : classes.dropBefore);
+  const dropOn = (id: string) =>
+    over?.moving === "feature" && over.feature === id ? lineAt(over.after) : undefined;
   return (
-    <section aria-label={epic.title} className={classes.panel}>
-      <div className={classes.panelHead}>
+    <section
+      aria-label={epic.title}
+      data-epic={epic.id}
+      className={cx(
+        classes.panel,
+        over?.moving === "epic" && lineAt(over.after),
+        over?.moving === "feature" && over.feature === undefined && classes.dropInto,
+      )}
+    >
+      <div
+        className={cx(classes.panelHead, !renaming && classes.grab)}
+        draggable={!renaming}
+        data-epic-drag={renaming ? undefined : epic.id}
+      >
         {renaming ? (
           <Renaming epic={epic} change={change} done={() => setRenaming(false)} />
         ) : (
@@ -176,7 +275,7 @@ function EpicPanel({
         <ul className={classes.rows}>
           {held.map((id) =>
             gone.has(id) ? (
-              <li key={id} className={classes.feature}>
+              <li key={id} className={cx(classes.feature, dropOn(id))} draggable data-feature={id}>
                 <Gone id={id} />
               </li>
             ) : (
@@ -185,6 +284,8 @@ function EpicPanel({
                 features={byId.get(id) ?? []}
                 duplicates={duplicates}
                 picked={picked}
+                draggable
+                drop={dropOn(id)}
               />
             ),
           )}
@@ -212,6 +313,7 @@ export function Epics({
   change: Changing;
 }) {
   const [title, setTitle] = useState("");
+  const { over, dragging } = useDragging(epics, change);
   const byId = new Map<string, Readable[]>();
   for (const feature of features) {
     if (!feature.broken && feature.id) {
@@ -223,7 +325,7 @@ export function Epics({
     if (await change({ change: "start", title })) setTitle("");
   };
   return (
-    <fieldset aria-label="epics" className={classes.group}>
+    <fieldset aria-label="epics" className={classes.group} {...dragging}>
       <form className={classes.start} onSubmit={start}>
         <TextInput
           aria-label="Epic title"
@@ -251,6 +353,7 @@ export function Epics({
           gone={gone}
           duplicates={duplicates}
           picked={picked}
+          over={over?.epic === epic.id ? over : undefined}
           change={change}
         />
       ))}

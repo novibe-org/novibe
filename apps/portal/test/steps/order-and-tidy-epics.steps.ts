@@ -1,20 +1,18 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
-import type { Page } from "playwright";
+import type { Locator } from "playwright";
 import {
   epicHolding,
   epicOn,
+  epicsOn,
   epicTitlesOn,
   eventually,
   featuresIn,
   mainHolds,
-  reading,
   seeNotInAnyEpic,
 } from "./plan";
 import type { PortalWorld } from "./world";
 import { slug } from "./written";
-
-const placeSelectOn = (page: Page) => page.getByRole("combobox", { name: "Place", exact: true });
 
 async function fromTheMenuOf(world: PortalWorld, epic: string, action: string) {
   await world.open();
@@ -23,10 +21,19 @@ async function fromTheMenuOf(world: PortalWorld, epic: string, action: string) {
   await page.getByRole("menuitem", { name: action, exact: true }).click();
 }
 
-async function placing(world: PortalWorld, feature: string, place: string) {
-  await reading(world, feature);
-  await placeSelectOn(world.page()).selectOption({ label: place });
+async function dragOnto(source: Locator, target: Locator, half: "upper" | "lower") {
+  await target.waitFor();
+  const box = await target.boundingBox();
+  if (!box) throw new Error("there is nothing to drop onto");
+  const y = half === "upper" ? box.height / 4 : (box.height * 3) / 4;
+  await source.dragTo(target, { targetPosition: { x: box.width / 2, y } });
 }
+
+const headOf = (world: PortalWorld, epic: string) =>
+  epicOn(world.page(), epic).getByRole("heading", { name: epic, exact: true });
+
+const rowOf = (world: PortalWorld, epic: string, feature: string) =>
+  epicOn(world.page(), epic).getByRole("listitem").filter({ hasText: feature });
 
 async function epicHoldingInOrder(world: PortalWorld, epic: string, titles: string[]) {
   for (const title of titles) mainHolds(world, title);
@@ -55,23 +62,27 @@ Given(
 );
 
 When("I move {string} before {string}", async function (this: PortalWorld, moving, before) {
+  await this.open();
   if (this.plan?.epics.some(({ title }) => title === moving)) {
-    await fromTheMenuOf(this, moving, `Move before ${before}`);
-  } else {
-    await placing(this, moving, `before ${before}`);
+    await dragOnto(headOf(this, moving), epicOn(this.page(), before), "upper");
+    return;
   }
+  const holder = this.plan?.epics.find(({ features }) => features.includes(slug(moving)));
+  const epic = holder?.title ?? "";
+  await dragOnto(rowOf(this, epic, moving), rowOf(this, epic, before), "upper");
 });
 
 When("I move {string} to the end", async function (this: PortalWorld, moving: string) {
-  await fromTheMenuOf(this, moving, "Move to the end");
+  await this.open();
+  const last = epicsOn(this.page()).getByRole("region").last();
+  await dragOnto(headOf(this, moving), last, "lower");
 });
 
 When(
   "I move {string} to the end of {string}",
   async function (this: PortalWorld, moving: string, epic: string) {
-    await reading(this, moving);
-    expect(await epicOn(this.page(), epic).getByRole("link", { name: moving }).count()).toBe(1);
-    await placeSelectOn(this.page()).selectOption({ label: "at the end" });
+    await this.open();
+    await dragOnto(rowOf(this, epic, moving), headOf(this, epic), "lower");
   },
 );
 
