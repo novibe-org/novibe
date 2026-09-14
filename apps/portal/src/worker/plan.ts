@@ -36,14 +36,14 @@ export function goneFrom(plan: Plan, features: Feature[]): string[] {
   return plan.epics.flatMap((epic) => epic.features).filter((id) => !onMain.has(id));
 }
 
-export function moved<T>(order: T[], item: T, before: T | undefined): T[] | undefined {
+function moved<T>(order: T[], item: T, before: T | undefined): T[] | undefined {
   if (!order.includes(item)) return undefined;
   const rest = order.filter((each) => each !== item);
   const at = before === undefined ? rest.length : rest.indexOf(before);
   return at < 0 ? undefined : [...rest.slice(0, at), item, ...rest.slice(at)];
 }
 
-export type Refusal = Refused & { status: 404 | 409 };
+type Refusal = Refused & { status: 404 | 409 };
 
 const NO_SUCH_EPIC: Refusal = { refused: "there is no such epic", status: 404 };
 const TITLE_TAKEN: Refusal = { refused: "an epic needs a title of its own", status: 409 };
@@ -66,6 +66,16 @@ export async function changed(
     if (started.some(({ title }) => sameTitle(title, change.title))) return TITLE_TAKEN;
     const position = (started.at(-1)?.position ?? -1) + 1;
     await db.insert(epics).values({ repository, title: change.title, position });
+    return planOf(database, repository);
+  }
+  if (change.change === "remove") {
+    const ofEpic = and(ofRepository, eq(epics.id, change.epic));
+    const epic = await db.select({ id: epics.id }).from(epics).where(ofEpic).get();
+    if (!epic) return NO_SUCH_EPIC;
+    await db.batch([
+      db.delete(picks).where(and(eq(picks.repository, repository), eq(picks.epic, epic.id))),
+      db.delete(epics).where(ofEpic),
+    ]);
     return planOf(database, repository);
   }
   if (change.change === "rename") {

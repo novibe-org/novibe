@@ -9,6 +9,7 @@ import {
   featuresIn,
   mainHolds,
   reading,
+  seeNotInAnyEpic,
 } from "./plan";
 import type { PortalWorld } from "./world";
 import { slug } from "./written";
@@ -134,3 +135,31 @@ Then(
     expect(await epicTitlesOn(page)).toEqual([first, second]);
   },
 );
+
+When("I remove {string} and confirm", async function (this: PortalWorld, epic: string) {
+  await fromTheMenuOf(this, epic, "Remove");
+  const dialog = this.page().getByRole("dialog");
+  await dialog.getByRole("button", { name: "Remove", exact: true }).click();
+});
+
+When("I remove {string} but do not confirm", async function (this: PortalWorld, epic: string) {
+  await fromTheMenuOf(this, epic, "Remove");
+  const dialog = this.page().getByRole("dialog");
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await dialog.waitFor({ state: "hidden" });
+});
+
+Then(
+  "I no longer see {string}, and {string} is not in any epic",
+  async function (this: PortalWorld, epic: string, feature: string) {
+    await eventually(async () => {
+      expect(await epicTitlesOn(this.page())).not.toContain(epic);
+    });
+    await seeNotInAnyEpic(this, feature);
+  },
+);
+
+Then("I still see the epic {string}", async function (this: PortalWorld, epic: string) {
+  await this.open();
+  await epicOn(this.page(), epic).waitFor({ timeout: 5_000 });
+});

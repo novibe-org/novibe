@@ -5,10 +5,10 @@ Where the driver reads the features on main and plans them into epics. Its Worke
 shows any one as written. Only what is pushed to main shows. `portal/` at the root is the old
 portal, until this one replaces it.
 
-The plan — the epics, in the order started, and the features picked into them — is kept in a D1
-database, under the repository the Worker reads, so it outlives a restart and shows whichever ref
-is read. The Worker applies one change at a time: starting an epic, picking a feature into one, or
-taking it out. Drizzle defines the tables in `src/worker/tables.ts`; after changing them, write
+The plan — the epics and the features picked into them, each in the order the driver puts them —
+is kept in a D1 database, under the repository the Worker reads, so it outlives a restart and
+shows whichever ref is read. The Worker applies one change at a time: starting, renaming, moving or
+removing an epic, and picking a feature into one, moving it within it or taking it out. Drizzle defines the tables in `src/worker/tables.ts`; after changing them, write
 the next migration into `migrations/` with `pnpm --filter @novibe/portal db:generate`.
 
 ## Run it locally

@@ -46,6 +46,10 @@ export const ChangeSchema = z.discriminatedUnion("change", [
     epic: z.number().int(),
     title,
   }),
+  z.object({
+    change: z.literal("remove"),
+    epic: z.number().int(),
+  }),
 ]);
 
 export const RefusedSchema = z.object({ refused: z.string() });

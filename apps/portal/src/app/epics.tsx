@@ -1,4 +1,4 @@
-import { Button, Menu, NativeSelect, TextInput, Title } from "@mantine/core";
+import { Button, Group, Menu, Modal, NativeSelect, Text, TextInput, Title } from "@mantine/core";
 import { type FormEvent, useState } from "react";
 import type { Feature, Readable } from "../feature";
 import type { Change, Epic } from "../plan";
@@ -24,11 +24,13 @@ function EpicMenu({
   epics,
   change,
   rename,
+  remove,
 }: {
   epic: Epic;
   epics: Epic[];
   change: Changing;
   rename: () => void;
+  remove: () => void;
 }) {
   const at = epics.findIndex((other) => other.id === epic.id);
   const before = epics.filter((_, index) => index !== at && index !== at + 1);
@@ -54,6 +56,10 @@ function EpicMenu({
             Move to the end
           </Menu.Item>
         )}
+        <Menu.Divider />
+        <Menu.Item color="red" onClick={remove}>
+          Remove
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
@@ -84,6 +90,40 @@ function Renaming({ epic, change, done }: { epic: Epic; change: Changing; done: 
   );
 }
 
+function Removing({
+  epic,
+  held,
+  change,
+  done,
+}: {
+  epic: Epic;
+  held: number;
+  change: Changing;
+  done: () => void;
+}) {
+  const remove = () => {
+    done();
+    void change({ change: "remove", epic: epic.id });
+  };
+  return (
+    <Modal opened onClose={done} title={`Remove the epic "${epic.title}"?`} size="sm">
+      <Text size="sm">
+        {held === 0
+          ? "It holds no features."
+          : `${counted(held, "feature")} in it will be in no epic.`}
+      </Text>
+      <Group justify="flex-end" mt="md">
+        <Button size="xs" variant="default" onClick={done}>
+          Cancel
+        </Button>
+        <Button size="xs" color="red" onClick={remove}>
+          Remove
+        </Button>
+      </Group>
+    </Modal>
+  );
+}
+
 function EpicPanel({
   epic,
   epics,
@@ -102,6 +142,7 @@ function EpicPanel({
   change: Changing;
 }) {
   const [renaming, setRenaming] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const held = epic.features.filter((id) => gone.has(id) || byId.has(id));
   return (
     <section aria-label={epic.title} className={classes.panel}>
@@ -120,11 +161,15 @@ function EpicPanel({
                 epics={epics}
                 change={change}
                 rename={() => setRenaming(true)}
+                remove={() => setRemoving(true)}
               />
             </span>
           </>
         )}
       </div>
+      {removing && (
+        <Removing epic={epic} held={held.length} change={change} done={() => setRemoving(false)} />
+      )}
       {held.length === 0 ? (
         <p className={classes.empty}>No features yet.</p>
       ) : (
