@@ -8,28 +8,31 @@ description: Turn a rough idea into a Gherkin requirements spec for one small ve
 **In:** a rough idea.
 **Out:** a **Gherkin** spec at `features/<domain>/<feature>.feature`.
 
-**Requirements come from the driver — elicit them, don't invent them.**
+**Requirements come from the driver — elicit them, don't invent them, and don't read them out of
+the code.** Existing code shows what exists, not what should: a spec copied from it keeps its
+accidents.
+
+**One slice at a time** — specify only the slice agreed; everything else waits for its own turn.
 
 1. **Find where it lives** — read `features/` first. If a feature already covers this behaviour,
    the slice extends that file.
-2. **Grill it into the feature file** — in the order the file is built, as in
+2. **Grill it into the feature file, scenarios first** — as in
    [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/): **the feature**
-   (who, what, why, and what this vertical slice holds versus what waits), then **its rules**
-   (`Rule:`), then **the examples** (`Scenario`) that pin each rule down. Ask in
-   [rounds](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling): every
-   question the file lets you ask yet, each with your recommendation; write each answer into the
-   file before the next round.
+   (who, what, why), then concrete **examples**, each
+   written as a `Scenario` as soon as it is agreed. Ask in
+   [rounds](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling): the
+   questions the file raises next, each with your recommendation; write each answer into the file
+   before the next round.
 
    **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
    calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
    with nothing to choose between goes in plain text. No such tool in this session? Number the
    questions and put your recommendation under each.
 
-   **Facts are yours, decisions are the driver's** — look up what the code can tell you; ask
-   everything someone could have decided differently. Catching yourself picking a default means
-   you skipped a question. How to build it is the architect's question, not yours.
-3. **Push and open a draft PR** — once no question is open, re-read the file against the rules
-   below and raise what you find as one last round. When the driver agrees: commit as `spec: …` on
+   **Ask only what the product does** — how the spec is written (ids, folders, the split into
+   features, wording) is yours, by the rules below; how it gets built is the architect's.
+3. **Push and open a draft PR** — re-read the file against the rules below and raise what you find
+   as one last round. When the driver agrees: commit as `spec: …` on
    the session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
    developer step proves the slice. Give the driver the feature's id to pick into an epic.
 
@@ -41,8 +44,24 @@ clicks, endpoints, status codes, tables or technologies (*"refused as unauthenti
 solutions — ask what they are for. The exception is a mechanism the driver needs for itself (the
 CSV a partner imports).
 
-**One scenario per decision, and one for every decision** — a scenario that follows necessarily
-from another is ceremony; something a user will notice with no scenario is a missing requirement.
+**[BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/) scenarios** — business
+language, real data, only the details that matter, one rule each. Five steps or fewer, one `When`–`Then` pair.
+
+**One scenario per outcome** — two ways to reach the same outcome are one scenario; a scenario that
+follows necessarily from another is ceremony; something a user will notice with no scenario is a
+missing requirement.
+
+**[`Rule:`](https://cucumber.io/blog/bdd/gherkin-rules/) groups what illustrates one business
+rule** — add one once two or more scenarios illustrate it, never a rule without scenarios. Many
+rules in one feature mean the slice is too big: cut it.
+
+**[`Background:`](https://cucumber.io/docs/gherkin/reference/#background) only for what every
+scenario shares** — a `Given` repeated in every scenario that the reader needs to know; four lines
+at most, never complicated setup.
+
+**`Scenario Outline:` only for the same behaviour with different values** — every cell a value
+(`failed`, `"EUR"`, `3`), never a phrase, a condition or a step; few rows, chosen with care. Rows
+that do different things are separate scenarios.
 
 **Folders are feature domains** — what the system does, in the driver's language; never an epic,
 never a technical layer. Epics are transient and live in the portal.
