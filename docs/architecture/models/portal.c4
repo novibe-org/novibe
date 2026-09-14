@@ -5,7 +5,7 @@ model {
       description 'Serves the app and turns the feature files on main into features.'
     }
     app = container 'Portal app' {
-      technology 'React · Mantine'
+      technology 'React · Mantine, in a palette of its own'
       description 'Where the driver reads the features.'
     }
   }
