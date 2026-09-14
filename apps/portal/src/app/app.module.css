@@ -373,6 +373,14 @@
   border-radius: 999px;
 }
 
+.status.pass {
+  color: var(--pt-pass);
+}
+
+.status.fail {
+  color: var(--pt-fail);
+}
+
 .shead .tag {
   vertical-align: 1px;
 }

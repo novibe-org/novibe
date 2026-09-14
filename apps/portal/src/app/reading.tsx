@@ -85,8 +85,14 @@ function ExamplesAsWritten({ examples }: { examples: Examples }) {
   );
 }
 
+function statusOf({ result, backlog }: Scenario) {
+  if (result === "passed" || result === "failed") return result;
+  return backlog ? "backlog" : result;
+}
+
 function ScenarioAsWritten({ scenario, order }: { scenario: Scenario; order: 3 | 4 }) {
   const own = scenario.tags.filter((tag) => tag !== BACKLOG_TAG);
+  const status = statusOf(scenario);
   const keywordWidth = Math.max(
     0,
     ...scenario.steps.map(({ keyword }) => keyword.trim().length),
@@ -95,9 +101,17 @@ function ScenarioAsWritten({ scenario, order }: { scenario: Scenario; order: 3 |
   return (
     <section aria-label={scenario.name} className={classes.scenario}>
       <Title order={order} className={classes.shead}>
-        {scenario.backlog && (
+        {status && (
           <>
-            <span className={classes.status}>backlog</span>{" "}
+            <span
+              className={cx(
+                classes.status,
+                status === "passed" && classes.pass,
+                status === "failed" && classes.fail,
+              )}
+            >
+              {status}
+            </span>{" "}
           </>
         )}
         <span className={classes.skeyword}>{scenario.keyword}:</span> <span>{scenario.name}</span>

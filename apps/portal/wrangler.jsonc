@@ -18,6 +18,7 @@
   "vars": {
     "GITHUB_API_URL": "https://api.github.com",
     "REPOSITORY": "novibe-org/novibe",
-    "REF": "main"
+    "REF": "main",
+    "WORKFLOW": "ci.yml"
   }
 }

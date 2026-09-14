@@ -23,3 +23,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm --filter @novibe/portal exec playwright install --with-deps chromium
       - run: pnpm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: apps/portal/test/results/messages.ndjson

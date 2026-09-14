@@ -2,3 +2,4 @@ dist
 .wrangler
 .dev.vars
 test/fixture/generated
+test/results

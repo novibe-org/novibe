@@ -1,6 +1,6 @@
 import { Title } from "@mantine/core";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { Feature, Readable } from "../feature";
+import type { Feature, Readable, Run } from "../feature";
 import type { Change, Plan, Planned, Refused } from "../plan";
 import classes from "./app.module.css";
 import { useDragging } from "./dragging";
@@ -8,7 +8,7 @@ import { EpicOf, Epics } from "./epics";
 import { Link } from "./link";
 import { FeatureList } from "./list";
 import { AsWritten } from "./reading";
-import { counted, duplicateIdsIn, keyOf, scenariosIn } from "./shown";
+import { agoFrom, counted, duplicateIdsIn, keyOf, scenariosIn } from "./shown";
 
 const NARROW = "(max-width: 900px)";
 
@@ -80,6 +80,11 @@ function totalsOf(features: Feature[]): string {
   ].join(" · ");
 }
 
+function testsOf(run: Run | null): string {
+  if (!run) return "Main has no test run yet";
+  return `Tests ran ${agoFrom(run.finished)}${run.earlier ? ", for an earlier main" : ""}`;
+}
+
 function Notice({ children }: { children: ReactNode }) {
   return (
     <div className={classes.panel}>
@@ -120,6 +125,7 @@ export function App() {
         </Title>
         {read && <span className={classes.tag}>{read.ref}</span>}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
+        {read && <span className={classes.totals}>{testsOf(read.run)}</span>}
       </header>
       <main className={classes.layout} {...dragging}>
         {answer === "failed" && (

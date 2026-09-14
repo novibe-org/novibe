@@ -1,8 +1,12 @@
 {
   "default": {
-    "paths": ["../../features/specification/*.feature", "../../features/planning/*.feature"],
+    "paths": [
+      "../../features/specification/*.feature",
+      "../../features/planning/*.feature",
+      "../../features/status/*.feature"
+    ],
     "import": ["test/steps/**/*.ts"],
     "tags": "not @backlog",
-    "format": ["progress"]
+    "format": ["progress", "message:test/results/messages.ndjson"]
   }
 }

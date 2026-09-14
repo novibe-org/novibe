@@ -1,15 +1,18 @@
-import type { Feature } from "../feature";
+import type { Feature, Run } from "../feature";
 import { ChangeSchema, type Planned } from "../plan";
 import type { Env } from "./env";
-import { featureFilesOnMain } from "./github";
+import { commitOf, featureFilesAt, latestTestRun } from "./github";
 import { parsed } from "./parse";
 import { changed, goneFrom, planOf } from "./plan";
 
 async function withThePlan(env: Env): Promise<Response> {
   let features: Feature[];
+  let run: Run | null;
   try {
-    const files = await featureFilesOnMain(env);
-    features = files.map(({ path, text }) => parsed(path, text));
+    const commit = await commitOf(env);
+    const [files, tested] = await Promise.all([featureFilesAt(env, commit), latestTestRun(env)]);
+    features = files.map(({ path, text }) => parsed(path, text, tested?.results));
+    run = tested ? { finished: tested.finished, earlier: tested.commit !== commit } : null;
   } catch (failure) {
     console.error(failure);
     return Response.json({ error: "could not read main" }, { status: 502 });
@@ -18,6 +21,7 @@ async function withThePlan(env: Env): Promise<Response> {
   return Response.json({
     ref: env.REF,
     features,
+    run,
     ...plan,
     gone: goneFrom(plan, features),
   } satisfies Planned);
