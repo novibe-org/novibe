@@ -19,6 +19,20 @@ Feature: Reading the features on main
     When I read "Paying with a saved card"
     Then I see its narrative, its rule and both scenarios with all their steps, in the order written
 
+  Scenario Outline: Reading a feature shows each part of it as written
+    Given main holds the feature "Paying with a saved card" with a <part>
+    When I read "Paying with a saved card"
+    Then I see its <part> as written
+
+    Examples:
+      | part                 |
+      | background           |
+      | rule description     |
+      | scenario description |
+      | doc string           |
+      | data table           |
+      | Examples table       |
+
   Scenario: A feature without an id is listed, marked as having no id
     Given main holds the feature "Refunding a payment" without an id
     When I open the portal
