@@ -25,6 +25,7 @@ export const ScenarioSchema = z.object({
   keyword: z.string(),
   name: z.string(),
   description: z.string(),
+  tags: z.array(z.string()),
   backlog: z.boolean(),
   steps: z.array(StepSchema),
   examples: z.array(ExamplesSchema),
@@ -41,6 +42,7 @@ export const RuleSchema = z.object({
 });
 
 export const PartSchema = z.union([
+  z.object({ background: ScenarioSchema }),
   z.object({ scenario: ScenarioSchema }),
   z.object({ rule: RuleSchema }),
 ]);
@@ -52,6 +54,7 @@ export const ReadableSchema = z.object({
   broken: z.literal(false),
   title: z.string(),
   id: z.string().optional(),
+  tags: z.array(z.string()),
   backlog: z.boolean(),
   narrative: z.string(),
   parts: z.array(PartSchema),

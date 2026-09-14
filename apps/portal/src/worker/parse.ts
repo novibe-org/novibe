@@ -41,14 +41,15 @@ const stepOf = ({ id, keyword, text, docString, dataTable }: GherkinStep): Step 
 
 function scenarioOf(written: Background | GherkinScenario): Scenario {
   const { id, keyword, name, description, steps } = written;
-  const tags = "tags" in written ? written.tags : [];
+  const tags = namesOf("tags" in written ? written.tags : []);
   const examples = "examples" in written ? written.examples : [];
   return {
     id,
     keyword,
     name,
     description: asWritten(description),
-    backlog: namesOf(tags).includes(BACKLOG_TAG),
+    tags,
+    backlog: tags.includes(BACKLOG_TAG),
     steps: steps.map(stepOf),
     examples: examples.map(({ id, keyword, name, tableHeader, tableBody }) => ({
       id,
@@ -61,7 +62,7 @@ function scenarioOf(written: Background | GherkinScenario): Scenario {
 
 function partsOf(children: readonly (FeatureChild | RuleChild)[]): Part[] {
   return children.flatMap((child): Part[] => {
-    if (child.background) return [{ scenario: scenarioOf(child.background) }];
+    if (child.background) return [{ background: scenarioOf(child.background) }];
     if (child.scenario) return [{ scenario: scenarioOf(child.scenario) }];
     if ("rule" in child && child.rule) {
       const { id, keyword, name, description, children: ruled } = child.rule;
@@ -91,6 +92,7 @@ export function parsed(path: string, text: string): Feature {
       broken: false,
       title: feature.name,
       id: tags.find((tag) => tag.startsWith(ID_TAG))?.slice(ID_TAG.length),
+      tags,
       backlog: tags.includes(BACKLOG_TAG),
       narrative: asWritten(feature.description),
       parts: partsOf(feature.children),
