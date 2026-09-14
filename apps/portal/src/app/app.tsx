@@ -65,11 +65,12 @@ export function App() {
     (feature): feature is Readable => !feature.broken && keyOf(feature) === reading,
   );
 
+  const readerKey = reader && keyOf(reader);
   useEffect(() => {
-    if (!reading) return;
+    if (!readerKey) return;
     pane.current?.scrollTo({ top: 0 });
     if (window.matchMedia(NARROW).matches) pane.current?.scrollIntoView({ block: "start" });
-  }, [reading]);
+  }, [readerKey]);
 
   return (
     <>
