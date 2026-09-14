@@ -1,6 +1,17 @@
-import { Anchor, Badge, Code, Container, Group, List, Stack, Text, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Code,
+  Container,
+  Group,
+  List,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
-import type { Feature, Part, Readable, Scenario } from "../feature";
+import type { Feature, Part, Readable, Row, Scenario, Step } from "../feature";
 
 const readingNow = () => new URLSearchParams(window.location.search).get("feature") ?? undefined;
 
@@ -113,27 +124,82 @@ function Features({ features }: { features: Feature[] }) {
   );
 }
 
+function Description({ text }: { text: string }) {
+  return text ? <Text style={{ whiteSpace: "pre-wrap" }}>{text}</Text> : null;
+}
+
+function Cells({ row, heading = false }: { row: Row; heading?: boolean }) {
+  const Cell = heading ? Table.Th : Table.Td;
+  return (
+    <Table.Tr>
+      {row.cells.map(({ column, value }) => (
+        <Cell key={column}>{value}</Cell>
+      ))}
+    </Table.Tr>
+  );
+}
+
+function RowsAsWritten({ rows, headed = false }: { rows: Row[]; headed?: boolean }) {
+  const head = headed ? rows[0] : undefined;
+  const body = headed ? rows.slice(1) : rows;
+  return (
+    <Table withTableBorder withColumnBorders w="auto" fz="sm" verticalSpacing={2}>
+      {head && (
+        <Table.Thead>
+          <Cells row={head} heading />
+        </Table.Thead>
+      )}
+      <Table.Tbody>
+        {body.map((row) => (
+          <Cells key={row.id} row={row} />
+        ))}
+      </Table.Tbody>
+    </Table>
+  );
+}
+
+function StepAsWritten({ step }: { step: Step }) {
+  return (
+    <Stack gap={4}>
+      <Text>
+        {step.keyword}
+        {step.text}
+      </Text>
+      {step.docString !== undefined && <Code block>{step.docString}</Code>}
+      {step.dataTable && <RowsAsWritten rows={step.dataTable} />}
+    </Stack>
+  );
+}
+
 function ScenarioAsWritten({ scenario }: { scenario: Scenario }) {
   return (
     <section aria-label={scenario.name}>
-      <Group gap="xs">
-        <Title order={4} size="h5">
-          {scenario.keyword}: {scenario.name}
-        </Title>
-        {scenario.backlog && (
-          <Badge variant="light" tt="none">
-            backlog
-          </Badge>
-        )}
-      </Group>
-      <List listStyleType="none" spacing={2} pl="md">
-        {scenario.steps.map((step) => (
-          <List.Item key={step.id}>
-            {step.keyword}
-            {step.text}
-          </List.Item>
+      <Stack gap="xs">
+        <Group gap="xs">
+          <Title order={4} size="h5">
+            {scenario.keyword}: {scenario.name}
+          </Title>
+          {scenario.backlog && (
+            <Badge variant="light" tt="none">
+              backlog
+            </Badge>
+          )}
+        </Group>
+        <Description text={scenario.description} />
+        <Stack gap={2} pl="md">
+          {scenario.steps.map((step) => (
+            <StepAsWritten key={step.id} step={step} />
+          ))}
+        </Stack>
+        {scenario.examples.map((examples) => (
+          <Stack key={examples.id} gap={4} pl="md">
+            <Text fw={600}>
+              {examples.keyword}: {examples.name}
+            </Text>
+            <RowsAsWritten rows={examples.rows} headed />
+          </Stack>
         ))}
-      </List>
+      </Stack>
     </section>
   );
 }
@@ -147,7 +213,8 @@ function PartsAsWritten({ parts }: { parts: Part[] }) {
             <Title order={3} size="h4" mb="sm">
               {part.rule.keyword}: {part.rule.name}
             </Title>
-            <Stack pl="md">
+            <Description text={part.rule.description} />
+            <Stack pl="md" mt="sm">
               <PartsAsWritten parts={part.rule.parts} />
             </Stack>
           </section>
@@ -172,7 +239,7 @@ function AsWritten({ feature }: { feature: Readable }) {
         <Text size="sm" c="dimmed">
           {feature.path}
         </Text>
-        <Text style={{ whiteSpace: "pre-wrap" }}>{feature.narrative}</Text>
+        <Description text={feature.narrative} />
         <PartsAsWritten parts={feature.parts} />
       </Stack>
     </article>

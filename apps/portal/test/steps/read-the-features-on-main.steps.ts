@@ -160,18 +160,146 @@ Then(
   },
 );
 
+async function seeWrittenInOrder(world: PortalWorld) {
+  const shown = await world.page().getByRole("article").innerText();
+  let from = 0;
+  for (const line of world.written) {
+    const at = shown.indexOf(line, from);
+    expect({ line, shown: at >= 0 }).toEqual({ line, shown: true });
+    from = at + line.length;
+  }
+}
+
 Then(
   "I see its narrative, its rule and both scenarios with all their steps, in the order written",
   async function (this: PortalWorld) {
-    const shown = await this.page().getByRole("article").innerText();
-    let from = 0;
-    for (const line of this.written) {
-      const at = shown.indexOf(line, from);
-      expect({ line, shown: at >= 0 }).toEqual({ line, shown: true });
-      from = at + line.length;
-    }
+    await seeWrittenInOrder(this);
   },
 );
+
+const PARTS: Record<string, { body: string[]; written: string[] }> = {
+  background: {
+    body: [
+      "  Background:",
+      "    Given I saved a card",
+      "",
+      "  Scenario: Paying with the saved card",
+      "    When I pay",
+      "    Then the saved card is charged",
+    ],
+    written: [
+      "Background:",
+      "Given I saved a card",
+      "Scenario: Paying with the saved card",
+      "When I pay",
+      "Then the saved card is charged",
+    ],
+  },
+  "rule description": {
+    body: [
+      "  Rule: A saved card needs no number",
+      "    The shop keeps only the last four digits;",
+      "    the number stays with the payment provider.",
+      "",
+      "    Scenario: Paying with the saved card",
+      "      When I pay",
+    ],
+    written: [
+      "Rule: A saved card needs no number",
+      "The shop keeps only the last four digits;",
+      "the number stays with the payment provider.",
+      "Scenario: Paying with the saved card",
+      "When I pay",
+    ],
+  },
+  "scenario description": {
+    body: [
+      "  Scenario: Paying with the saved card",
+      "    A customer who saved a card",
+      "    never types its number again.",
+      "",
+      "    When I pay",
+      "    Then the saved card is charged",
+    ],
+    written: [
+      "Scenario: Paying with the saved card",
+      "A customer who saved a card",
+      "never types its number again.",
+      "When I pay",
+      "Then the saved card is charged",
+    ],
+  },
+  "doc string": {
+    body: [
+      "  Scenario: Being told what was charged",
+      "    When I pay",
+      "    Then I am sent",
+      '      """',
+      "      Dear customer,",
+      "        your card ending 4242 was charged.",
+      '      """',
+    ],
+    written: [
+      "Scenario: Being told what was charged",
+      "When I pay",
+      "Then I am sent",
+      "Dear customer,\n  your card ending 4242 was charged.",
+    ],
+  },
+  "data table": {
+    body: [
+      "  Scenario: Paying with one of several saved cards",
+      "    Given I saved these cards",
+      "      | card       | ending |",
+      "      | Visa       | 4242   |",
+      "      | Mastercard | 4444   |",
+      "    When I pay with the Mastercard",
+    ],
+    written: [
+      "Given I saved these cards",
+      "card\tending",
+      "Visa\t4242",
+      "Mastercard\t4444",
+      "When I pay with the Mastercard",
+    ],
+  },
+  "Examples table": {
+    body: [
+      "  Scenario Outline: Paying in <currency>",
+      "    When I pay in <currency>",
+      "    Then the card is charged in <currency>",
+      "",
+      "    Examples: Currencies the shop takes",
+      "      | currency | symbol |",
+      "      | EUR      | €      |",
+      "      | GBP      | £      |",
+    ],
+    written: [
+      "Scenario Outline: Paying in <currency>",
+      "When I pay in <currency>",
+      "Then the card is charged in <currency>",
+      "Examples: Currencies the shop takes",
+      "currency\tsymbol",
+      "EUR\t€",
+      "GBP\t£",
+    ],
+  },
+};
+
+const PART = Object.keys(PARTS).join("|");
+
+Given(
+  new RegExp(`^main holds the feature "([^"]*)" with a (${PART})$`),
+  function (this: PortalWorld, title: string, part: string) {
+    const { body, written } = PARTS[part] ?? { body: [], written: [] };
+    this.holds("features/payments/pay-with-a-saved-card.feature", featureFile({ title, body }));
+    this.written = written;
+  },
+);
+
+Then(new RegExp(`^I see its (?:${PART}) as written$`), async function (this: PortalWorld) {
+  await seeWrittenInOrder(this);
+});
 
 Then(
   "I see {string} listed, marked as having no id",

@@ -1,12 +1,15 @@
 import { AstBuilder, GherkinClassicTokenMatcher, Parser } from "@cucumber/gherkin";
 import {
+  type Background,
   type FeatureChild,
+  type Scenario as GherkinScenario,
+  type Step as GherkinStep,
   IdGenerator,
   type RuleChild,
-  type Step,
+  type TableRow,
   type Tag,
 } from "@cucumber/messages";
-import type { Feature, Part, Scenario } from "../feature";
+import type { Feature, Part, Row, Scenario, Step } from "../feature";
 
 export const FEATURE_PATH = /^features\/(?:(.+)\/)?([^/]+\.feature)$/;
 
@@ -15,31 +18,56 @@ const BACKLOG_TAG = "@backlog";
 
 const namesOf = (tags: readonly Tag[]) => tags.map(({ name }) => name);
 
-function scenario(
-  {
+const asWritten = (description: string) =>
+  description
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .trim();
+
+const rowsOf = (rows: readonly TableRow[]): Row[] =>
+  rows.map(({ id, cells }) => ({
     id,
-    keyword,
-    name,
-    steps,
-  }: { id: string; keyword: string; name: string; steps: readonly Step[] },
-  tags: readonly Tag[],
-): Scenario {
+    cells: cells.map(({ location, value }) => ({ column: location.column ?? 0, value })),
+  }));
+
+const stepOf = ({ id, keyword, text, docString, dataTable }: GherkinStep): Step => ({
+  id,
+  keyword,
+  text,
+  docString: docString?.content,
+  dataTable: dataTable && rowsOf(dataTable.rows),
+});
+
+function scenarioOf(written: Background | GherkinScenario): Scenario {
+  const { id, keyword, name, description, steps } = written;
+  const tags = "tags" in written ? written.tags : [];
+  const examples = "examples" in written ? written.examples : [];
   return {
     id,
     keyword,
     name,
+    description: asWritten(description),
     backlog: namesOf(tags).includes(BACKLOG_TAG),
-    steps: steps.map((step) => ({ id: step.id, keyword: step.keyword, text: step.text })),
+    steps: steps.map(stepOf),
+    examples: examples.map(({ id, keyword, name, tableHeader, tableBody }) => ({
+      id,
+      keyword,
+      name,
+      rows: rowsOf([...(tableHeader ? [tableHeader] : []), ...tableBody]),
+    })),
   };
 }
 
 function partsOf(children: readonly (FeatureChild | RuleChild)[]): Part[] {
   return children.flatMap((child): Part[] => {
-    if (child.background) return [{ scenario: scenario(child.background, []) }];
-    if (child.scenario) return [{ scenario: scenario(child.scenario, child.scenario.tags) }];
+    if (child.background) return [{ scenario: scenarioOf(child.background) }];
+    if (child.scenario) return [{ scenario: scenarioOf(child.scenario) }];
     if ("rule" in child && child.rule) {
-      const { id, keyword, name, children: ruled } = child.rule;
-      return [{ rule: { id, keyword, name, parts: partsOf(ruled) } }];
+      const { id, keyword, name, description, children: ruled } = child.rule;
+      return [
+        { rule: { id, keyword, name, description: asWritten(description), parts: partsOf(ruled) } },
+      ];
     }
     return [];
   });
@@ -64,11 +92,7 @@ export function parsed(path: string, text: string): Feature {
       title: feature.name,
       id: tags.find((tag) => tag.startsWith(ID_TAG))?.slice(ID_TAG.length),
       backlog: tags.includes(BACKLOG_TAG),
-      narrative: feature.description
-        .split("\n")
-        .map((line) => line.trim())
-        .join("\n")
-        .trim(),
+      narrative: asWritten(feature.description),
       parts: partsOf(feature.children),
     };
   } catch {
