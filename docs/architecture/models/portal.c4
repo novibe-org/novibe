@@ -1,16 +1,21 @@
 model {
   extend novibe.portal {
     worker = container 'Portal Worker' {
-      technology 'Cloudflare Worker · Cucumber Gherkin parser · zod'
-      description 'Serves the app and turns the feature files on main into features.'
+      technology 'Cloudflare Worker · Cucumber Gherkin parser · zod · Drizzle ORM'
+      description 'Serves the app, turns the feature files on main into features, and keeps the plan.'
     }
     app = container 'Portal app' {
       technology 'React · Mantine, in a palette of its own'
-      description 'Where the driver reads the features.'
+      description 'Where the driver reads the features and plans them into epics.'
+    }
+    plan = store 'Plan' {
+      technology 'Cloudflare D1'
+      description 'Each repository\'s epics, in order, and the features picked into them.'
     }
   }
 
-  driver -> novibe.portal.app 'reads the features on main'
-  novibe.portal.app -> novibe.portal.worker 'asks for every feature, parsed'
+  driver -> novibe.portal.app 'reads the features on main and plans them into epics'
+  novibe.portal.app -> novibe.portal.worker 'asks for the features with the plan · sends one change at a time'
   novibe.portal.worker -> github 'reads the feature files on main on each open, with a read-only token'
+  novibe.portal.worker -> novibe.portal.plan 'reads and changes the plan of the repository it reads'
 }

@@ -2,6 +2,7 @@ deployment {
   zone machine 'The driver\'s machine' {
     node dev 'wrangler dev' {
       worker = instanceOf novibe.portal.worker
+      plan = instanceOf novibe.portal.plan
     }
     node browser 'Browser' {
       app = instanceOf novibe.portal.app

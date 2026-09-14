@@ -4,6 +4,7 @@ specification {
   element application
   element container
   element library { style { shape rectangle; color secondary } }
+  element store { style { shape storage } }
   element external { style { color muted } }
 
   deploymentNode zone
@@ -24,7 +25,7 @@ model {
     description 'A spec-driven development suite.'
 
     portal = application 'Portal' {
-      description 'Where the driver reads the specification.'
+      description 'Where the driver reads the specification and plans it into epics.'
     }
   }
 }

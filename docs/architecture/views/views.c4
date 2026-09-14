@@ -21,12 +21,23 @@ views {
   dynamic view readFeatures {
     title 'Runtime: the driver reads the features on main'
     driver -> novibe.portal.app 'opens the portal'
-    novibe.portal.app -> novibe.portal.worker 'every feature'
+    novibe.portal.app -> novibe.portal.worker 'every feature, with the plan'
     novibe.portal.worker -> github 'the feature files on main'
-    novibe.portal.worker -> novibe.portal.app 'each parsed: title, id, domain, backlog · or broken, or no id'
-    novibe.portal.app -> driver 'the features by domain, then title · or: none yet'
+    novibe.portal.worker -> novibe.portal.plan 'this repository\'s epics'
+    novibe.portal.worker -> novibe.portal.app 'each feature parsed · the epics, a feature gone from main marked'
+    novibe.portal.app -> driver 'the epics with their features, then the rest by domain · or: none yet'
     driver -> novibe.portal.app 'reads one'
     novibe.portal.app -> driver 'the feature as written'
+    autoLayout TopBottom
+  }
+
+  dynamic view changePlan {
+    title 'Runtime: the driver changes the plan'
+    driver -> novibe.portal.app 'starts an epic, picks a feature into one, or takes a feature out'
+    novibe.portal.app -> novibe.portal.worker 'that one change'
+    novibe.portal.worker -> novibe.portal.plan 'applies it: an epic needs a title, a feature with an id is in at most one epic'
+    novibe.portal.worker -> novibe.portal.app 'the plan as changed · or: refused, and why'
+    novibe.portal.app -> driver 'the epics as changed'
     autoLayout TopBottom
   }
 

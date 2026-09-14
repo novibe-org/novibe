@@ -1,26 +1,9 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import type { PortalWorld } from "./world";
+import { featureFile, slug } from "./written";
 
-const ONE_SCENARIO = ["  Scenario: It is written", "    Then it reads as written"];
 const OTHER_SCENARIO = "Paying with the only saved card";
-
-const slug = (title: string) => title.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-");
-
-function featureFile({
-  title,
-  id = slug(title),
-  tags = [],
-  body = ONE_SCENARIO,
-}: {
-  title: string;
-  id?: string | null;
-  tags?: string[];
-  body?: string[];
-}): string {
-  const tagLine = [...(id === null ? [] : [`@id:${id}`]), ...tags].join(" ");
-  return [tagLine, `Feature: ${title}`, "", ...body, ""].join("\n");
-}
 
 Given(
   "main holds the feature {string} with the id {string} in the domain {string}",

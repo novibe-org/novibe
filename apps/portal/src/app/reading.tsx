@@ -1,5 +1,5 @@
 import { Code, Table, Title } from "@mantine/core";
-import { type CSSProperties, Fragment } from "react";
+import { type CSSProperties, Fragment, type ReactNode } from "react";
 import type { Examples, Part, Readable, Row, Rule, Scenario, Step } from "../feature";
 import classes from "./app.module.css";
 import { cx, stemOf } from "./shown";
@@ -149,7 +149,7 @@ function PartsAsWritten({ parts, scenarioOrder }: { parts: Part[]; scenarioOrder
   );
 }
 
-export function AsWritten({ feature }: { feature: Readable }) {
+export function AsWritten({ feature, children }: { feature: Readable; children?: ReactNode }) {
   return (
     <article aria-label={feature.title}>
       <div className={classes.meta}>
@@ -174,6 +174,7 @@ export function AsWritten({ feature }: { feature: Readable }) {
         )}
         <p className={classes.where}>{feature.path}</p>
         {feature.narrative && <p className={classes.narrative}>{feature.narrative}</p>}
+        {children}
       </div>
       <PartsAsWritten parts={feature.parts} scenarioOrder={3} />
     </article>

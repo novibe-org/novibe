@@ -3,4 +3,5 @@ export interface Env {
   REPOSITORY: string;
   REF: string;
   GITHUB_TOKEN?: string;
+  PLAN: D1Database;
 }

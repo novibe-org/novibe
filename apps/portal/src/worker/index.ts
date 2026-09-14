@@ -1,22 +1,46 @@
-import type { Features } from "../feature";
+import type { Feature } from "../feature";
+import { ChangeSchema, type Planned } from "../plan";
 import type { Env } from "./env";
 import { featureFilesOnMain } from "./github";
 import { parsed } from "./parse";
+import { changed, goneFrom, planOf } from "./plan";
+
+async function withThePlan(env: Env): Promise<Response> {
+  let features: Feature[];
+  try {
+    const files = await featureFilesOnMain(env);
+    features = files.map(({ path, text }) => parsed(path, text));
+  } catch (failure) {
+    console.error(failure);
+    return Response.json({ error: "could not read main" }, { status: 502 });
+  }
+  const plan = await planOf(env.PLAN, env.REPOSITORY);
+  return Response.json({
+    ref: env.REF,
+    features,
+    ...plan,
+    gone: goneFrom(plan, features),
+  } satisfies Planned);
+}
+
+async function changing(request: Request, env: Env): Promise<Response> {
+  if (!request.headers.get("content-type")?.startsWith("application/json")) {
+    return Response.json({ refused: "a change is sent as JSON" }, { status: 415 });
+  }
+  const change = ChangeSchema.safeParse(await request.json().catch(() => undefined));
+  if (!change.success) {
+    const refused = change.error.issues[0]?.message ?? "not a change";
+    return Response.json({ refused }, { status: 400 });
+  }
+  const answer = await changed(env.PLAN, env.REPOSITORY, change.data);
+  return Response.json(answer, { status: "refused" in answer ? 404 : 200 });
+}
 
 export default {
   async fetch(request, env) {
-    if (new URL(request.url).pathname !== "/api/features") {
-      return new Response("not found", { status: 404 });
-    }
-    try {
-      const files = await featureFilesOnMain(env);
-      return Response.json({
-        ref: env.REF,
-        features: files.map(({ path, text }) => parsed(path, text)),
-      } satisfies Features);
-    } catch (failure) {
-      console.error(failure);
-      return Response.json({ error: "could not read main" }, { status: 502 });
-    }
+    const { pathname } = new URL(request.url);
+    if (pathname === "/api/features") return withThePlan(env);
+    if (pathname === "/api/plan" && request.method === "POST") return changing(request, env);
+    return new Response("not found", { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
