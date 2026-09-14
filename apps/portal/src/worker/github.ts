@@ -3,6 +3,7 @@ import type { Env } from "./env";
 import { FEATURE_PATH } from "./parse";
 
 const TreeSchema = z.object({
+  truncated: z.boolean(),
   tree: z.array(z.object({ path: z.string(), type: z.string(), sha: z.string() })),
 });
 
@@ -25,7 +26,8 @@ export async function featureFilesOnMain(env: Env) {
     `git/trees/${encodeURIComponent(env.REF)}?recursive=1`,
     "application/vnd.github+json",
   );
-  const { tree } = TreeSchema.parse(await listing.json());
+  const { truncated, tree } = TreeSchema.parse(await listing.json());
+  if (truncated) throw new Error(`GitHub truncated the tree of ${env.REF}`);
   const files = tree.filter(({ type, path }) => type === "blob" && FEATURE_PATH.test(path));
   return Promise.all(
     files.map(async ({ path, sha }) => {
