@@ -5,8 +5,8 @@ dir=${ARCHITECTURE_DIR:-docs/architecture}
 git cat-file -e "HEAD:$dir" 2>/dev/null || exit 0
 
 # Validate the model as committed, not as it sits in the working tree.
-tree=$(mktemp -d -t nvmodel)
-found=$(mktemp -t nvmodel)
+tree=$(mktemp -d "${TMPDIR:-/tmp}/nvmodel.XXXXXX")
+found=$(mktemp "${TMPDIR:-/tmp}/nvmodel.XXXXXX")
 git archive HEAD "$dir" | tar -x -C "$tree"
 node_modules/.bin/likec4 validate "$tree/$dir" >"$found" 2>&1
 status=$?
