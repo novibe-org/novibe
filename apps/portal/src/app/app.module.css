@@ -182,6 +182,7 @@
   min-width: 0;
   max-height: calc(100vh - 86px);
   overflow: auto;
+  scroll-margin-top: 64px;
   padding: 16px 18px;
   background: var(--pt-panel);
   border: 1px solid var(--pt-line);
