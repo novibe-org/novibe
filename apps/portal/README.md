@@ -27,4 +27,4 @@ pnpm dev:portal --var REF:feat/move-the-portal
 
 `pnpm test` builds the app and runs `features/specification/` through cucumber-js. Each run boots
 the Worker in wrangler's test harness against a stand-in for GitHub's API, and drives a real
-browser with Playwright's Chromium (`pnpm exec playwright install chromium` once per machine).
+browser with Playwright's Chromium (`pnpm --filter @novibe/portal exec playwright install chromium` from the root, once per machine).
