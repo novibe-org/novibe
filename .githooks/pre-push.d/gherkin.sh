@@ -5,8 +5,8 @@ features=${FEATURES_DIR:-features}
 git cat-file -e "HEAD:$features" 2>/dev/null || exit 0
 
 # Lint the specification as committed, as feedback here and a gate in CI.
-tree=$(mktemp -d -t nvlint)
-found=$(mktemp -t nvlint)
+tree=$(mktemp -d "${TMPDIR:-/tmp}/nvlint.XXXXXX")
+found=$(mktemp "${TMPDIR:-/tmp}/nvlint.XXXXXX")
 git archive HEAD "$features" | tar -x -C "$tree"
 node_modules/.bin/gherkin-lint-plus -c .gherkin-lintrc \
   "$tree/$features" >"$found" 2>&1

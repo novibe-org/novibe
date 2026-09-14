@@ -8,7 +8,7 @@ base=$(git merge-base origin/main HEAD 2>/dev/null) || exit 0
 features=${FEATURES_DIR:-features}
 model=${ARCHITECTURE_DIR:-docs/architecture}
 adrs=${ADRS_DIR:-docs/adrs}
-found=$(mktemp -t nvphase)
+found=$(mktemp "${TMPDIR:-/tmp}/nvphase.XXXXXX")
 git rev-list "$base"..HEAD | while read -r sha; do
   case "$(git log -1 --format=%s "$sha")" in
     spec:*|spec\(*) phase=spec ;;
