@@ -1,0 +1,35 @@
+{
+  "name": "@novibe/portal",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build && wrangler dev --port 8790",
+    "test": "pnpm build && pnpm test:features",
+    "test:features": "NODE_OPTIONS='--import tsx' cucumber-js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cucumber/gherkin": "^42.0.1",
+    "@cucumber/messages": "^34.2.1",
+    "@mantine/core": "^9.6.1",
+    "@mantine/hooks": "^9.6.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260823.1",
+    "@cucumber/cucumber": "^13.2.1",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.1.1",
+    "expect": "^30.0.0",
+    "playwright": "1.60.0",
+    "tsx": "^4.19.0",
+    "typescript": "5",
+    "vite": "^8.2.2",
+    "wrangler": "^4.121.0"
+  }
+}
