@@ -85,7 +85,7 @@ function ExamplesAsWritten({ examples }: { examples: Examples }) {
   );
 }
 
-function ScenarioAsWritten({ scenario }: { scenario: Scenario }) {
+function ScenarioAsWritten({ scenario, order }: { scenario: Scenario; order: 3 | 4 }) {
   const own = scenario.tags.filter((tag) => tag !== BACKLOG_TAG);
   const keywordWidth = Math.max(
     0,
@@ -94,7 +94,7 @@ function ScenarioAsWritten({ scenario }: { scenario: Scenario }) {
   );
   return (
     <section aria-label={scenario.name} className={classes.scenario}>
-      <Title order={4} className={classes.shead}>
+      <Title order={order} className={classes.shead}>
         {scenario.backlog && (
           <>
             <span className={classes.status}>backlog</span>{" "}
@@ -131,19 +131,19 @@ function RuleAsWritten({ rule }: { rule: Rule }) {
       </Title>
       {rule.description && <p className={classes.description}>{rule.description}</p>}
       <div className={classes.ruled}>
-        <PartsAsWritten parts={rule.parts} />
+        <PartsAsWritten parts={rule.parts} scenarioOrder={4} />
       </div>
     </section>
   );
 }
 
-function PartsAsWritten({ parts }: { parts: Part[] }) {
+function PartsAsWritten({ parts, scenarioOrder }: { parts: Part[]; scenarioOrder: 3 | 4 }) {
   return (
     <>
       {parts.map((part) => {
         if ("rule" in part) return <RuleAsWritten key={part.rule.id} rule={part.rule} />;
         const scenario = "background" in part ? part.background : part.scenario;
-        return <ScenarioAsWritten key={scenario.id} scenario={scenario} />;
+        return <ScenarioAsWritten key={scenario.id} scenario={scenario} order={scenarioOrder} />;
       })}
     </>
   );
@@ -175,7 +175,7 @@ export function AsWritten({ feature }: { feature: Readable }) {
         <p className={classes.where}>{feature.path}</p>
         {feature.narrative && <p className={classes.narrative}>{feature.narrative}</p>}
       </div>
-      <PartsAsWritten parts={feature.parts} />
+      <PartsAsWritten parts={feature.parts} scenarioOrder={3} />
     </article>
   );
 }
