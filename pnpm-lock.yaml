@@ -35,6 +35,9 @@ importers:
       react-dom:
         specifier: ^19.2.8
         version: 19.3.0(react@19.3.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.5
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260823.1
@@ -1887,7 +1890,7 @@ snapshots:
       '@cucumber/ci-environment': 14.0.0
       '@cucumber/cucumber-expressions': 20.0.0
       '@cucumber/gherkin': 42.0.0
-      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@42.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.2.0))(@cucumber/messages@34.2.0)
+      '@cucumber/gherkin-streams': 7.0.1(@cucumber/gherkin@42.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.2.1))(@cucumber/messages@34.2.0)
       '@cucumber/gherkin-utils': 12.0.1
       '@cucumber/html-formatter': 24.1.0(@cucumber/messages@34.2.0)
       '@cucumber/junit-xml-formatter': 0.14.0(@cucumber/messages@34.2.0)
@@ -1917,7 +1920,7 @@ snapshots:
       yaml: 2.9.1
       yup: 1.7.1
 
-  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@42.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.2.0))(@cucumber/messages@34.2.0)':
+  '@cucumber/gherkin-streams@7.0.1(@cucumber/gherkin@42.0.0)(@cucumber/message-streams@5.0.1(@cucumber/messages@34.2.1))(@cucumber/messages@34.2.0)':
     dependencies:
       '@cucumber/gherkin': 42.0.0
       '@cucumber/message-streams': 5.0.1(@cucumber/messages@34.2.0)

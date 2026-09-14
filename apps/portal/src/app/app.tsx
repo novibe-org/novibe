@@ -11,7 +11,7 @@ import {
   Title,
 } from "@mantine/core";
 import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
-import type { Feature, Part, Readable, Row, Scenario, Step } from "../feature";
+import type { Feature, Features, Part, Readable, Row, Scenario, Step } from "../feature";
 
 const readingNow = () => new URLSearchParams(window.location.search).get("feature") ?? undefined;
 
@@ -31,7 +31,7 @@ function useFeatures(): Feature[] | "failed" | undefined {
     fetch("/api/features")
       .then(async (response) => {
         if (!response.ok) throw new Error(`features answered ${response.status}`);
-        setFeatures(((await response.json()) as { features: Feature[] }).features);
+        setFeatures(((await response.json()) as Features).features);
       })
       .catch(() => setFeatures("failed"));
   }, []);
@@ -102,7 +102,7 @@ function Listed({ feature }: { feature: Feature }) {
   );
 }
 
-function Features({ features }: { features: Feature[] }) {
+function FeatureList({ features }: { features: Feature[] }) {
   if (features.length === 0) return <Text>Main has no features yet.</Text>;
   return (
     <Stack gap="lg">
@@ -250,7 +250,7 @@ function Shown({ features, reading }: { features: Feature[]; reading?: string })
   const read = features.find(
     (feature): feature is Readable => !feature.broken && feature.path === reading,
   );
-  return read ? <AsWritten feature={read} /> : <Features features={features} />;
+  return read ? <AsWritten feature={read} /> : <FeatureList features={features} />;
 }
 
 export function App() {

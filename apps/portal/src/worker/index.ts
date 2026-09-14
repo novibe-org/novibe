@@ -1,3 +1,4 @@
+import type { Features } from "../feature";
 import type { Env } from "./env";
 import { featureFilesOnMain } from "./github";
 import { parsed } from "./parse";
@@ -9,7 +10,9 @@ export default {
     }
     try {
       const files = await featureFilesOnMain(env);
-      return Response.json({ features: files.map(({ path, text }) => parsed(path, text)) });
+      return Response.json({
+        features: files.map(({ path, text }) => parsed(path, text)),
+      } satisfies Features);
     } catch (failure) {
       console.error(failure);
       return Response.json({ error: "could not read main" }, { status: 502 });

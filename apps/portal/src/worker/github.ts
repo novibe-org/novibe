@@ -1,7 +1,10 @@
+import { z } from "zod";
 import type { Env } from "./env";
 import { FEATURE_PATH } from "./parse";
 
-type Tree = { tree: { path: string; type: string; sha: string }[] };
+const TreeSchema = z.object({
+  tree: z.array(z.object({ path: z.string(), type: z.string(), sha: z.string() })),
+});
 
 async function fromGitHub(env: Env, route: string, accept: string): Promise<Response> {
   const response = await fetch(new URL(`/repos/${env.REPOSITORY}/${route}`, env.GITHUB_API_URL), {
@@ -16,13 +19,13 @@ async function fromGitHub(env: Env, route: string, accept: string): Promise<Resp
   return response;
 }
 
-export async function featureFilesOnMain(env: Env): Promise<{ path: string; text: string }[]> {
+export async function featureFilesOnMain(env: Env) {
   const listing = await fromGitHub(
     env,
     "git/trees/main?recursive=1",
     "application/vnd.github+json",
   );
-  const { tree } = (await listing.json()) as Tree;
+  const { tree } = TreeSchema.parse(await listing.json());
   const files = tree.filter(({ type, path }) => type === "blob" && FEATURE_PATH.test(path));
   return Promise.all(
     files.map(async ({ path, sha }) => {

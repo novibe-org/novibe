@@ -16,7 +16,8 @@
     "@mantine/core": "^9.6.1",
     "@mantine/hooks": "^9.6.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260823.1",
