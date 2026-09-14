@@ -38,20 +38,20 @@ export async function changed(
     await db.insert(epics).values({ repository, title: change.title });
     return planOf(database, repository);
   }
+  const inAnyEpic = and(eq(picks.repository, repository), eq(picks.feature, change.feature));
+  if (change.change === "take out") {
+    await db.delete(picks).where(inAnyEpic);
+    return planOf(database, repository);
+  }
   const epic = await db
     .select({ id: epics.id })
     .from(epics)
     .where(and(eq(epics.id, change.epic), eq(epics.repository, repository)))
     .get();
   if (!epic) return { refused: "there is no such epic" };
-  const inAnyEpic = and(eq(picks.repository, repository), eq(picks.feature, change.feature));
-  if (change.change === "pick") {
-    await db.batch([
-      db.delete(picks).where(inAnyEpic),
-      db.insert(picks).values({ repository, feature: change.feature, epic: epic.id }),
-    ]);
-  } else {
-    await db.delete(picks).where(and(inAnyEpic, eq(picks.epic, epic.id)));
-  }
+  await db.batch([
+    db.delete(picks).where(inAnyEpic),
+    db.insert(picks).values({ repository, feature: change.feature, epic: epic.id }),
+  ]);
   return planOf(database, repository);
 }

@@ -29,6 +29,11 @@ Feature: Picking features into epics
     When I take "Paying with a saved card" out of "Checkout"
     Then I see "Paying with a saved card" as not in any epic
 
+  Scenario: Two quick changes to a feature's epic end with the last one
+    Given the epic "Checkout" holds "Paying with a saved card", and there is the epic "Refunds"
+    When I pick "Paying with a saved card" into "Refunds" and take it out again before that is saved
+    Then I see "Paying with a saved card" as not in any epic
+
   Scenario: Features in no epic show after the epics, as before
     Given the epic "Checkout" holds "Paying with a saved card"
     And main also holds "Refunding a payment" in "payments" and "Earning points" in "rewards"

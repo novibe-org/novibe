@@ -140,8 +140,9 @@ export function EpicOf({
   const holder = id ? epics.find((epic) => epic.features.includes(id)) : undefined;
   const move = (to: string) => {
     if (!id) return;
-    if (to) void change({ change: "pick", feature: id, epic: Number(to) });
-    else if (holder) void change({ change: "take out", feature: id, epic: holder.id });
+    void change(
+      to ? { change: "pick", feature: id, epic: Number(to) } : { change: "take out", feature: id },
+    );
   };
   return (
     <NativeSelect

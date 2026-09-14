@@ -35,7 +35,9 @@ function usePlanned() {
       .catch(() => setAnswer("failed"));
   }, []);
 
-  const change = async (change: Change): Promise<boolean> => {
+  const lastChange = useRef<Promise<boolean>>(Promise.resolve(true));
+
+  const send = async (change: Change): Promise<boolean> => {
     try {
       const response = await fetch("/api/plan", {
         method: "POST",
@@ -56,6 +58,11 @@ function usePlanned() {
       setRefused("the portal could not change the plan");
       return false;
     }
+  };
+
+  const change = (change: Change): Promise<boolean> => {
+    lastChange.current = lastChange.current.then(() => send(change));
+    return lastChange.current;
   };
 
   return { answer, refused, change };

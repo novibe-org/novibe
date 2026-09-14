@@ -123,6 +123,36 @@ When("I try to pick {string} into {string}", async function (this: PortalWorld, 
   expect(await select.isDisabled()).toBe(true);
 });
 
+When(
+  "I pick {string} into {string} and take it out again before that is saved",
+  async function (this: PortalWorld, title: string, epic: string) {
+    await reading(this, title);
+    const page = this.page();
+    const select = epicSelectOn(page);
+    let release = () => {};
+    const released = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let hold = () => {};
+    const held = new Promise<void>((resolve) => {
+      hold = resolve;
+    });
+    await page.route(
+      "**/api/plan",
+      async (route) => {
+        hold();
+        await released;
+        await route.continue();
+      },
+      { times: 1 },
+    );
+    await select.selectOption({ label: epic });
+    await held;
+    await select.selectOption({ label: "not in any epic" });
+    release();
+  },
+);
+
 When("I take {string} out of {string}", async function (this: PortalWorld, title, epic) {
   await reading(this, title);
   const select = epicSelectOn(this.page());
