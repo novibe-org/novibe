@@ -1,0 +1,16 @@
+model {
+  extend novibe.portal {
+    worker = container 'Portal Worker' {
+      technology 'Cloudflare Worker · Cucumber Gherkin parser'
+      description 'Serves the app and turns the feature files on main into features.'
+    }
+    app = container 'Portal app' {
+      technology 'React · Mantine'
+      description 'Where the driver reads the features.'
+    }
+  }
+
+  driver -> novibe.portal.app 'reads the features on main'
+  novibe.portal.app -> novibe.portal.worker 'asks for every feature, parsed'
+  novibe.portal.worker -> github 'reads the feature files on main on each open, with a read-only token'
+}

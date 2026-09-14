@@ -1,0 +1,30 @@
+specification {
+  element actor { style { shape person } }
+  element system
+  element application
+  element container
+  element library { style { shape rectangle; color secondary } }
+  element external { style { color muted } }
+
+  deploymentNode zone
+  deploymentNode node
+}
+
+model {
+  driver = actor 'Driver' {
+    description 'Decides what gets built, and in which order.'
+  }
+
+  github = external 'GitHub' {
+    technology 'GitHub REST API'
+    description 'Where the project\'s repository and its main live.'
+  }
+
+  novibe = system 'NoVibe' {
+    description 'A spec-driven development suite.'
+
+    portal = application 'Portal' {
+      description 'Where the driver reads the specification.'
+    }
+  }
+}
