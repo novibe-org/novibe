@@ -7,8 +7,11 @@ here=$(cd "$(dirname "$0")/pre-push.d" && pwd)
 if [ "${ALLOW_OTHER_REFS:-}" != "1" ]; then
   pushed=$(printf '%s\n' "${refs:-}" | awk 'NF == 4 && $1 != "(delete)"')
   count=$(printf '%s\n' "$pushed" | grep -c . || true)
-  if [ "$count" -gt 1 ] || { [ "$count" -eq 1 ] && [ "$(printf '%s\n' "$pushed" | awk '{print $2}')" != "$(git rev-parse HEAD)" ]; }; then
-    echo "pre-push: push the branch you have checked out, and only that one — the guards check HEAD." >&2
+  branch=$(git symbolic-ref -q --short HEAD)
+  if [ "$count" -gt 1 ] || { [ "$count" -eq 1 ] && ! printf '%s\n' "$pushed" |
+       awk -v head="$(git rev-parse HEAD)" -v ref="refs/heads/$branch" \
+         '$2 == head && $3 == ref { ok = 1 } END { exit !ok }'; }; then
+    echo "pre-push: push the branch you have checked out, under its own name, and only that one — the guards check HEAD." >&2
     printf '%s\n' "$pushed" | awk '{print "  " $1 " -> " $3}' >&2
     echo "pre-push: check it out and push it, or override: ALLOW_OTHER_REFS=1 git push" >&2
     exit 1

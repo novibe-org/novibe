@@ -26,5 +26,5 @@ All three need `gh`, and all three pass when it is absent: a guard that blocks a
 a guard people disable.
 
 Every guard checks `HEAD`, so [`.githooks/pre-push`](../../.githooks/pre-push) first refuses a
-push of a branch you have not checked out, or of more than one ref — override with
-`ALLOW_OTHER_REFS=1`.
+push of a branch you have not checked out, a push of `HEAD` to a branch of another name or to a
+tag, or a push of more than one ref — override with `ALLOW_OTHER_REFS=1`.
