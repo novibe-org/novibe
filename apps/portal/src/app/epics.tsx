@@ -19,7 +19,17 @@ function Gone({ id }: { id: string }) {
   );
 }
 
-function EpicMenu({ epic, epics, change }: { epic: Epic; epics: Epic[]; change: Changing }) {
+function EpicMenu({
+  epic,
+  epics,
+  change,
+  rename,
+}: {
+  epic: Epic;
+  epics: Epic[];
+  change: Changing;
+  rename: () => void;
+}) {
   const at = epics.findIndex((other) => other.id === epic.id);
   const before = epics.filter((_, index) => index !== at && index !== at + 1);
   return (
@@ -30,6 +40,7 @@ function EpicMenu({ epic, epics, change }: { epic: Epic; epics: Epic[]; change: 
         </Button>
       </Menu.Target>
       <Menu.Dropdown>
+        <Menu.Item onClick={rename}>Rename</Menu.Item>
         {before.map((other) => (
           <Menu.Item
             key={other.id}
@@ -45,6 +56,31 @@ function EpicMenu({ epic, epics, change }: { epic: Epic; epics: Epic[]; change: 
         )}
       </Menu.Dropdown>
     </Menu>
+  );
+}
+
+function Renaming({ epic, change, done }: { epic: Epic; change: Changing; done: () => void }) {
+  const [title, setTitle] = useState(epic.title);
+  const rename = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (await change({ change: "rename", epic: epic.id, title })) done();
+  };
+  return (
+    <form className={classes.rename} onSubmit={rename}>
+      <TextInput
+        aria-label="New title"
+        size="xs"
+        className={classes.grow}
+        value={title}
+        onChange={(event) => setTitle(event.currentTarget.value)}
+      />
+      <Button type="submit" size="xs">
+        Save
+      </Button>
+      <Button size="xs" variant="default" onClick={done}>
+        Cancel
+      </Button>
+    </form>
   );
 }
 
@@ -65,17 +101,29 @@ function EpicPanel({
   picked?: string;
   change: Changing;
 }) {
+  const [renaming, setRenaming] = useState(false);
   const held = epic.features.filter((id) => gone.has(id) || byId.has(id));
   return (
     <section aria-label={epic.title} className={classes.panel}>
       <div className={classes.panelHead}>
-        <Title order={2} className={classes.panelTitle}>
-          {epic.title}
-        </Title>
-        <span className={classes.count}>{counted(held.length, "feature")}</span>
-        <span className={classes.push}>
-          <EpicMenu epic={epic} epics={epics} change={change} />
-        </span>
+        {renaming ? (
+          <Renaming epic={epic} change={change} done={() => setRenaming(false)} />
+        ) : (
+          <>
+            <Title order={2} className={classes.panelTitle}>
+              {epic.title}
+            </Title>
+            <span className={classes.count}>{counted(held.length, "feature")}</span>
+            <span className={classes.push}>
+              <EpicMenu
+                epic={epic}
+                epics={epics}
+                change={change}
+                rename={() => setRenaming(true)}
+              />
+            </span>
+          </>
+        )}
       </div>
       {held.length === 0 ? (
         <p className={classes.empty}>No features yet.</p>

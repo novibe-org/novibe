@@ -68,6 +68,22 @@ export async function changed(
     await db.insert(epics).values({ repository, title: change.title, position });
     return planOf(database, repository);
   }
+  if (change.change === "rename") {
+    const started = await db
+      .select({ id: epics.id, title: epics.title })
+      .from(epics)
+      .where(ofRepository);
+    if (!started.some(({ id }) => id === change.epic)) return NO_SUCH_EPIC;
+    const taken = started.some(
+      ({ id, title }) => id !== change.epic && sameTitle(title, change.title),
+    );
+    if (taken) return TITLE_TAKEN;
+    await db
+      .update(epics)
+      .set({ title: change.title })
+      .where(and(ofRepository, eq(epics.id, change.epic)));
+    return planOf(database, repository);
+  }
   if (change.change === "move epic") {
     const started = await db
       .select({ id: epics.id })

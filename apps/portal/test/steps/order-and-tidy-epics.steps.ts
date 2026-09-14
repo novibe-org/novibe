@@ -91,3 +91,46 @@ Then(
     });
   },
 );
+
+Given("the epics {string} and {string}", async function (this: PortalWorld, first, second) {
+  for (const title of [first, second]) await this.change({ change: "start", title });
+});
+
+Given(
+  "the epics {string} and {string}, and {string} holds {string}",
+  async function (this: PortalWorld, first: string, second: string, holder: string, title) {
+    for (const epic of [first, second]) await this.change({ change: "start", title: epic });
+    const epic = this.plan?.epics.find((started) => started.title === holder);
+    if (!epic) throw new Error(`the epic "${holder}" was not started`);
+    mainHolds(this, title);
+    await this.change({ change: "pick", feature: slug(title), epic: epic.id });
+  },
+);
+
+When("I rename {string} to {string}", async function (this: PortalWorld, epic: string, title) {
+  await fromTheMenuOf(this, epic, "Rename");
+  const panel = epicOn(this.page(), epic);
+  await panel.getByRole("textbox", { name: "New title", exact: true }).fill(title);
+  await panel.getByRole("button", { name: "Save", exact: true }).click();
+});
+
+Then(
+  "I see {string}, holding {string}, then {string}",
+  async function (this: PortalWorld, first: string, feature: string, second: string) {
+    const page = this.page();
+    await eventually(async () => {
+      expect(await epicTitlesOn(page)).toEqual([first, second]);
+      expect(await featuresIn(page, first)).toEqual([feature]);
+      expect(await featuresIn(page, second)).toEqual([]);
+    });
+  },
+);
+
+Then(
+  "I still see the epics {string} and {string}",
+  async function (this: PortalWorld, first: string, second: string) {
+    const page = this.page();
+    await page.getByRole("alert").waitFor({ timeout: 5_000 });
+    expect(await epicTitlesOn(page)).toEqual([first, second]);
+  },
+);
