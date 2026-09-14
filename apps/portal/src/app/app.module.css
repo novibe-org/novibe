@@ -42,6 +42,42 @@
   min-width: 0;
 }
 
+.group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.start {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.grow {
+  flex: 1;
+}
+
+.refused {
+  margin: -6px 2px 14px;
+  font-size: 12.5px;
+}
+
+.groupTitle {
+  margin: 22px 2px 8px;
+  color: var(--pt-dim);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.epicOf {
+  max-width: 280px;
+  margin-top: 10px;
+}
+
 .panel {
   margin-bottom: 14px;
   overflow: hidden;

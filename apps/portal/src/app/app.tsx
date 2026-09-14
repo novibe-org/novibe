@@ -1,7 +1,9 @@
 import { Title } from "@mantine/core";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { Feature, Features, Readable } from "../feature";
+import type { Feature, Readable } from "../feature";
+import type { Change, Plan, Planned, Refused } from "../plan";
 import classes from "./app.module.css";
+import { EpicOf, Epics } from "./epics";
 import { Link } from "./link";
 import { FeatureList } from "./list";
 import { AsWritten } from "./reading";
@@ -21,17 +23,42 @@ function useReading(): string | undefined {
   return path;
 }
 
-function useFeatures(): Features | "failed" | undefined {
-  const [answer, setAnswer] = useState<Features | "failed">();
+function usePlanned() {
+  const [answer, setAnswer] = useState<Planned | "failed">();
+  const [refused, setRefused] = useState<string>();
   useEffect(() => {
     fetch("/api/features")
       .then(async (response) => {
         if (!response.ok) throw new Error(`features answered ${response.status}`);
-        setAnswer((await response.json()) as Features);
+        setAnswer((await response.json()) as Planned);
       })
       .catch(() => setAnswer("failed"));
   }, []);
-  return answer;
+
+  const change = async (change: Change): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(change),
+      });
+      const answered = (await response.json()) as Plan | Refused;
+      if ("refused" in answered) {
+        setRefused(answered.refused);
+        return false;
+      }
+      setRefused(undefined);
+      setAnswer((current) =>
+        current && current !== "failed" ? { ...current, epics: answered.epics } : current,
+      );
+      return true;
+    } catch {
+      setRefused("the portal could not change the plan");
+      return false;
+    }
+  };
+
+  return { answer, refused, change };
 }
 
 function totalsOf(features: Feature[]): string {
@@ -47,20 +74,23 @@ function totalsOf(features: Feature[]): string {
 
 function Notice({ children }: { children: ReactNode }) {
   return (
-    <div className={classes.column}>
-      <div className={classes.panel}>
-        <p className={classes.empty}>{children}</p>
-      </div>
+    <div className={classes.panel}>
+      <p className={classes.empty}>{children}</p>
     </div>
   );
 }
 
 export function App() {
-  const answer = useFeatures();
+  const { answer, refused, change } = usePlanned();
   const reading = useReading();
   const pane = useRef<HTMLElement>(null);
   const read = answer === "failed" ? undefined : answer;
   const listed = read?.features ?? [];
+  const epics = read?.epics ?? [];
+  const inAnEpic = new Set(epics.flatMap((epic) => epic.features));
+  const rest = listed.filter(
+    (feature) => feature.broken || !feature.id || !inAnEpic.has(feature.id),
+  );
   const duplicates = duplicateIdsIn(listed);
   const reader = listed.find(
     (feature): feature is Readable => !feature.broken && keyOf(feature, duplicates) === reading,
@@ -83,20 +113,45 @@ export function App() {
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
       </header>
       <main className={classes.layout}>
-        {answer === "failed" && <Notice>The portal could not read main.</Notice>}
-        {read && listed.length === 0 && <Notice>Main has no features yet.</Notice>}
-        {listed.length > 0 && (
+        {answer === "failed" && (
+          <div className={classes.column}>
+            <Notice>The portal could not read main.</Notice>
+          </div>
+        )}
+        {read && (
           <>
             <div className={classes.column}>
-              <FeatureList features={listed} duplicates={duplicates} picked={readerKey} />
+              <Epics
+                epics={epics}
+                features={listed}
+                gone={new Set(read.gone)}
+                duplicates={duplicates}
+                picked={readerKey}
+                refused={refused}
+                change={change}
+              />
+              <fieldset aria-label="not in any epic" className={classes.group}>
+                {epics.length > 0 && rest.length > 0 && (
+                  <p className={classes.groupTitle}>Not in any epic</p>
+                )}
+                {listed.length === 0 ? (
+                  <Notice>Main has no features yet.</Notice>
+                ) : (
+                  <FeatureList features={rest} duplicates={duplicates} picked={readerKey} />
+                )}
+              </fieldset>
             </div>
-            <aside ref={pane} className={classes.detail}>
-              {reader ? (
-                <AsWritten feature={reader} />
-              ) : (
-                <p className={classes.empty}>Pick a feature to read it.</p>
-              )}
-            </aside>
+            {listed.length > 0 && (
+              <aside ref={pane} className={classes.detail}>
+                {reader ? (
+                  <AsWritten feature={reader}>
+                    <EpicOf feature={reader} epics={epics} change={change} />
+                  </AsWritten>
+                ) : (
+                  <p className={classes.empty}>Pick a feature to read it.</p>
+                )}
+              </aside>
+            )}
           </>
         )}
       </main>

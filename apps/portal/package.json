@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite build && wrangler dev --port 8790",
+    "dev": "vite build && wrangler d1 migrations apply PLAN --local && wrangler dev --port 8790",
+    "db:generate": "drizzle-kit generate",
     "test": "pnpm build && pnpm test:features",
     "test:features": "NODE_OPTIONS='--import tsx' cucumber-js",
     "typecheck": "tsc --noEmit"
@@ -15,6 +16,7 @@
     "@cucumber/messages": "^34.2.1",
     "@mantine/core": "^9.6.1",
     "@mantine/hooks": "^9.6.1",
+    "drizzle-orm": "^0.45.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "^4.0.0"
@@ -26,6 +28,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.1",
+    "drizzle-kit": "^0.31.10",
     "expect": "^30.0.0",
     "playwright": "1.60.0",
     "tsx": "^4.19.0",

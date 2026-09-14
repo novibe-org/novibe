@@ -56,15 +56,20 @@ function Listed({ feature, duplicates }: { feature: Feature; duplicates: Readonl
   );
 }
 
-export function FeatureList({
-  features,
-  duplicates,
-  picked,
-}: {
-  features: Feature[];
-  duplicates: ReadonlySet<string>;
-  picked?: string;
-}) {
+type Listing = { features: Feature[]; duplicates: ReadonlySet<string>; picked?: string };
+
+export function Rows({ features, duplicates, picked }: Listing) {
+  return features.map((feature) => (
+    <li
+      key={feature.path}
+      className={cx(classes.feature, keyOf(feature, duplicates) === picked && classes.picked)}
+    >
+      <Listed feature={feature} duplicates={duplicates} />
+    </li>
+  ));
+}
+
+export function FeatureList({ features, duplicates, picked }: Listing) {
   return (
     <>
       {byDomain(features).map(([domain, listed]) => (
@@ -76,17 +81,7 @@ export function FeatureList({
             <span className={classes.count}>{counted(listed.length, "feature")}</span>
           </div>
           <ul className={classes.rows}>
-            {listed.map((feature) => (
-              <li
-                key={feature.path}
-                className={cx(
-                  classes.feature,
-                  keyOf(feature, duplicates) === picked && classes.picked,
-                )}
-              >
-                <Listed feature={feature} duplicates={duplicates} />
-              </li>
-            ))}
+            <Rows features={listed} duplicates={duplicates} picked={picked} />
           </ul>
         </section>
       ))}

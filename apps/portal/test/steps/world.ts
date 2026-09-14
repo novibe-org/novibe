@@ -11,8 +11,11 @@ import {
   setWorldConstructor,
   World,
 } from "@cucumber/cucumber";
+import { drizzle } from "drizzle-orm/d1";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { createTestHarness, type TestHarness } from "wrangler";
+import type { Change, Plan } from "../../src/plan";
+import { epics, picks } from "../../src/worker/tables";
 
 setDefaultTimeout(60_000);
 
@@ -81,6 +84,13 @@ BeforeAll(async () => {
         not_found_handling: "single-page-application",
         run_worker_first: ["/api/*"],
       },
+      d1_databases: [
+        {
+          binding: "PLAN",
+          database_name: "novibe-portal-plan",
+          migrations_dir: join(PORTAL_DIR, "migrations"),
+        },
+      ],
       vars: {
         GITHUB_API_URL: `http://127.0.0.1:${port}`,
         REPOSITORY,
@@ -91,6 +101,7 @@ BeforeAll(async () => {
   );
   portal = createTestHarness({ workers: [{ configPath: config }] });
   ({ url: portalUrl } = await portal.listen());
+  await portal.getWorker().applyD1Migrations("PLAN");
   browser = await chromium.launch();
 });
 
@@ -104,11 +115,32 @@ AfterAll(async () => {
 
 export class PortalWorld extends World {
   written: string[] = [];
+  picked: string | undefined;
   private context: BrowserContext | undefined;
   private current: Page | undefined;
 
   holds(path: string, text: string) {
     main.set(path, text);
+  }
+
+  holdsTitled(title: string): boolean {
+    return [...main.values()].some((text) => text.includes(`\nFeature: ${title}\n`));
+  }
+
+  noLongerHolds(id: string) {
+    for (const [path, text] of main) {
+      if (text.split("\n", 1)[0]?.split(" ").includes(`@id:${id}`)) main.delete(path);
+    }
+  }
+
+  async change(change: Change): Promise<Plan> {
+    const response = await fetch(new URL("/api/plan", portalUrl), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(change),
+    });
+    if (!response.ok) throw new Error(`the plan answered ${response.status}`);
+    return (await response.json()) as Plan;
   }
 
   page(): Page {
@@ -125,13 +157,24 @@ export class PortalWorld extends World {
   async close() {
     await this.context?.close();
   }
+
+  async restart() {
+    await this.close();
+    this.context = undefined;
+    this.current = undefined;
+    await portal.update((options) => options);
+    ({ url: portalUrl } = await portal.listen());
+  }
 }
 
 setWorldConstructor(PortalWorld);
 
-Before(() => {
+Before(async () => {
   main.clear();
   main.set("README.md", "# shop\n");
+  const { PLAN } = await portal.getWorker<{ PLAN: D1Database }>().getEnv();
+  const plan = drizzle(PLAN);
+  await plan.batch([plan.delete(picks), plan.delete(epics)]);
 });
 
 After(async function (this: PortalWorld) {
