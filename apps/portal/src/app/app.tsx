@@ -5,7 +5,7 @@ import classes from "./app.module.css";
 import { Link } from "./link";
 import { FeatureList } from "./list";
 import { AsWritten } from "./reading";
-import { counted, scenariosIn } from "./shown";
+import { counted, keyOf, scenariosIn } from "./shown";
 
 const NARROW = "(max-width: 900px)";
 
@@ -62,7 +62,7 @@ export function App() {
   const read = answer === "failed" ? undefined : answer;
   const listed = read?.features ?? [];
   const reader = listed.find(
-    (feature): feature is Readable => !feature.broken && feature.path === reading,
+    (feature): feature is Readable => !feature.broken && keyOf(feature) === reading,
   );
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export function App() {
         {listed.length > 0 && (
           <>
             <div className={classes.column}>
-              <FeatureList features={listed} picked={reader?.path} />
+              <FeatureList features={listed} picked={reader && keyOf(reader)} />
             </div>
             <aside ref={pane} className={classes.detail}>
               {reader ? (

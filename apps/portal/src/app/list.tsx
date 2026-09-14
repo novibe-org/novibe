@@ -2,7 +2,7 @@ import { Title } from "@mantine/core";
 import type { Feature } from "../feature";
 import classes from "./app.module.css";
 import { Link } from "./link";
-import { counted, cx, scenariosIn, stemOf } from "./shown";
+import { counted, cx, keyOf, scenariosIn, stemOf } from "./shown";
 
 const titleOf = (feature: Feature) => (feature.broken ? feature.file : feature.title);
 
@@ -42,7 +42,7 @@ function Listed({ feature }: { feature: Feature }) {
           <span className={cx(classes.pill, classes.soft)}>no id</span>
         </>
       )}
-      <Link to={`/?feature=${encodeURIComponent(feature.path)}`} className={classes.title}>
+      <Link to={`/?feature=${encodeURIComponent(keyOf(feature))}`} className={classes.title}>
         {feature.title}
       </Link>
       <span className={classes.push}>
@@ -68,7 +68,7 @@ export function FeatureList({ features, picked }: { features: Feature[]; picked?
             {listed.map((feature) => (
               <li
                 key={feature.path}
-                className={cx(classes.feature, feature.path === picked && classes.picked)}
+                className={cx(classes.feature, keyOf(feature) === picked && classes.picked)}
               >
                 <Listed feature={feature} />
               </li>

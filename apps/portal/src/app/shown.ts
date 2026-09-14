@@ -1,4 +1,7 @@
-import type { Part } from "../feature";
+import type { Feature, Part } from "../feature";
+
+export const keyOf = (feature: Feature) =>
+  feature.broken ? feature.path : (feature.id ?? feature.path);
 
 export const cx = (...names: (string | false | undefined)[]) => names.filter(Boolean).join(" ");
 
