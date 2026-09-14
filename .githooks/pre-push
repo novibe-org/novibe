@@ -3,6 +3,11 @@
 here=$(cd "$(dirname "$0")/pre-push.d" && pwd)
 [ -t 0 ] || refs=$(cat)
 
+# A push that only deletes carries nothing for the guards to check.
+if [ -n "${refs:-}" ] && ! printf '%s\n' "$refs" | awk 'NF == 4 && $2 !~ /^0+$/ { found = 1 } END { exit !found }'; then
+  exit 0
+fi
+
 # The guards check HEAD, so what is pushed has to be HEAD, and only that.
 if [ "${ALLOW_OTHER_REFS:-}" != "1" ]; then
   pushed=$(printf '%s\n' "${refs:-}" | awk 'NF == 4 && $1 != "(delete)"')
