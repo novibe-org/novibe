@@ -33,7 +33,10 @@ async function changing(request: Request, env: Env): Promise<Response> {
     return Response.json({ refused }, { status: 400 });
   }
   const answer = await changed(env.PLAN, env.REPOSITORY, change.data);
-  return Response.json(answer, { status: "refused" in answer ? 404 : 200 });
+  if ("refused" in answer) {
+    return Response.json({ refused: answer.refused }, { status: answer.status });
+  }
+  return Response.json(answer);
 }
 
 export default {

@@ -33,11 +33,11 @@ views {
 
   dynamic view changePlan {
     title 'Runtime: the driver changes the plan'
-    driver -> novibe.portal.app 'starts an epic, picks a feature into one, or takes a feature out'
+    driver -> novibe.portal.app 'changes the plan'
     novibe.portal.app -> novibe.portal.worker 'that one change'
-    novibe.portal.worker -> novibe.portal.plan 'applies it: an epic needs a title, a feature with an id is in at most one epic'
+    novibe.portal.worker -> novibe.portal.plan 'applies it'
     novibe.portal.worker -> novibe.portal.app 'the plan as changed · or: refused, and why'
-    novibe.portal.app -> driver 'the epics as changed'
+    novibe.portal.app -> driver 'the plan as changed'
     autoLayout TopBottom
   }
 

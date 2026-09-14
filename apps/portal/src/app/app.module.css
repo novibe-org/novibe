@@ -59,6 +59,12 @@
   flex: 1;
 }
 
+.rename {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+}
+
 .refused {
   margin: -6px 2px 14px;
   font-size: 12.5px;
@@ -138,6 +144,23 @@
 .picked {
   border-color: var(--pt-dim);
   box-shadow: inset 3px 0 0 var(--pt-ink);
+}
+
+.grab {
+  cursor: grab;
+}
+
+.dropBefore {
+  box-shadow: inset 0 3px 0 var(--pt-syntax);
+}
+
+.dropAfter {
+  box-shadow: inset 0 -3px 0 var(--pt-syntax);
+}
+
+.dropInto {
+  outline: 2px dashed var(--pt-syntax);
+  outline-offset: -2px;
 }
 
 .row {

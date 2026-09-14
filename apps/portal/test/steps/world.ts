@@ -116,6 +116,7 @@ AfterAll(async () => {
 export class PortalWorld extends World {
   written: string[] = [];
   picked: string | undefined;
+  plan: Plan | undefined;
   private context: BrowserContext | undefined;
   private current: Page | undefined;
 
@@ -140,7 +141,8 @@ export class PortalWorld extends World {
       body: JSON.stringify(change),
     });
     if (!response.ok) throw new Error(`the plan answered ${response.status}`);
-    return (await response.json()) as Plan;
+    this.plan = (await response.json()) as Plan;
+    return this.plan;
   }
 
   page(): Page {

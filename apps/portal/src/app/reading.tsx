@@ -149,7 +149,10 @@ function PartsAsWritten({ parts, scenarioOrder }: { parts: Part[]; scenarioOrder
   );
 }
 
+const ID_TAG = "@id:";
+
 export function AsWritten({ feature, children }: { feature: Readable; children?: ReactNode }) {
+  const tags = feature.tags.filter((tag) => !tag.startsWith(ID_TAG));
   return (
     <article aria-label={feature.title}>
       <div className={classes.meta}>
@@ -163,9 +166,9 @@ export function AsWritten({ feature, children }: { feature: Readable; children?:
           </span>
         </div>
         <p className={classes.sub}>{feature.title}</p>
-        {feature.tags.length > 0 && (
+        {tags.length > 0 && (
           <p className={classes.tags}>
-            {feature.tags.map((tag) => (
+            {tags.map((tag) => (
               <span key={tag} className={classes.tag}>
                 {tag}
               </span>

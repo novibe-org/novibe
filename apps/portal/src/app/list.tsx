@@ -1,4 +1,3 @@
-import { Title } from "@mantine/core";
 import type { Feature } from "../feature";
 import classes from "./app.module.css";
 import { Link } from "./link";
@@ -6,18 +5,8 @@ import { counted, cx, keyOf, scenariosIn, stemOf } from "./shown";
 
 const titleOf = (feature: Feature) => (feature.broken ? feature.file : feature.title);
 
-function byDomain(features: Feature[]): [string, Feature[]][] {
-  const sorted = [...features].sort(
-    (a, b) => a.domain.localeCompare(b.domain) || titleOf(a).localeCompare(titleOf(b)),
-  );
-  const domains = new Map<string, Feature[]>();
-  for (const feature of sorted) {
-    const listed = domains.get(feature.domain);
-    if (listed) listed.push(feature);
-    else domains.set(feature.domain, [feature]);
-  }
-  return [...domains];
-}
+const byDomainThenTitle = (a: Feature, b: Feature) =>
+  a.domain.localeCompare(b.domain) || titleOf(a).localeCompare(titleOf(b));
 
 function Listed({ feature, duplicates }: { feature: Feature; duplicates: ReadonlySet<string> }) {
   if (feature.broken) {
@@ -58,33 +47,37 @@ function Listed({ feature, duplicates }: { feature: Feature; duplicates: Readonl
 
 type Listing = { features: Feature[]; duplicates: ReadonlySet<string>; picked?: string };
 
-export function Rows({ features, duplicates, picked }: Listing) {
-  return features.map((feature) => (
-    <li
-      key={feature.path}
-      className={cx(classes.feature, keyOf(feature, duplicates) === picked && classes.picked)}
-    >
-      <Listed feature={feature} duplicates={duplicates} />
-    </li>
-  ));
+export function Rows({ features, duplicates, picked, drop }: Listing & { drop?: string }) {
+  return features.map((feature) => {
+    const id = feature.broken ? undefined : feature.id;
+    return (
+      <li
+        key={feature.path}
+        className={cx(
+          classes.feature,
+          keyOf(feature, duplicates) === picked && classes.picked,
+          drop,
+        )}
+        draggable={Boolean(id)}
+        data-feature={id || undefined}
+      >
+        <Listed feature={feature} duplicates={duplicates} />
+      </li>
+    );
+  });
 }
 
-export function FeatureList({ features, duplicates, picked }: Listing) {
+export function FeatureList({ features, duplicates, picked, drop }: Listing & { drop?: string }) {
+  const sorted = [...features].sort(byDomainThenTitle);
   return (
-    <>
-      {byDomain(features).map(([domain, listed]) => (
-        <section key={domain} aria-label={domain} className={classes.panel}>
-          <div className={classes.panelHead}>
-            <Title order={2} className={classes.panelTitle}>
-              {domain}
-            </Title>
-            <span className={classes.count}>{counted(listed.length, "feature")}</span>
-          </div>
-          <ul className={classes.rows}>
-            <Rows features={listed} duplicates={duplicates} picked={picked} />
-          </ul>
-        </section>
-      ))}
-    </>
+    <div className={cx(classes.panel, drop)}>
+      {sorted.length === 0 ? (
+        <p className={classes.empty}>Every feature is in an epic.</p>
+      ) : (
+        <ul className={classes.rows}>
+          <Rows features={sorted} duplicates={duplicates} picked={picked} />
+        </ul>
+      )}
+    </div>
   );
 }

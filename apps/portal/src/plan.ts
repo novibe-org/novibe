@@ -15,19 +15,41 @@ export const PlannedSchema = z.object({
   gone: z.array(z.string()),
 });
 
+const title = z.string().trim().min(1, "an epic needs a title");
+
 export const ChangeSchema = z.discriminatedUnion("change", [
   z.object({
     change: z.literal("start"),
-    title: z.string().trim().min(1, "an epic needs a title"),
+    title,
   }),
   z.object({
     change: z.literal("pick"),
     feature: z.string().min(1, "only a feature with an id can be picked"),
     epic: z.number().int(),
+    before: z.string().optional(),
   }),
   z.object({
     change: z.literal("take out"),
     feature: z.string(),
+  }),
+  z.object({
+    change: z.literal("move epic"),
+    epic: z.number().int(),
+    before: z.number().int().optional(),
+  }),
+  z.object({
+    change: z.literal("move feature"),
+    feature: z.string(),
+    before: z.string().optional(),
+  }),
+  z.object({
+    change: z.literal("rename"),
+    epic: z.number().int(),
+    title,
+  }),
+  z.object({
+    change: z.literal("remove"),
+    epic: z.number().int(),
   }),
 ]);
 

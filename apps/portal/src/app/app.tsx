@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Feature, Readable } from "../feature";
 import type { Change, Plan, Planned, Refused } from "../plan";
 import classes from "./app.module.css";
+import { useDragging } from "./dragging";
 import { EpicOf, Epics } from "./epics";
 import { Link } from "./link";
 import { FeatureList } from "./list";
@@ -94,6 +95,7 @@ export function App() {
   const read = answer === "failed" ? undefined : answer;
   const listed = read?.features ?? [];
   const epics = read?.epics ?? [];
+  const { over, dragging } = useDragging(epics, change);
   const inAnEpic = new Set(epics.flatMap((epic) => epic.features));
   const rest = listed.filter(
     (feature) => feature.broken || !feature.id || !inAnEpic.has(feature.id),
@@ -119,7 +121,7 @@ export function App() {
         {read && <span className={classes.tag}>{read.ref}</span>}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
       </header>
-      <main className={classes.layout}>
+      <main className={classes.layout} {...dragging}>
         {answer === "failed" && (
           <div className={classes.column}>
             <Notice>The portal could not read main.</Notice>
@@ -135,16 +137,24 @@ export function App() {
                 duplicates={duplicates}
                 picked={readerKey}
                 refused={refused}
+                over={over}
                 change={change}
               />
-              <fieldset aria-label="not in any epic" className={classes.group}>
-                {epics.length > 0 && rest.length > 0 && (
-                  <p className={classes.groupTitle}>Not in any epic</p>
-                )}
+              <fieldset aria-label="not in any epic" className={classes.group} data-unassigned>
+                {epics.length > 0 && <p className={classes.groupTitle}>Not in any epic</p>}
                 {listed.length === 0 ? (
                   <Notice>Main has no features yet.</Notice>
                 ) : (
-                  <FeatureList features={rest} duplicates={duplicates} picked={readerKey} />
+                  <FeatureList
+                    features={rest}
+                    duplicates={duplicates}
+                    picked={readerKey}
+                    drop={
+                      over?.moving === "feature" && over.epic === undefined
+                        ? classes.dropInto
+                        : undefined
+                    }
+                  />
                 )}
               </fieldset>
             </div>

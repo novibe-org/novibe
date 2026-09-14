@@ -27,3 +27,10 @@ export const scenariosIn = (parts: Part[]): number =>
     if ("rule" in part) return count + scenariosIn(part.rule.parts);
     return "scenario" in part ? count + 1 : count;
   }, 0);
+
+export function droppedBefore<T>(order: T[], item: T, onto: T | undefined, after: boolean) {
+  if (onto === item) return undefined;
+  const rest = order.filter((each) => each !== item);
+  const before = onto === undefined ? undefined : rest[rest.indexOf(onto) + (after ? 1 : 0)];
+  return before === order[order.indexOf(item) + 1] ? undefined : { before };
+}
