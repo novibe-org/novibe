@@ -1,4 +1,4 @@
-import { Button, NativeSelect, TextInput, Title } from "@mantine/core";
+import { Button, Menu, NativeSelect, TextInput, Title } from "@mantine/core";
 import { type FormEvent, useState } from "react";
 import type { Feature, Readable } from "../feature";
 import type { Change, Epic } from "../plan";
@@ -19,18 +19,51 @@ function Gone({ id }: { id: string }) {
   );
 }
 
+function EpicMenu({ epic, epics, change }: { epic: Epic; epics: Epic[]; change: Changing }) {
+  const at = epics.findIndex((other) => other.id === epic.id);
+  const before = epics.filter((_, index) => index !== at && index !== at + 1);
+  return (
+    <Menu position="bottom-end">
+      <Menu.Target>
+        <Button size="compact-xs" variant="subtle" color="gray">
+          Change
+        </Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {before.map((other) => (
+          <Menu.Item
+            key={other.id}
+            onClick={() => void change({ change: "move epic", epic: epic.id, before: other.id })}
+          >
+            Move before {other.title}
+          </Menu.Item>
+        ))}
+        {at < epics.length - 1 && (
+          <Menu.Item onClick={() => void change({ change: "move epic", epic: epic.id })}>
+            Move to the end
+          </Menu.Item>
+        )}
+      </Menu.Dropdown>
+    </Menu>
+  );
+}
+
 function EpicPanel({
   epic,
+  epics,
   byId,
   gone,
   duplicates,
   picked,
+  change,
 }: {
   epic: Epic;
+  epics: Epic[];
   byId: ReadonlyMap<string, Readable[]>;
   gone: ReadonlySet<string>;
   duplicates: ReadonlySet<string>;
   picked?: string;
+  change: Changing;
 }) {
   const held = epic.features.filter((id) => gone.has(id) || byId.has(id));
   return (
@@ -40,6 +73,9 @@ function EpicPanel({
           {epic.title}
         </Title>
         <span className={classes.count}>{counted(held.length, "feature")}</span>
+        <span className={classes.push}>
+          <EpicMenu epic={epic} epics={epics} change={change} />
+        </span>
       </div>
       {held.length === 0 ? (
         <p className={classes.empty}>No features yet.</p>
@@ -117,10 +153,12 @@ export function Epics({
         <EpicPanel
           key={epic.id}
           epic={epic}
+          epics={epics}
           byId={byId}
           gone={gone}
           duplicates={duplicates}
           picked={picked}
+          change={change}
         />
       ))}
     </fieldset>

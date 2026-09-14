@@ -29,6 +29,11 @@ export const ChangeSchema = z.discriminatedUnion("change", [
     change: z.literal("take out"),
     feature: z.string(),
   }),
+  z.object({
+    change: z.literal("move epic"),
+    epic: z.number().int(),
+    before: z.number().int().optional(),
+  }),
 ]);
 
 export const RefusedSchema = z.object({ refused: z.string() });

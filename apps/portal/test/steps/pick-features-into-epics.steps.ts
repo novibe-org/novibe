@@ -1,46 +1,19 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
-import type { Page } from "playwright";
+import {
+  epicHolding,
+  epicOn,
+  epicSelectOn,
+  epicsOn,
+  eventually,
+  featuresIn,
+  mainHolds,
+  notInAnyEpicOn,
+  reading,
+  seeNotInAnyEpic,
+} from "./plan";
 import type { PortalWorld } from "./world";
-import { featureFile, slug } from "./written";
-
-const epicsOn = (page: Page) => page.getByRole("group", { name: "epics", exact: true });
-
-const notInAnyEpicOn = (page: Page) =>
-  page.getByRole("group", { name: "not in any epic", exact: true });
-
-const epicOn = (page: Page, title: string) =>
-  epicsOn(page).getByRole("region", { name: title, exact: true });
-
-const epicSelectOn = (page: Page) => page.getByRole("combobox", { name: "Epic", exact: true });
-
-function mainHolds(
-  world: PortalWorld,
-  title: string,
-  domain = "payments",
-  written: { id?: string | null; tags?: string[] } = {},
-) {
-  world.holds(`features/${domain}/${slug(title)}.feature`, featureFile({ title, ...written }));
-}
-
-async function epicHolding(world: PortalWorld, title: string, id: string) {
-  const { epics } = await world.change({ change: "start", title });
-  const epic = epics.filter((started) => started.title === title).at(-1);
-  if (!epic) throw new Error(`the epic "${title}" was not started`);
-  await world.change({ change: "pick", feature: id, epic: epic.id });
-}
-
-async function reading(world: PortalWorld, title: string) {
-  if (!world.holdsTitled(title)) mainHolds(world, title);
-  await world.open();
-  await world.page().getByRole("link", { name: title, exact: true }).click();
-}
-
-async function seeNotInAnyEpic(world: PortalWorld, title: string) {
-  const page = world.page();
-  await notInAnyEpicOn(page).getByRole("listitem").filter({ hasText: title }).waitFor();
-  expect(await epicsOn(page).getByRole("listitem").filter({ hasText: title }).count()).toBe(0);
-}
+import { slug } from "./written";
 
 Given("the epic {string}", async function (this: PortalWorld, title: string) {
   await this.change({ change: "start", title });
@@ -197,12 +170,9 @@ Then("I still see only the epic {string}", async function (this: PortalWorld, ti
 Then(
   "I see {string} holding {string}, then {string}",
   async function (this: PortalWorld, epic: string, first: string, second: string) {
-    const held = epicOn(this.page(), epic).getByRole("listitem");
-    await held.filter({ hasText: second }).waitFor();
-    const seen = await held.evaluateAll((items) =>
-      items.map((item) => item.querySelector("a")?.textContent),
-    );
-    expect(seen).toEqual([first, second]);
+    await eventually(async () => {
+      expect(await featuresIn(this.page(), epic)).toEqual([first, second]);
+    });
   },
 );
 
