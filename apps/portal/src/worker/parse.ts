@@ -39,7 +39,7 @@ const stepOf = ({ id, keyword, text, docString, dataTable }: GherkinStep): Step 
   dataTable: dataTable && rowsOf(dataTable.rows),
 });
 
-function scenarioOf(written: Background | GherkinScenario): Scenario {
+function scenarioOf(written: Background | GherkinScenario, inherited: string[]): Scenario {
   const { id, keyword, name, description, steps } = written;
   const tags = namesOf("tags" in written ? written.tags : []);
   const examples = "examples" in written ? written.examples : [];
@@ -49,7 +49,7 @@ function scenarioOf(written: Background | GherkinScenario): Scenario {
     name,
     description: asWritten(description),
     tags,
-    backlog: tags.includes(BACKLOG_TAG),
+    backlog: [...inherited, ...tags].includes(BACKLOG_TAG),
     steps: steps.map(stepOf),
     examples: examples.map(({ id, keyword, name, tableHeader, tableBody }) => ({
       id,
@@ -60,15 +60,14 @@ function scenarioOf(written: Background | GherkinScenario): Scenario {
   };
 }
 
-function partsOf(children: readonly (FeatureChild | RuleChild)[]): Part[] {
+function partsOf(children: readonly (FeatureChild | RuleChild)[], inherited: string[]): Part[] {
   return children.flatMap((child): Part[] => {
-    if (child.background) return [{ background: scenarioOf(child.background) }];
-    if (child.scenario) return [{ scenario: scenarioOf(child.scenario) }];
+    if (child.background) return [{ background: scenarioOf(child.background, []) }];
+    if (child.scenario) return [{ scenario: scenarioOf(child.scenario, inherited) }];
     if ("rule" in child && child.rule) {
-      const { id, keyword, name, description, children: ruled } = child.rule;
-      return [
-        { rule: { id, keyword, name, description: asWritten(description), parts: partsOf(ruled) } },
-      ];
+      const { id, keyword, name, description, tags, children: ruled } = child.rule;
+      const parts = partsOf(ruled, [...inherited, ...namesOf(tags)]);
+      return [{ rule: { id, keyword, name, description: asWritten(description), parts } }];
     }
     return [];
   });
@@ -95,7 +94,7 @@ export function parsed(path: string, text: string): Feature {
       tags,
       backlog: tags.includes(BACKLOG_TAG),
       narrative: asWritten(feature.description),
-      parts: partsOf(feature.children),
+      parts: partsOf(feature.children, tags),
     };
   } catch {
     return broken;

@@ -100,6 +100,17 @@ Given(
 );
 
 Given(
+  "main holds the feature {string} tagged {string} with the scenario {string}",
+  function (this: PortalWorld, title: string, tag: string, scenario: string) {
+    const body = [`  Scenario: ${scenario}`, "    Then points are earned"];
+    this.holds(
+      `features/rewards/${slug(title)}.feature`,
+      featureFile({ title, tags: [tag], body }),
+    );
+  },
+);
+
+Given(
   "the feature {string} holds the scenario {string} tagged {string}",
   function (this: PortalWorld, title: string, scenario: string, tag: string) {
     const body = [
