@@ -35,6 +35,7 @@ function usePlanned(branch: string | undefined) {
   useEffect(() => {
     let shown = true;
     setAnswer(undefined);
+    setRefused(undefined);
     fetch(branch ? `/api/features?${new URLSearchParams({ branch })}` : "/api/features")
       .then(async (response) => {
         if (!response.ok) throw new Error(`features answered ${response.status}`);
