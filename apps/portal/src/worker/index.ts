@@ -11,12 +11,15 @@ async function withThePlan(asked: URLSearchParams, env: Env): Promise<Response> 
   let features: Feature[];
   let run: Run | null;
   try {
-    const [listed, commit] = await Promise.all([branchesOf(env), commitOf(env, branch)]);
+    branches = await branchesOf(env);
+    if (branch !== branches.main && !branches.others.includes(branch)) {
+      return Response.json({ error: "there is no such branch" }, { status: 404 });
+    }
+    const commit = await commitOf(env, branch);
     const [files, tested] = await Promise.all([
       featureFilesAt(env, commit),
       latestTestRun(env, branch),
     ]);
-    branches = listed;
     features = files.map(({ path, text }) => parsed(path, text, tested?.results));
     run = tested ? { finished: tested.finished, earlier: tested.commit !== commit } : null;
   } catch (failure) {
