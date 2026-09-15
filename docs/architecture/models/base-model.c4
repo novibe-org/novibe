@@ -17,8 +17,8 @@ model {
   }
 
   github = external 'GitHub' {
-    technology 'GitHub REST API'
-    description 'Where the project\'s repository and its main live.'
+    technology 'GitHub REST and GraphQL APIs'
+    description 'Where the project\'s repository, its branches and its CI runs live.'
   }
 
   novibe = system 'NoVibe' {
