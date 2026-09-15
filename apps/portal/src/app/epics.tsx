@@ -5,7 +5,8 @@ import type { Change, Epic } from "../plan";
 import classes from "./app.module.css";
 import type { Over } from "./dragging";
 import { Rows } from "./list";
-import { counted, cx, passedOf } from "./shown";
+import { Passed } from "./progress";
+import { counted, cx } from "./shown";
 
 export type Changing = (change: Change) => Promise<boolean>;
 
@@ -147,7 +148,7 @@ function EpicPanel({
   const [renaming, setRenaming] = useState(false);
   const [removing, setRemoving] = useState(false);
   const held = epic.features.filter((id) => gone.has(id) || byId.has(id));
-  const passed = passedOf(held.flatMap((id) => byId.get(id) ?? []).flatMap(({ parts }) => parts));
+  const parts = held.flatMap((id) => byId.get(id) ?? []).flatMap((feature) => feature.parts);
   const lineAt = (after: boolean) => (after ? classes.dropAfter : classes.dropBefore);
   const dropOn = (id: string) =>
     over?.moving === "feature" && over.feature === id ? lineAt(over.after) : undefined;
@@ -174,7 +175,7 @@ function EpicPanel({
               {epic.title}
             </Title>
             <span className={classes.count}>{counted(held.length, "feature")}</span>
-            {passed && <span className={classes.count}>{passed}</span>}
+            <Passed parts={parts} width={130} />
             <span className={classes.push}>
               <EpicMenu
                 epic={epic}

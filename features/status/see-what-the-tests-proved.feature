@@ -45,6 +45,11 @@ Feature: Seeing what the tests proved
     When I open the portal
     Then I see "Checkout" with 3 of 5 passed
 
+  Scenario: The portal shows how many of all the scenarios on main passed
+    Given main's latest test run passed 38 of the 40 scenarios on main
+    When I open the portal
+    Then I see 38 of 40 passed for the whole of main
+
   Scenario: The portal says when main's latest test run happened
     Given main's latest test run finished 2 hours ago
     When I open the portal

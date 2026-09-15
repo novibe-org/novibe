@@ -7,6 +7,7 @@ import { useDragging } from "./dragging";
 import { EpicOf, Epics } from "./epics";
 import { Link } from "./link";
 import { FeatureList } from "./list";
+import { Passed } from "./progress";
 import { AsWritten } from "./reading";
 import { agoFrom, counted, duplicateIdsIn, keyOf, scenariosIn } from "./shown";
 
@@ -125,6 +126,10 @@ export function App() {
         </Title>
         {read && <span className={classes.tag}>{read.ref}</span>}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
+        <Passed
+          parts={listed.flatMap((feature) => (feature.broken ? [] : feature.parts))}
+          width={200}
+        />
         {read && <span className={classes.totals}>{testsOf(read.run)}</span>}
       </header>
       <main className={classes.layout} {...dragging}>

@@ -114,6 +114,41 @@
   white-space: nowrap;
 }
 
+.passedOf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress {
+  display: flex;
+  flex: 0 0 auto;
+  height: 6px;
+  overflow: hidden;
+  background: var(--pt-line);
+  border-radius: 3px;
+}
+
+.progress > i {
+  height: 100%;
+}
+
+.passed {
+  background: var(--pt-pass);
+}
+
+.failed {
+  background: var(--pt-fail);
+}
+
+.notRun {
+  background: var(--pt-idle);
+}
+
+.backlog {
+  background: var(--pt-future);
+}
+
 .push {
   display: flex;
   align-items: center;
