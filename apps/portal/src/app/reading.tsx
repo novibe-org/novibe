@@ -1,4 +1,4 @@
-import { Code, Table, Title } from "@mantine/core";
+import { Anchor, Code, Table, Title } from "@mantine/core";
 import { type CSSProperties, Fragment, type ReactNode } from "react";
 import type { Examples, Part, Readable, Row, Rule, Scenario, Step } from "../feature";
 import classes from "./app.module.css";
@@ -165,7 +165,15 @@ function PartsAsWritten({ parts, scenarioOrder }: { parts: Part[]; scenarioOrder
 
 const ID_TAG = "@id:";
 
-export function AsWritten({ feature, children }: { feature: Readable; children?: ReactNode }) {
+export function AsWritten({
+  feature,
+  source,
+  children,
+}: {
+  feature: Readable;
+  source: string;
+  children?: ReactNode;
+}) {
   const tags = feature.tags.filter((tag) => !tag.startsWith(ID_TAG));
   return (
     <article aria-label={feature.title}>
@@ -189,7 +197,11 @@ export function AsWritten({ feature, children }: { feature: Readable; children?:
             ))}
           </p>
         )}
-        <p className={classes.where}>{feature.path}</p>
+        <p className={classes.where}>
+          <Anchor href={source} target="_blank" rel="noreferrer">
+            {feature.path}
+          </Anchor>
+        </p>
         {feature.narrative && <p className={classes.narrative}>{feature.narrative}</p>}
         {children}
       </div>

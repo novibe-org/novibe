@@ -24,6 +24,16 @@
   font-weight: inherit;
 }
 
+.branch {
+  font-family: var(--mantine-font-family-monospace);
+  font-weight: 400;
+}
+
+.branches {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .totals {
   color: var(--pt-dim);
   font-size: 12px;
@@ -338,6 +348,10 @@
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.where a {
+  font-size: inherit;
 }
 
 .narrative {

@@ -69,13 +69,18 @@ export const FeatureSchema = z.discriminatedUnion("broken", [ReadableSchema, Bro
 
 export const RunSchema = z.object({ finished: z.string(), earlier: z.boolean() });
 
+export const BranchesSchema = z.object({ main: z.string(), others: z.array(z.string()) });
+
 export const FeaturesSchema = z.object({
-  ref: z.string(),
+  repository: z.string(),
+  branch: z.string(),
+  branches: BranchesSchema,
   features: z.array(FeatureSchema),
   run: RunSchema.nullable(),
 });
 
 export type Run = z.infer<typeof RunSchema>;
+export type Branches = z.infer<typeof BranchesSchema>;
 
 export type Row = z.infer<typeof RowSchema>;
 export type Step = z.infer<typeof StepSchema>;

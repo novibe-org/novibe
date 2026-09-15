@@ -56,11 +56,11 @@ Feature: Picking features into epics
     When I pick "Earning points" into "Checkout"
     Then I see "Earning points" in "Checkout", marked as backlog
 
-  Scenario: A feature no longer on main stays in its epic, marked as gone
+  Scenario: A feature not on the branch shown stays in its epic, marked as gone
     Given the epic "Checkout" holds the feature with the id "pay-by-cheque"
-    And main no longer holds a feature with that id
+    And the branch shown holds no feature with that id
     When I open the portal
-    Then I see "pay-by-cheque" in "Checkout", marked as no longer on main
+    Then I see "pay-by-cheque" in "Checkout", marked as not on this branch
 
   Scenario: The epics are kept until I change them
     Given the epic "Checkout" holds "Paying with a saved card"

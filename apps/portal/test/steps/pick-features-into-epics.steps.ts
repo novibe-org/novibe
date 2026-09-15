@@ -78,7 +78,7 @@ Given(
   },
 );
 
-Given("main no longer holds a feature with that id", function (this: PortalWorld) {
+Given("the branch shown holds no feature with that id", function (this: PortalWorld) {
   this.noLongerHolds(this.picked ?? "");
 });
 
@@ -240,10 +240,10 @@ Then(
 );
 
 Then(
-  "I see {string} in {string}, marked as no longer on main",
+  "I see {string} in {string}, marked as not on this branch",
   async function (this: PortalWorld, id: string, epic: string) {
     const listed = epicOn(this.page(), epic).getByRole("listitem").filter({ hasText: id });
-    await listed.getByText("no longer on main", { exact: true }).waitFor();
+    await listed.getByText("not on this branch", { exact: true }).waitFor();
   },
 );
 

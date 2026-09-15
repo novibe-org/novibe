@@ -30,10 +30,10 @@ export async function planOf(database: D1Database, repository: string): Promise<
 }
 
 export function goneFrom(plan: Plan, features: Feature[]): string[] {
-  const onMain = new Set(
+  const onTheBranch = new Set(
     features.flatMap((feature) => (feature.broken || !feature.id ? [] : [feature.id])),
   );
-  return plan.epics.flatMap((epic) => epic.features).filter((id) => !onMain.has(id));
+  return plan.epics.flatMap((epic) => epic.features).filter((id) => !onTheBranch.has(id));
 }
 
 function moved<T>(order: T[], item: T, before: T | undefined): T[] | undefined {

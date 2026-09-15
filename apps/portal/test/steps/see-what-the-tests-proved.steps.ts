@@ -176,6 +176,11 @@ When("I read its feature", async function (this: PortalWorld) {
 Then(
   /^I see "([^"]*)" marked as (passed|failed)$/,
   async function (this: PortalWorld, name: string, result: string) {
+    if (name === this.feature) {
+      const shown = result === "passed" ? "1 of 1 passed" : "0 of 1 passed";
+      await rowOf(this, name).getByText(shown, { exact: true }).waitFor();
+      return;
+    }
     await markedAs(this, name, result);
   },
 );
