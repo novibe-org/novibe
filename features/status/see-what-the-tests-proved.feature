@@ -1,11 +1,11 @@
 @id:see-what-the-tests-proved
 Feature: Seeing what the tests proved
   As the driver of a big project
-  I see for each scenario on main whether the tests proved it
+  I see for each scenario on the default branch whether the tests proved it
   so that I can tell what is done and what is still missing.
 
-  Scenario Outline: A scenario shows what main's latest run made of it
-    Given main's latest test run <result> the scenario "Paying with a saved card"
+  Scenario Outline: A scenario shows what the default branch's latest run made of it
+    Given the default branch's latest test run <result> the scenario "Paying with a saved card"
     When I read its feature
     Then I see "Paying with a saved card" marked as <result>
 
@@ -15,23 +15,23 @@ Feature: Seeing what the tests proved
       | failed |
 
   Scenario: A scenario the latest run left out shows as not run
-    Given main's latest test run did not run the scenario "Refunding a payment"
+    Given the default branch's latest test run did not run the scenario "Refunding a payment"
     When I read its feature
     Then I see "Refunding a payment" marked as not run
 
   Scenario: A backlog scenario the latest run did run shows what the run made of it
     Given the scenario "Paying in two currencies" is tagged "@backlog"
-    And main's latest test run passed it
+    And the default branch's latest test run passed it
     When I read its feature
     Then I see "Paying in two currencies" marked as passed
 
   Scenario: An outline counts once, and fails when one of its examples failed
-    Given main's latest test run passed the outline "Paying in <currency>" for "EUR" and failed it for "USD"
+    Given the default branch's latest test run passed the outline "Paying in <currency>" for "EUR" and failed it for "USD"
     When I read its feature
     Then I see "Paying in <currency>" marked as failed, counted as one scenario
 
   Scenario: A feature shows how many of its scenarios passed
-    Given main's latest test run passed 2 and failed 1 of the 3 scenarios of "Paying with a saved card"
+    Given the default branch's latest test run passed 2 and failed 1 of the 3 scenarios of "Paying with a saved card"
     When I open the portal
     Then I see "Paying with a saved card" with 2 of 3 passed
 
@@ -45,22 +45,22 @@ Feature: Seeing what the tests proved
     When I open the portal
     Then I see "Checkout" with 3 of 5 passed
 
-  Scenario: The portal shows how many of all the scenarios on main passed
-    Given main's latest test run passed 38 of the 40 scenarios on main
+  Scenario: The portal shows how many of all the scenarios on the default branch passed
+    Given the default branch's latest test run passed 38 of its 40 scenarios
     When I open the portal
-    Then I see 38 of 40 passed for the whole of main
+    Then I see 38 of 40 passed for the whole of the default branch
 
-  Scenario: The portal says when main's latest test run happened
-    Given main's latest test run finished 2 hours ago
+  Scenario: The portal says when the default branch's latest test run happened
+    Given the default branch's latest test run finished 2 hours ago
     When I open the portal
     Then I see that the tests ran 2 hours ago
 
-  Scenario: Results from an earlier main are shown and said to be earlier
-    Given main's latest test run ran for an earlier commit than the main shown
+  Scenario: Results from an earlier commit of the default branch are shown and said to be earlier
+    Given the default branch's latest test run ran for an earlier commit than the one shown
     When I open the portal
-    Then I see its results, said to be from an earlier main
+    Then I see its results, said to be from an earlier commit
 
-  Scenario: Main without a test run says so
-    Given main has never had a test run
+  Scenario: The default branch without a test run says so
+    Given the default branch has never had a test run
     When I open the portal
-    Then I am told main has no test run yet
+    Then I am told the default branch has no test run yet
