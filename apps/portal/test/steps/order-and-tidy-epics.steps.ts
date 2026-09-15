@@ -1,6 +1,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import {
+  defaultBranchHolds,
   dragOnto,
   epicHolding,
   epicOn,
@@ -9,7 +10,6 @@ import {
   eventually,
   featuresIn,
   headOf,
-  mainHolds,
   rowOf,
   seeNotInAnyEpic,
 } from "./plan";
@@ -27,7 +27,7 @@ const holderOf = (world: PortalWorld, feature: string) =>
   world.plan?.epics.find(({ features }) => features.includes(slug(feature)))?.title ?? "";
 
 async function epicHoldingInOrder(world: PortalWorld, epic: string, titles: string[]) {
-  for (const title of titles) mainHolds(world, title);
+  for (const title of titles) defaultBranchHolds(world, title);
   await epicHolding(world, epic, ...titles.map(slug));
 }
 
@@ -135,7 +135,7 @@ Given(
     for (const epic of [first, second]) await this.change({ change: "start", title: epic });
     const epic = this.plan?.epics.find((started) => started.title === holder);
     if (!epic) throw new Error(`the epic "${holder}" was not started`);
-    mainHolds(this, title);
+    defaultBranchHolds(this, title);
     await this.change({ change: "pick", feature: slug(title), epic: epic.id });
   },
 );

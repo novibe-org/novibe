@@ -95,14 +95,11 @@ function totalsOf(features: Feature[]): string {
 }
 
 const namedOf = ({ branch, branches }: Planned) =>
-  branch === branches.main
-    ? { branch: "Main", commit: "main" }
-    : { branch: "This branch", commit: "commit" };
+  branch === branches.main ? "The default branch" : "This branch";
 
 function testsOf(read: Planned): string {
-  const named = namedOf(read);
-  if (!read.run) return `${named.branch} has no test run yet`;
-  const earlier = read.run.earlier ? `, for an earlier ${named.commit}` : "";
+  if (!read.run) return `${namedOf(read)} has no test run yet`;
+  const earlier = read.run.earlier ? ", for an earlier commit" : "";
   return `Tests ran ${agoFrom(read.run.finished)}${earlier}`;
 }
 
@@ -155,7 +152,7 @@ export function App() {
       <main className={classes.layout} {...dragging}>
         {answer === "failed" && (
           <div className={classes.column}>
-            <Notice>The portal could not read {branch ?? "main"}.</Notice>
+            <Notice>The portal could not read {branch ?? "the default branch"}.</Notice>
           </div>
         )}
         {read && (
@@ -174,7 +171,7 @@ export function App() {
               <fieldset aria-label="not in any epic" className={classes.group} data-unassigned>
                 {epics.length > 0 && <p className={classes.groupTitle}>Not in any epic</p>}
                 {listed.length === 0 ? (
-                  <Notice>{namedOf(read).branch} has no features yet.</Notice>
+                  <Notice>{namedOf(read)} has no features yet.</Notice>
                 ) : (
                   <FeatureList
                     features={rest}
