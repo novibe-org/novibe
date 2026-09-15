@@ -29,7 +29,7 @@ const ROUTES = `/repos/${REPOSITORY}/`;
 const TOKEN = "read-only-test-token";
 const WORKFLOW = "ci.yml";
 const RESULTS_ARTIFACT = "test-results";
-export const DEFAULT_BRANCH = "main";
+const MAIN = "main";
 const BRANCHES_ASKED =
   /defaultBranchRef \{ name \}[\s\S]*refs\(refPrefix: "refs\/heads\/"[^)]*\)[\s\S]*committedDate/;
 
@@ -50,6 +50,7 @@ type TestRun = {
 const branches = new Map<string, Branch>();
 const latestRuns = new Map<string, TestRun>();
 let runs = 0;
+let defaultBranch = MAIN;
 let github: Server;
 let storage: Server;
 let storagePort: number;
@@ -111,7 +112,7 @@ function runsAsked(asked: URLSearchParams) {
   const finished =
     latest &&
     asked.get("status") === "completed" &&
-    (branch === DEFAULT_BRANCH ? event === "push" : event === null || event === latest.event);
+    (branch === defaultBranch ? event === "push" : event === null || event === latest.event);
   if (!finished) return [];
   const repository = { id: REPOSITORY_ID, full_name: REPOSITORY };
   return [
@@ -154,7 +155,7 @@ function answerAsGraphQL(request: IncomingMessage, response: ServerResponse) {
         target: { committedDate: changed.toISOString() },
       }));
     const pageInfo = { hasNextPage: false, endCursor: null };
-    const defaultBranchRef = { name: DEFAULT_BRANCH };
+    const defaultBranchRef = { name: defaultBranch };
     answerJson(response, { data: { repository: { defaultBranchRef, refs: { pageInfo, nodes } } } });
   });
 }
@@ -284,7 +285,7 @@ export class PortalWorld extends World {
   private current: Page | undefined;
 
   holds(path: string, text: string) {
-    this.branchHolds(DEFAULT_BRANCH, path, text);
+    this.branchHolds(defaultBranch, path, text);
   }
 
   branchHolds(branch: string, path: string, text: string) {
@@ -295,8 +296,14 @@ export class PortalWorld extends World {
     branchNamed(branch).changed = changed;
   }
 
+  defaultBranchIs(name: string) {
+    branches.delete(defaultBranch);
+    defaultBranch = name;
+    branchNamed(name).changed = new Date(0);
+  }
+
   holdsTitled(title: string): boolean {
-    const { files } = branchNamed(DEFAULT_BRANCH);
+    const { files } = branchNamed(defaultBranch);
     return [...files.values()].some((text) => text.includes(`\nFeature: ${title}\n`));
   }
 
@@ -306,17 +313,17 @@ export class PortalWorld extends World {
   }
 
   noLongerHolds(id: string) {
-    const { files } = branchNamed(DEFAULT_BRANCH);
+    const { files } = branchNamed(defaultBranch);
     for (const [path, text] of files) {
       if (text.split("\n", 1)[0]?.split(" ").includes(`@id:${id}`)) files.delete(path);
     }
   }
 
-  testRun(branch = DEFAULT_BRANCH): TestRun {
+  testRun(branch = defaultBranch): TestRun {
     const latest = latestRuns.get(branch) ?? {
       id: ++runs,
       branch,
-      event: branch === DEFAULT_BRANCH ? "push" : "pull_request",
+      event: branch === defaultBranch ? "push" : "pull_request",
       commit: headOf(branch),
       finished: new Date(),
       verdicts: new Map(),
@@ -325,7 +332,7 @@ export class PortalWorld extends World {
     return latest;
   }
 
-  proved(path: string, scenario: string, verdict: Verdict, branch = DEFAULT_BRANCH) {
+  proved(path: string, scenario: string, verdict: Verdict, branch = defaultBranch) {
     this.testRun(branch).verdicts.set(`${path}\n${scenario}`, verdict);
   }
 
@@ -374,7 +381,8 @@ setWorldConstructor(PortalWorld);
 
 Before(async () => {
   branches.clear();
-  branchNamed(DEFAULT_BRANCH).changed = new Date(0);
+  defaultBranch = MAIN;
+  branchNamed(defaultBranch).changed = new Date(0);
   latestRuns.clear();
   const { PLAN } = await portal.getWorker<{ PLAN: D1Database }>().getEnv();
   const plan = drizzle(PLAN);

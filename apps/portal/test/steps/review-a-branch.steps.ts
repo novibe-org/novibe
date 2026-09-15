@@ -9,7 +9,7 @@ import {
   headOf,
   notInAnyEpicOn,
 } from "./plan";
-import { DEFAULT_BRANCH, type PortalWorld, REPOSITORY } from "./world";
+import { type PortalWorld, REPOSITORY } from "./world";
 import { featureFile, slug } from "./written";
 
 function branchHoldsTitled(world: PortalWorld, branch: string, title: string) {
@@ -33,7 +33,7 @@ async function seeTheFeaturesOn(world: PortalWorld, branch: string) {
 Given(
   "the default branch {string} and the branch {string}",
   function (this: PortalWorld, byDefault: string, other: string) {
-    expect(byDefault).toBe(DEFAULT_BRANCH);
+    this.defaultBranchIs(byDefault);
     defaultBranchHolds(this, "Paying with a saved card");
     branchHoldsTitled(this, other, "Refunding a payment");
   },
@@ -46,7 +46,7 @@ Then("I see the features on {string}", async function (this: PortalWorld, branch
 Given(
   "the default branch {string}, {string} changed today and {string} yesterday",
   function (this: PortalWorld, byDefault: string, today: string, yesterday: string) {
-    expect(byDefault).toBe(DEFAULT_BRANCH);
+    this.defaultBranchIs(byDefault);
     this.branchChanged(today, new Date());
     this.branchChanged(yesterday, new Date(Date.now() - 86_400_000));
   },
