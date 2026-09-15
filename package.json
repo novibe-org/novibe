@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.3",
+    "gherkin-lint-plus": "github:StefanStuehrmann/gherkin-lint-plus",
     "likec4": "^1.58.0"
   },
   "packageManager": "pnpm@9.15.1"
