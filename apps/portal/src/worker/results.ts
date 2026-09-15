@@ -2,6 +2,7 @@ import { strFromU8, unzipSync } from "fflate";
 import { z } from "zod";
 
 const RESULTS_FILE = "messages.ndjson";
+const MOST_UNZIPPED_BYTES = 16 * 1024 * 1024;
 
 export type Proved = "passed" | "failed";
 
@@ -87,7 +88,14 @@ export function resultsIn(messages: string): Results {
 }
 
 export function resultsInArtifact(zip: ArrayBuffer): Results | undefined {
-  const files = unzipSync(new Uint8Array(zip), { filter: ({ name }) => name === RESULTS_FILE });
+  const files = unzipSync(new Uint8Array(zip), {
+    filter: ({ name, originalSize }) => {
+      if (name !== RESULTS_FILE) return false;
+      if (originalSize <= MOST_UNZIPPED_BYTES) return true;
+      console.error(`${RESULTS_FILE} unzips to ${originalSize} bytes, over ${MOST_UNZIPPED_BYTES}`);
+      return false;
+    },
+  });
   const messages = files[RESULTS_FILE];
   return messages && resultsIn(strFromU8(messages));
 }
