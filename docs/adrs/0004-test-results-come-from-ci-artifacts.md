@@ -5,7 +5,7 @@
 ## Context
 
 The portal shows what the tests proved about each scenario on the branch it shows. CI runs the
-scenarios on every push to main and on every pull request but keeps nothing of what it found, and
+scenarios on every push to the default branch and on every pull request but keeps nothing of what it found, and
 the Worker can read only what GitHub serves it.
 
 ## Decision
@@ -14,7 +14,7 @@ the Worker can read only what GitHub serves it.
   or fail, in Cucumber Messages, Cucumber's standard stream tying each result to its scenario's
   place in the feature files.
 - **The Worker reads the branch's latest finished run** through GitHub's Actions API with the same
-  read-only token, which then also needs Actions: read. For main that is its latest push run; for
+  read-only token, which then also needs Actions: read. For the default branch that is its latest push run; for
   any other branch its latest finished run of either kind. Only runs from this repository count,
   so a fork's pull request cannot pose as a branch. A run still in progress is skipped.
 - **Only what cannot change is cached.** The branches, a branch's file list and its latest finished

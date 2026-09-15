@@ -20,9 +20,9 @@ views {
 
   dynamic view readFeatures {
     title 'Runtime: the driver reads the features on a branch'
-    driver -> novibe.portal.app 'opens the portal, on main or the branch in its address'
+    driver -> novibe.portal.app 'opens the portal, on the repository\'s default branch or the branch in its address'
     novibe.portal.app -> novibe.portal.worker 'the branches, and every feature of that branch with its results and the plan'
-    novibe.portal.worker -> github 'the branches'
+    novibe.portal.worker -> github 'the default branch and the other branches'
     novibe.portal.worker -> github 'the feature files on that branch'
     novibe.portal.worker -> github 'that branch\'s latest finished test run, with its results'
     novibe.portal.worker -> novibe.portal.plan 'this repository\'s epics'
