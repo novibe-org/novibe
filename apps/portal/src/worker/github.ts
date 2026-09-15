@@ -83,8 +83,8 @@ export async function branchesOf(env: Env): Promise<Branches> {
   return { main: env.MAIN, others: others.map(({ name }) => name) };
 }
 
-export async function commitOf(env: Env): Promise<string> {
-  const route = `commits/${encodeURIComponent(env.MAIN)}`;
+export async function commitOf(env: Env, branch: string): Promise<string> {
+  const route = `commits/${encodeURIComponent(branch)}`;
   const answer = await fromGitHub(env, route, "application/vnd.github.sha");
   return ShaSchema.parse(await answer.text());
 }

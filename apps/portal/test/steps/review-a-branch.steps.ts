@@ -61,3 +61,41 @@ Then(
     expect(seen).toEqual([main, "set apart", first, second]);
   },
 );
+
+async function choose(world: PortalWorld, branch: string) {
+  const page = world.page();
+  await page.getByRole("button", { name: /^Branch / }).click();
+  await page.getByRole("menu").getByRole("menuitem", { name: branch, exact: true }).click();
+}
+
+Given("I chose the branch {string}", async function (this: PortalWorld, branch: string) {
+  mainHolds(this, "Paying with a saved card");
+  branchHoldsTitled(this, branch, "Refunding a payment");
+  await this.open();
+  await choose(this, branch);
+  await this.page().waitForURL((address) => address.searchParams.get("branch") === branch);
+});
+
+When("I load the same page again", async function (this: PortalWorld) {
+  await this.page().reload();
+});
+
+Then("I still see the features on {string}", async function (this: PortalWorld, branch: string) {
+  await seeTheFeaturesOn(this, branch);
+});
+
+Given(
+  "only {string} holds the feature {string}",
+  function (this: PortalWorld, branch: string, title: string) {
+    branchHoldsTitled(this, branch, title);
+  },
+);
+
+When("I choose the branch {string}", async function (this: PortalWorld, branch: string) {
+  await this.open();
+  await choose(this, branch);
+});
+
+Then("I see {string}", async function (this: PortalWorld, title: string) {
+  await notInAnyEpicOn(this.page()).getByRole("link", { name: title, exact: true }).waitFor();
+});

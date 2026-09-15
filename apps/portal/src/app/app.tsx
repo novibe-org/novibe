@@ -6,7 +6,7 @@ import classes from "./app.module.css";
 import { BranchMenu } from "./branches";
 import { useDragging } from "./dragging";
 import { EpicOf, Epics } from "./epics";
-import { Link } from "./link";
+import { type Address, Link } from "./link";
 import { FeatureList } from "./list";
 import { Passed } from "./progress";
 import { AsWritten } from "./reading";
@@ -14,29 +14,40 @@ import { agoFrom, counted, duplicateIdsIn, keyOf, scenariosIn } from "./shown";
 
 const NARROW = "(max-width: 900px)";
 
-const readingNow = () => new URLSearchParams(window.location.search).get("feature") ?? undefined;
+function addressNow(): Address {
+  const asked = new URLSearchParams(window.location.search);
+  return { branch: asked.get("branch") ?? undefined, feature: asked.get("feature") ?? undefined };
+}
 
-function useReading(): string | undefined {
-  const [path, setPath] = useState(readingNow);
+function useAddress(): Address {
+  const [address, setAddress] = useState(addressNow);
   useEffect(() => {
-    const moved = () => setPath(readingNow());
+    const moved = () => setAddress(addressNow());
     window.addEventListener("popstate", moved);
     return () => window.removeEventListener("popstate", moved);
   }, []);
-  return path;
+  return address;
 }
 
-function usePlanned() {
+function usePlanned(branch: string | undefined) {
   const [answer, setAnswer] = useState<Planned | "failed">();
   const [refused, setRefused] = useState<string>();
   useEffect(() => {
-    fetch("/api/features")
+    let shown = true;
+    setAnswer(undefined);
+    fetch(branch ? `/api/features?${new URLSearchParams({ branch })}` : "/api/features")
       .then(async (response) => {
         if (!response.ok) throw new Error(`features answered ${response.status}`);
-        setAnswer((await response.json()) as Planned);
+        const planned = (await response.json()) as Planned;
+        if (shown) setAnswer(planned);
       })
-      .catch(() => setAnswer("failed"));
-  }, []);
+      .catch(() => {
+        if (shown) setAnswer("failed");
+      });
+    return () => {
+      shown = false;
+    };
+  }, [branch]);
 
   const lastChange = useRef<Promise<boolean>>(Promise.resolve(true));
 
@@ -96,8 +107,8 @@ function Notice({ children }: { children: ReactNode }) {
 }
 
 export function App() {
-  const { answer, refused, change } = usePlanned();
-  const reading = useReading();
+  const { branch, feature: reading } = useAddress();
+  const { answer, refused, change } = usePlanned(branch);
   const pane = useRef<HTMLElement>(null);
   const read = answer === "failed" ? undefined : answer;
   const listed = read?.features ?? [];
