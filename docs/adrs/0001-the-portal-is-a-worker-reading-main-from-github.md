@@ -10,9 +10,9 @@ against a local checkout, which a Worker cannot do.
 
 ## Decision
 
-- **Main, read from GitHub's API.** The Worker asks for main's feature files on each open, with a
-  read-only fine-grained token in `.dev.vars`, parses them with Cucumber's Gherkin parser, and
-  hands the app every feature at once. What a file holds is cached only by its content hash, as
+- **A branch, read from GitHub's API.** The Worker asks for the feature files of the branch shown,
+  main unless another is chosen, on each open, with a read-only fine-grained token in `.dev.vars`,
+  parses them with Cucumber's Gherkin parser, and hands the app every feature at once. What a file holds is cached only by its content hash, as
   ADR-0004 decides.
 - **A Worker and an app**, the knowledge manager's shape, run locally with `wrangler dev` for now.
 - **A pnpm workspace at the root, the new portal in `apps/portal`.** `portal/` stays until the new
