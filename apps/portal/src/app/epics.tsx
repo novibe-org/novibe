@@ -15,7 +15,7 @@ function Gone({ id }: { id: string }) {
     <div className={classes.row}>
       <span className={classes.id}>{id}</span>
       <span className={classes.push}>
-        <span className={cx(classes.pill, classes.fail)}>no longer on main</span>
+        <span className={cx(classes.pill, classes.fail)}>not on this branch</span>
       </span>
     </div>
   );

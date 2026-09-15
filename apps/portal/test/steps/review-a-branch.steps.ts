@@ -1,7 +1,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import type { Page } from "playwright";
-import { eventually, mainHolds, notInAnyEpicOn } from "./plan";
+import { dragOnto, eventually, featuresIn, headOf, mainHolds, notInAnyEpicOn } from "./plan";
 import { type PortalWorld, REPOSITORY } from "./world";
 import { featureFile, slug } from "./written";
 
@@ -122,6 +122,35 @@ Then(
     expect(await file.getAttribute("href")).toBe(
       `https://github.com/${REPOSITORY}/blob/${branch}/${this.featurePath}`,
     );
+  },
+);
+
+Given(
+  "the epic {string}, and {string} only on {string}",
+  async function (this: PortalWorld, epic: string, title: string, branch: string) {
+    await this.change({ change: "start", title: epic });
+    branchHoldsTitled(this, branch, title);
+  },
+);
+
+When(
+  "I choose {string} and pick {string} into {string}",
+  async function (this: PortalWorld, branch: string, title: string, epic: string) {
+    await this.open();
+    await choose(this, branch);
+    const page = this.page();
+    const listed = notInAnyEpicOn(page).getByRole("listitem").filter({ hasText: title });
+    await listed.waitFor();
+    await dragOnto(listed, headOf(page, epic), "lower");
+  },
+);
+
+Then(
+  "I see {string} holding {string}",
+  async function (this: PortalWorld, epic: string, title: string) {
+    await eventually(async () => {
+      expect(await featuresIn(this.page(), epic)).toEqual([title]);
+    });
   },
 );
 
