@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Feature, Readable, Run } from "../feature";
 import type { Change, Plan, Planned, Refused } from "../plan";
 import classes from "./app.module.css";
+import { BranchMenu } from "./branches";
 import { useDragging } from "./dragging";
 import { EpicOf, Epics } from "./epics";
 import { Link } from "./link";
@@ -124,7 +125,7 @@ export function App() {
         <Title order={1} className={classes.brand}>
           <Link to="/">portal</Link>
         </Title>
-        {read && <span className={classes.tag}>{read.ref}</span>}
+        {read && <BranchMenu shown={read.branch} />}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
         <Passed
           parts={listed.flatMap((feature) => (feature.broken ? [] : feature.parts))}

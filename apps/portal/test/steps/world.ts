@@ -23,20 +23,30 @@ setDefaultTimeout(60_000);
 
 const PORTAL_DIR = join(import.meta.dirname, "..", "..");
 const GENERATED = join(PORTAL_DIR, "test", "fixture", "generated");
-const REPOSITORY = "acme/shop";
+export const REPOSITORY = "acme/shop";
+const REPOSITORY_ID = 1;
 const ROUTES = `/repos/${REPOSITORY}/`;
 const TOKEN = "read-only-test-token";
 const WORKFLOW = "ci.yml";
 const RESULTS_ARTIFACT = "test-results";
+const MAIN = "main";
 
 const sha1 = (text: string) => createHash("sha1").update(text).digest("hex");
 const blobShaOf = (text: string) => sha1(`blob ${Buffer.byteLength(text)}\0${text}`);
-const MAIN = sha1("the main shown");
 
-type TestRun = { id: number; commit: string; finished: Date; verdicts: Map<string, Verdict> };
+type Branch = { files: Map<string, string>; changed: Date };
 
-const main = new Map<string, string>();
-let run: TestRun | undefined;
+type TestRun = {
+  id: number;
+  branch: string;
+  event: "push" | "pull_request";
+  commit: string;
+  finished: Date;
+  verdicts: Map<string, Verdict>;
+};
+
+const branches = new Map<string, Branch>();
+const latestRuns = new Map<string, TestRun>();
 let runs = 0;
 let github: Server;
 let storage: Server;
@@ -44,6 +54,18 @@ let storagePort: number;
 let portal: TestHarness;
 let portalUrl: URL;
 let browser: Browser;
+
+function branchNamed(name: string): Branch {
+  const branch = branches.get(name) ?? {
+    files: new Map([["README.md", "# shop\n"]]),
+    changed: new Date(),
+  };
+  branches.set(name, branch);
+  return branch;
+}
+
+const headOf = (name: string) =>
+  sha1(`${name} changed at ${branchNamed(name).changed.toISOString()}`);
 
 function directoriesOf(paths: string[]): string[] {
   const directories = new Set<string>();
@@ -64,16 +86,44 @@ async function listening(server: Server): Promise<number> {
 const answerJson = (response: ServerResponse, body: unknown) =>
   response.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(body));
 
+const runWithId = (id: string | undefined) =>
+  [...latestRuns.values()].find((each) => String(each.id) === id);
+
 function answerAsStorage(request: IncomingMessage, response: ServerResponse) {
-  const latest = run;
-  if (!latest || request.headers.authorization || request.url !== `/${latest.id}.zip`) {
+  const [, id] = /^\/(\d+)\.zip$/.exec(request.url ?? "") ?? [];
+  const latest = runWithId(id);
+  if (!latest || request.headers.authorization) {
     response.writeHead(403).end();
     return;
   }
   const verdictOf = (path: string, scenario: string) => latest.verdicts.get(`${path}\n${scenario}`);
   response
     .writeHead(200, { "content-type": "application/zip" })
-    .end(resultsArtifact(main, verdictOf, latest.finished));
+    .end(resultsArtifact(branchNamed(latest.branch).files, verdictOf, latest.finished));
+}
+
+function runsAsked(asked: URLSearchParams) {
+  const branch = asked.get("branch") ?? "";
+  const latest = latestRuns.get(branch);
+  const event = asked.get("event");
+  const finished =
+    latest &&
+    asked.get("status") === "completed" &&
+    (branch === MAIN ? event === "push" : event === null || event === latest.event);
+  if (!finished) return [];
+  const repository = { id: REPOSITORY_ID, full_name: REPOSITORY };
+  return [
+    {
+      id: latest.id,
+      head_branch: branch,
+      head_sha: latest.commit,
+      event: latest.event,
+      status: "completed",
+      updated_at: latest.finished.toISOString(),
+      repository,
+      head_repository: repository,
+    },
+  ];
 }
 
 function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
@@ -83,55 +133,66 @@ function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
     return;
   }
   const route = url.pathname.startsWith(ROUTES) ? url.pathname.slice(ROUTES.length) : "";
-  if (route === "commits/main") {
-    response.writeHead(200, { "content-type": "application/vnd.github.sha" }).end(MAIN);
+  const heads = [...branches.keys()].map((name) => ({ name, sha: headOf(name) }));
+  if (route === "branches") {
+    const firstPage = (url.searchParams.get("page") ?? "1") === "1";
+    const listed = firstPage ? [...heads].sort((a, b) => a.name.localeCompare(b.name)) : [];
+    answerJson(
+      response,
+      listed.map(({ name, sha }) => ({ name, commit: { sha }, protected: false })),
+    );
     return;
   }
-  if (route === `git/trees/${MAIN}`) {
+  const [, ref = ""] = /^commits\/(.+)$/.exec(route) ?? [];
+  const named = heads.find(({ name }) => name === decodeURIComponent(ref));
+  if (named) {
+    response.writeHead(200, { "content-type": "application/vnd.github.sha" }).end(named.sha);
+    return;
+  }
+  const [, kind, commit] = /^git\/(trees|commits)\/([0-9a-f]{40})$/.exec(route) ?? [];
+  const head = heads.find(({ sha }) => sha === commit);
+  if (head && kind === "trees") {
+    const { files } = branchNamed(head.name);
     const tree = [
-      ...directoriesOf([...main.keys()]).map((path) => ({
+      ...directoriesOf([...files.keys()]).map((path) => ({
         path,
         type: "tree",
         sha: sha1(`tree ${path}`),
       })),
-      ...[...main].map(([path, text]) => ({ path, type: "blob", sha: blobShaOf(text) })),
+      ...[...files].map(([path, text]) => ({ path, type: "blob", sha: blobShaOf(text) })),
     ];
-    answerJson(response, { sha: sha1(`tree of ${MAIN}`), tree, truncated: false });
+    answerJson(response, { sha: sha1(`tree of ${head.sha}`), tree, truncated: false });
+    return;
+  }
+  if (head && kind === "commits") {
+    const date = branchNamed(head.name).changed.toISOString();
+    answerJson(response, { sha: head.sha, committer: { date }, author: { date } });
     return;
   }
   if (route === `actions/workflows/${WORKFLOW}/runs`) {
-    const asked = url.searchParams;
-    const finishedOnMain =
-      asked.get("branch") === "main" &&
-      asked.get("event") === "push" &&
-      asked.get("status") === "completed";
-    const workflow_runs =
-      run && finishedOnMain
-        ? [
-            {
-              id: run.id,
-              head_sha: run.commit,
-              status: "completed",
-              updated_at: run.finished.toISOString(),
-            },
-          ]
-        : [];
+    const workflow_runs = runsAsked(url.searchParams);
     answerJson(response, { total_count: workflow_runs.length, workflow_runs });
     return;
   }
-  if (run && route === `actions/runs/${run.id}/artifacts`) {
+  const [, listedFor] = /^actions\/runs\/(\d+)\/artifacts$/.exec(route) ?? [];
+  const listedRun = runWithId(listedFor);
+  if (listedRun) {
     const named = url.searchParams.get("name") === RESULTS_ARTIFACT;
-    const artifacts = named ? [{ id: run.id, name: RESULTS_ARTIFACT, expired: false }] : [];
+    const artifacts = named ? [{ id: listedRun.id, name: RESULTS_ARTIFACT, expired: false }] : [];
     answerJson(response, { total_count: artifacts.length, artifacts });
     return;
   }
-  if (run && route === `actions/artifacts/${run.id}/zip`) {
-    const location = `http://127.0.0.1:${storagePort}/${run.id}.zip`;
+  const [, zipped] = /^actions\/artifacts\/(\d+)\/zip$/.exec(route) ?? [];
+  const zippedRun = runWithId(zipped);
+  if (zippedRun) {
+    const location = `http://127.0.0.1:${storagePort}/${zippedRun.id}.zip`;
     response.writeHead(302, { location }).end();
     return;
   }
   const [, sha] = /^git\/blobs\/([0-9a-f]{40})$/.exec(route) ?? [];
-  const content = [...main.values()].find((text) => blobShaOf(text) === sha);
+  const content = [...branches.values()]
+    .flatMap(({ files }) => [...files.values()])
+    .find((text) => blobShaOf(text) === sha);
   if (content === undefined) {
     response.writeHead(404).end();
     return;
@@ -167,7 +228,7 @@ BeforeAll(async () => {
       vars: {
         GITHUB_API_URL: `http://127.0.0.1:${port}`,
         REPOSITORY,
-        REF: "main",
+        MAIN,
         WORKFLOW,
         GITHUB_TOKEN: TOKEN,
       },
@@ -196,30 +257,54 @@ export class PortalWorld extends World {
   feature = "";
   featurePath = "";
   scenario = "";
+  shown: string | undefined;
   private context: BrowserContext | undefined;
   private current: Page | undefined;
 
   holds(path: string, text: string) {
-    main.set(path, text);
+    this.branchHolds(MAIN, path, text);
+  }
+
+  branchHolds(branch: string, path: string, text: string) {
+    branchNamed(branch).files.set(path, text);
+  }
+
+  branchChanged(branch: string, changed: Date) {
+    branchNamed(branch).changed = changed;
   }
 
   holdsTitled(title: string): boolean {
-    return [...main.values()].some((text) => text.includes(`\nFeature: ${title}\n`));
+    const { files } = branchNamed(MAIN);
+    return [...files.values()].some((text) => text.includes(`\nFeature: ${title}\n`));
+  }
+
+  titlesOn(branch: string): string[] {
+    const { files } = branchNamed(branch);
+    return [...files.values()].flatMap((text) => /\nFeature: (.*)\n/.exec(text)?.slice(1) ?? []);
   }
 
   noLongerHolds(id: string) {
-    for (const [path, text] of main) {
-      if (text.split("\n", 1)[0]?.split(" ").includes(`@id:${id}`)) main.delete(path);
+    const { files } = branchNamed(MAIN);
+    for (const [path, text] of files) {
+      if (text.split("\n", 1)[0]?.split(" ").includes(`@id:${id}`)) files.delete(path);
     }
   }
 
-  testRun(): TestRun {
-    run ??= { id: ++runs, commit: MAIN, finished: new Date(), verdicts: new Map() };
-    return run;
+  testRun(branch = MAIN): TestRun {
+    const latest = latestRuns.get(branch) ?? {
+      id: ++runs,
+      branch,
+      event: branch === MAIN ? "push" : "pull_request",
+      commit: headOf(branch),
+      finished: new Date(),
+      verdicts: new Map(),
+    };
+    latestRuns.set(branch, latest);
+    return latest;
   }
 
-  proved(path: string, scenario: string, verdict: Verdict) {
-    this.testRun().verdicts.set(`${path}\n${scenario}`, verdict);
+  proved(path: string, scenario: string, verdict: Verdict, branch = MAIN) {
+    this.testRun(branch).verdicts.set(`${path}\n${scenario}`, verdict);
   }
 
   ranForAnEarlierMain() {
@@ -245,7 +330,9 @@ export class PortalWorld extends World {
   async open() {
     this.context ??= await browser.newContext();
     this.current ??= await this.context.newPage();
-    await this.current.goto(new URL("/", portalUrl).toString());
+    const address = new URL("/", portalUrl);
+    if (this.shown) address.searchParams.set("branch", this.shown);
+    await this.current.goto(address.toString());
   }
 
   async close() {
@@ -264,9 +351,9 @@ export class PortalWorld extends World {
 setWorldConstructor(PortalWorld);
 
 Before(async () => {
-  main.clear();
-  main.set("README.md", "# shop\n");
-  run = undefined;
+  branches.clear();
+  branchNamed(MAIN).changed = new Date(0);
+  latestRuns.clear();
   const { PLAN } = await portal.getWorker<{ PLAN: D1Database }>().getEnv();
   const plan = drizzle(PLAN);
   await plan.batch([plan.delete(picks), plan.delete(epics)]);

@@ -54,7 +54,7 @@ async function neverChanging(env: Env, route: string, accept?: string): Promise<
 }
 
 export async function commitOf(env: Env): Promise<string> {
-  const route = `commits/${encodeURIComponent(env.REF)}`;
+  const route = `commits/${encodeURIComponent(env.MAIN)}`;
   const answer = await fromGitHub(env, route, "application/vnd.github.sha");
   return ShaSchema.parse(await answer.text());
 }
@@ -74,7 +74,7 @@ export async function featureFilesAt(env: Env, commit: string) {
 
 export async function latestTestRun(env: Env): Promise<TestRun | undefined> {
   const finished = new URLSearchParams({
-    branch: env.REF,
+    branch: env.MAIN,
     event: "push",
     status: "completed",
     per_page: "1",

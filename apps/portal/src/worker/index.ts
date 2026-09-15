@@ -19,7 +19,7 @@ async function withThePlan(env: Env): Promise<Response> {
   }
   const plan = await planOf(env.PLAN, env.REPOSITORY);
   return Response.json({
-    ref: env.REF,
+    branch: env.MAIN,
     features,
     run,
     ...plan,

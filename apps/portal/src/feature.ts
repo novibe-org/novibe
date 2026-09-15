@@ -70,7 +70,7 @@ export const FeatureSchema = z.discriminatedUnion("broken", [ReadableSchema, Bro
 export const RunSchema = z.object({ finished: z.string(), earlier: z.boolean() });
 
 export const FeaturesSchema = z.object({
-  ref: z.string(),
+  branch: z.string(),
   features: z.array(FeatureSchema),
   run: RunSchema.nullable(),
 });

@@ -24,6 +24,11 @@
   font-weight: inherit;
 }
 
+.branch {
+  font-family: var(--mantine-font-family-monospace);
+  font-weight: 400;
+}
+
 .totals {
   color: var(--pt-dim);
   font-size: 12px;
