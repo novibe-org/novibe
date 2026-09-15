@@ -1,7 +1,8 @@
 import type { Feature } from "../feature";
 import classes from "./app.module.css";
 import { Link } from "./link";
-import { counted, cx, keyOf, passedOf, scenariosIn, stemOf } from "./shown";
+import { Passed } from "./progress";
+import { counted, cx, keyOf, scenariosIn, stemOf } from "./shown";
 
 const titleOf = (feature: Feature) => (feature.broken ? feature.file : feature.title);
 
@@ -39,9 +40,13 @@ function Listed({ feature, duplicates }: { feature: Feature; duplicates: Readonl
       </Link>
       <span className={classes.push}>
         {feature.backlog && <span className={cx(classes.pill, classes.later)}>backlog</span>}
-        <span className={classes.count}>
-          {passedOf(feature.parts) ?? counted(scenariosIn(feature.parts), "scenario")}
-        </span>
+        <Passed
+          parts={feature.parts}
+          width={64}
+          otherwise={
+            <span className={classes.count}>{counted(scenariosIn(feature.parts), "scenario")}</span>
+          }
+        />
       </span>
     </div>
   );

@@ -135,6 +135,22 @@ Given(
 );
 
 Given(
+  "main's latest test run passed {int} of the {int} scenarios on main",
+  function (this: PortalWorld, passed: number, of: number) {
+    const verdicts = [
+      ...times<Verdict>(passed, "passed"),
+      ...times<Verdict>(1, "failed"),
+      ...times(of - passed - 1, undefined),
+    ];
+    const titles = ["Paying with a saved card", "Paying by invoice", "Earning points", "Refunds"];
+    const each = Math.ceil(of / titles.length);
+    titles.forEach((title, at) => {
+      mainHoldsProved(this, title, verdicts.slice(at * each, (at + 1) * each));
+    });
+  },
+);
+
+Given(
   "main's latest test run finished {int} hours ago",
   function (this: PortalWorld, hours: number) {
     this.testRun().finished = new Date(Date.now() - hours * 3_600_000);
@@ -183,6 +199,14 @@ Then(
     const isEpic = this.plan?.epics.some(({ title }) => title === name);
     const holder = isEpic ? epicOn(this.page(), name) : rowOf(this, name);
     await holder.getByText(shown, { exact: true }).first().waitFor();
+  },
+);
+
+Then(
+  "I see {int} of {int} passed for the whole of main",
+  async function (this: PortalWorld, passed: number, of: number) {
+    const shown = `${passed} of ${of} passed`;
+    await this.page().getByRole("banner").getByText(shown, { exact: true }).waitFor();
   },
 );
 

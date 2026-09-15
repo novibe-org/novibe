@@ -30,11 +30,18 @@ const scenariosOf = (parts: Part[]): Scenario[] =>
 
 export const scenariosIn = (parts: Part[]) => scenariosOf(parts).length;
 
-export function passedOf(parts: Part[]): string | undefined {
+export const STATES = ["passed", "failed", "not run", "backlog"] as const;
+
+export type Tally = Record<(typeof STATES)[number], number>;
+
+export function tallyOf(parts: Part[]): Tally | undefined {
   const scenarios = scenariosOf(parts);
   if (!scenarios.some(({ result }) => result)) return undefined;
-  const passed = scenarios.filter(({ result }) => result === "passed").length;
-  return `${passed} of ${scenarios.length} passed`;
+  const tally: Tally = { passed: 0, failed: 0, "not run": 0, backlog: 0 };
+  for (const { result = "not run", backlog } of scenarios) {
+    tally[result === "not run" && backlog ? "backlog" : result] += 1;
+  }
+  return tally;
 }
 
 const SPANS: [Intl.RelativeTimeFormatUnit, number][] = [
