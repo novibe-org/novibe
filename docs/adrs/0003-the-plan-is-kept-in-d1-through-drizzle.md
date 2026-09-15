@@ -18,7 +18,7 @@ the same place.
   it checks the plan, then writes the change in one batch. With one driver changing the plan
   locally, nothing interleaves between the check and the write; hosting the plan for several
   people would revisit that.
-- **The Worker joins the plan with the features**, marking a feature no longer on main as gone;
+- **The Worker joins the plan with the features**, marking a feature not on the branch shown as gone;
   the app only shows the answer.
 
 ## Alternatives
