@@ -5,7 +5,7 @@
 ## Context
 
 The portal shows what the tests proved about each scenario on the branch it shows. CI runs the
-scenarios on every push to the default branch and on every pull request but keeps nothing of what it found, and
+scenarios on every push to this repository's default branch, main, and on every pull request but keeps nothing of what it found, and
 the Worker can read only what GitHub serves it.
 
 ## Decision
@@ -38,5 +38,7 @@ the Worker can read only what GitHub serves it.
 - Cached responses were fetched with the token, which is fine while the portal runs only locally.
 - Results exist only for runs made after CI starts uploading them, and only while GitHub keeps
   the artifact.
+- A repository whose default branch is not main needs its CI to run on pushes to that branch: a
+  workflow's trigger names branches, not the default one.
 
 Shapes the views `portal` and `readFeatures`.
