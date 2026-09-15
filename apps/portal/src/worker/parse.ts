@@ -10,11 +10,14 @@ import {
   type Tag,
 } from "@cucumber/messages";
 import type { Feature, Part, Row, Scenario, Step } from "../feature";
+import type { Proved, Results } from "./results";
 
 export const FEATURE_PATH = /^features\/(?:(.+)\/)?([^/]+\.feature)$/;
 
 const ID_TAG = "@id:";
 const BACKLOG_TAG = "@backlog";
+
+type ProvedByLine = ReadonlyMap<number, Proved>;
 
 const namesOf = (tags: readonly Tag[]) => tags.map(({ name }) => name);
 
@@ -39,8 +42,12 @@ const stepOf = ({ id, keyword, text, docString, dataTable }: GherkinStep): Step 
   dataTable: dataTable && rowsOf(dataTable.rows),
 });
 
-function scenarioOf(written: Background | GherkinScenario, inherited: string[]): Scenario {
-  const { id, keyword, name, description, steps } = written;
+function scenarioOf(
+  written: Background | GherkinScenario,
+  inherited: string[],
+  proved?: ProvedByLine,
+): Scenario {
+  const { id, keyword, name, description, steps, location } = written;
   const tags = namesOf("tags" in written ? written.tags : []);
   const examples = "examples" in written ? written.examples : [];
   return {
@@ -50,6 +57,7 @@ function scenarioOf(written: Background | GherkinScenario, inherited: string[]):
     description: asWritten(description),
     tags,
     backlog: [...inherited, ...tags].includes(BACKLOG_TAG),
+    result: proved && (proved.get(location.line) ?? "not run"),
     steps: steps.map(stepOf),
     examples: examples.map(({ id, keyword, name, tableHeader, tableBody }) => ({
       id,
@@ -60,20 +68,24 @@ function scenarioOf(written: Background | GherkinScenario, inherited: string[]):
   };
 }
 
-function partsOf(children: readonly (FeatureChild | RuleChild)[], inherited: string[]): Part[] {
+function partsOf(
+  children: readonly (FeatureChild | RuleChild)[],
+  inherited: string[],
+  proved?: ProvedByLine,
+): Part[] {
   return children.flatMap((child): Part[] => {
     if (child.background) return [{ background: scenarioOf(child.background, []) }];
-    if (child.scenario) return [{ scenario: scenarioOf(child.scenario, inherited) }];
+    if (child.scenario) return [{ scenario: scenarioOf(child.scenario, inherited, proved) }];
     if ("rule" in child && child.rule) {
       const { id, keyword, name, description, tags, children: ruled } = child.rule;
-      const parts = partsOf(ruled, [...inherited, ...namesOf(tags)]);
+      const parts = partsOf(ruled, [...inherited, ...namesOf(tags)], proved);
       return [{ rule: { id, keyword, name, description: asWritten(description), parts } }];
     }
     return [];
   });
 }
 
-export function parsed(path: string, text: string): Feature {
+export function parsed(path: string, text: string, results?: Results): Feature {
   const [, domain = "", file = path] = FEATURE_PATH.exec(path) ?? [];
   const broken = { path, file, domain, broken: true } as const;
   try {
@@ -94,7 +106,7 @@ export function parsed(path: string, text: string): Feature {
       tags,
       backlog: tags.includes(BACKLOG_TAG),
       narrative: asWritten(feature.description),
-      parts: partsOf(feature.children, tags),
+      parts: partsOf(feature.children, tags, results && (results.get(path) ?? new Map())),
     };
   } catch {
     return broken;

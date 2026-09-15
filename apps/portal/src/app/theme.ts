@@ -64,6 +64,7 @@ export const portalVariables: CSSVariablesResolver = () => ({
     "--pt-card": "#f3f5f8",
     "--pt-syntax": harbour[6],
     "--pt-soft": "#a3650f",
+    "--pt-pass": "#2e7d32",
     "--pt-fail": "#b3261e",
   },
   dark: {
@@ -77,6 +78,7 @@ export const portalVariables: CSSVariablesResolver = () => ({
     "--pt-card": night[7],
     "--pt-syntax": harbour[3],
     "--pt-soft": "#d99a3c",
+    "--pt-pass": "#74c17a",
     "--pt-fail": "#e5736b",
   },
 });

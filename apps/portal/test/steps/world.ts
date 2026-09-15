@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
@@ -16,16 +17,30 @@ import { type Browser, type BrowserContext, chromium, type Page } from "playwrig
 import { createTestHarness, type TestHarness } from "wrangler";
 import type { Change, Plan } from "../../src/plan";
 import { epics, picks } from "../../src/worker/tables";
+import { resultsArtifact, type Verdict } from "./run";
 
 setDefaultTimeout(60_000);
 
 const PORTAL_DIR = join(import.meta.dirname, "..", "..");
 const GENERATED = join(PORTAL_DIR, "test", "fixture", "generated");
 const REPOSITORY = "acme/shop";
+const ROUTES = `/repos/${REPOSITORY}/`;
 const TOKEN = "read-only-test-token";
+const WORKFLOW = "ci.yml";
+const RESULTS_ARTIFACT = "test-results";
+
+const sha1 = (text: string) => createHash("sha1").update(text).digest("hex");
+const blobShaOf = (text: string) => sha1(`blob ${Buffer.byteLength(text)}\0${text}`);
+const MAIN = sha1("the main shown");
+
+type TestRun = { id: number; commit: string; finished: Date; verdicts: Map<string, Verdict> };
 
 const main = new Map<string, string>();
+let run: TestRun | undefined;
+let runs = 0;
 let github: Server;
+let storage: Server;
+let storagePort: number;
 let portal: TestHarness;
 let portalUrl: URL;
 let browser: Browser;
@@ -41,25 +56,82 @@ function directoriesOf(paths: string[]): string[] {
   return [...directories];
 }
 
+async function listening(server: Server): Promise<number> {
+  await new Promise<void>((ready) => server.listen(0, "127.0.0.1", ready));
+  return (server.address() as AddressInfo).port;
+}
+
+const answerJson = (response: ServerResponse, body: unknown) =>
+  response.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(body));
+
+function answerAsStorage(request: IncomingMessage, response: ServerResponse) {
+  const latest = run;
+  if (!latest || request.headers.authorization || request.url !== `/${latest.id}.zip`) {
+    response.writeHead(403).end();
+    return;
+  }
+  const verdictOf = (path: string, scenario: string) => latest.verdicts.get(`${path}\n${scenario}`);
+  response
+    .writeHead(200, { "content-type": "application/zip" })
+    .end(resultsArtifact(main, verdictOf, latest.finished));
+}
+
 function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
   const url = new URL(request.url ?? "/", "http://github.test");
   if (request.headers.authorization !== `Bearer ${TOKEN}`) {
     response.writeHead(401).end();
     return;
   }
-  if (url.pathname === `/repos/${REPOSITORY}/git/trees/main`) {
-    const paths = [...main.keys()];
-    const tree = [
-      ...directoriesOf(paths).map((path) => ({ path, type: "tree", sha: `tree:${path}` })),
-      ...paths.map((path) => ({ path, type: "blob", sha: encodeURIComponent(path) })),
-    ];
-    response
-      .writeHead(200, { "content-type": "application/json" })
-      .end(JSON.stringify({ sha: "main", tree, truncated: false }));
+  const route = url.pathname.startsWith(ROUTES) ? url.pathname.slice(ROUTES.length) : "";
+  if (route === "commits/main") {
+    response.writeHead(200, { "content-type": "application/vnd.github.sha" }).end(MAIN);
     return;
   }
-  const [, sha] = /^\/repos\/acme\/shop\/git\/blobs\/(.+)$/.exec(url.pathname) ?? [];
-  const content = sha === undefined ? undefined : main.get(decodeURIComponent(sha));
+  if (route === `git/trees/${MAIN}`) {
+    const tree = [
+      ...directoriesOf([...main.keys()]).map((path) => ({
+        path,
+        type: "tree",
+        sha: sha1(`tree ${path}`),
+      })),
+      ...[...main].map(([path, text]) => ({ path, type: "blob", sha: blobShaOf(text) })),
+    ];
+    answerJson(response, { sha: sha1(`tree of ${MAIN}`), tree, truncated: false });
+    return;
+  }
+  if (route === `actions/workflows/${WORKFLOW}/runs`) {
+    const asked = url.searchParams;
+    const finishedOnMain =
+      asked.get("branch") === "main" &&
+      asked.get("event") === "push" &&
+      asked.get("status") === "completed";
+    const workflow_runs =
+      run && finishedOnMain
+        ? [
+            {
+              id: run.id,
+              head_sha: run.commit,
+              status: "completed",
+              updated_at: run.finished.toISOString(),
+            },
+          ]
+        : [];
+    answerJson(response, { total_count: workflow_runs.length, workflow_runs });
+    return;
+  }
+  if (run && route === `actions/runs/${run.id}/artifacts`) {
+    const named = url.searchParams.get("name") === RESULTS_ARTIFACT;
+    const artifacts = named ? [{ id: run.id, name: RESULTS_ARTIFACT, expired: false }] : [];
+    answerJson(response, { total_count: artifacts.length, artifacts });
+    return;
+  }
+  if (run && route === `actions/artifacts/${run.id}/zip`) {
+    const location = `http://127.0.0.1:${storagePort}/${run.id}.zip`;
+    response.writeHead(302, { location }).end();
+    return;
+  }
+  const [, sha] = /^git\/blobs\/([0-9a-f]{40})$/.exec(route) ?? [];
+  const content = [...main.values()].find((text) => blobShaOf(text) === sha);
   if (content === undefined) {
     response.writeHead(404).end();
     return;
@@ -69,8 +141,9 @@ function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
 
 BeforeAll(async () => {
   github = createServer(answerAsGitHub);
-  await new Promise<void>((listening) => github.listen(0, "127.0.0.1", listening));
-  const { port } = github.address() as AddressInfo;
+  storage = createServer(answerAsStorage);
+  const port = await listening(github);
+  storagePort = await listening(storage);
   mkdirSync(GENERATED, { recursive: true });
   const config = join(GENERATED, "wrangler.jsonc");
   writeFileSync(
@@ -95,6 +168,7 @@ BeforeAll(async () => {
         GITHUB_API_URL: `http://127.0.0.1:${port}`,
         REPOSITORY,
         REF: "main",
+        WORKFLOW,
         GITHUB_TOKEN: TOKEN,
       },
     }),
@@ -109,7 +183,9 @@ AfterAll(async () => {
   await Promise.all([
     browser?.close(),
     portal?.close(),
-    new Promise((closed) => (github ? github.close(closed) : closed(undefined))),
+    ...[github, storage].map(
+      (server) => new Promise((closed) => (server ? server.close(closed) : closed(undefined))),
+    ),
   ]);
 });
 
@@ -117,6 +193,9 @@ export class PortalWorld extends World {
   written: string[] = [];
   picked: string | undefined;
   plan: Plan | undefined;
+  feature = "";
+  featurePath = "";
+  scenario = "";
   private context: BrowserContext | undefined;
   private current: Page | undefined;
 
@@ -132,6 +211,19 @@ export class PortalWorld extends World {
     for (const [path, text] of main) {
       if (text.split("\n", 1)[0]?.split(" ").includes(`@id:${id}`)) main.delete(path);
     }
+  }
+
+  testRun(): TestRun {
+    run ??= { id: ++runs, commit: MAIN, finished: new Date(), verdicts: new Map() };
+    return run;
+  }
+
+  proved(path: string, scenario: string, verdict: Verdict) {
+    this.testRun().verdicts.set(`${path}\n${scenario}`, verdict);
+  }
+
+  ranForAnEarlierMain() {
+    this.testRun().commit = sha1("an earlier main");
   }
 
   async change(change: Change): Promise<Plan> {
@@ -174,6 +266,7 @@ setWorldConstructor(PortalWorld);
 Before(async () => {
   main.clear();
   main.set("README.md", "# shop\n");
+  run = undefined;
   const { PLAN } = await portal.getWorker<{ PLAN: D1Database }>().getEnv();
   const plan = drizzle(PLAN);
   await plan.batch([plan.delete(picks), plan.delete(epics)]);
