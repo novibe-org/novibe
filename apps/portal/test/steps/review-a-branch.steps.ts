@@ -2,7 +2,7 @@ import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import type { Page } from "playwright";
 import { eventually, mainHolds, notInAnyEpicOn } from "./plan";
-import type { PortalWorld } from "./world";
+import { type PortalWorld, REPOSITORY } from "./world";
 import { featureFile, slug } from "./written";
 
 function branchHoldsTitled(world: PortalWorld, branch: string, title: string) {
@@ -105,6 +105,23 @@ Given(
     const body = [`  Scenario: ${scenario}`, "    Then it is refunded"];
     this.branchHolds(branch, this.featurePath, featureFile({ title, body }));
     this.proved(this.featurePath, scenario, "passed", branch);
+  },
+);
+
+Given("the branch {string} is shown", function (this: PortalWorld, branch: string) {
+  this.shown = branch;
+  branchHoldsTitled(this, branch, "Refunding a payment");
+});
+
+Then(
+  "it leads to the feature's file on {string} on GitHub",
+  async function (this: PortalWorld, branch: string) {
+    const file = this.page()
+      .getByRole("article")
+      .getByRole("link", { name: this.featurePath, exact: true });
+    expect(await file.getAttribute("href")).toBe(
+      `https://github.com/${REPOSITORY}/blob/${branch}/${this.featurePath}`,
+    );
   },
 );
 

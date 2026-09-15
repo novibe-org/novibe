@@ -32,10 +32,7 @@ function Listed({ feature, duplicates }: { feature: Feature; duplicates: Readonl
           <span className={cx(classes.pill, classes.soft)}>no id</span>
         </>
       )}
-      <Link
-        to={`/?feature=${encodeURIComponent(keyOf(feature, duplicates))}`}
-        className={classes.title}
-      >
+      <Link to={{ feature: keyOf(feature, duplicates) }} className={classes.title}>
         {feature.title}
       </Link>
       <span className={classes.push}>

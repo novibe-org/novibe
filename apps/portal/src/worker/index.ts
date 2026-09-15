@@ -25,6 +25,7 @@ async function withThePlan(asked: URLSearchParams, env: Env): Promise<Response> 
   }
   const plan = await planOf(env.PLAN, env.REPOSITORY);
   return Response.json({
+    repository: env.REPOSITORY,
     branch,
     branches,
     features,

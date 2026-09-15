@@ -6,7 +6,7 @@ import classes from "./app.module.css";
 import { BranchMenu } from "./branches";
 import { useDragging } from "./dragging";
 import { EpicOf, Epics } from "./epics";
-import { type Address, Link } from "./link";
+import { type Address, BranchInAddress, Link, onGitHub } from "./link";
 import { FeatureList } from "./list";
 import { Passed } from "./progress";
 import { AsWritten } from "./reading";
@@ -138,10 +138,10 @@ export function App() {
   }, [readerKey]);
 
   return (
-    <>
+    <BranchInAddress value={branch}>
       <header className={classes.bar}>
         <Title order={1} className={classes.brand}>
-          <Link to="/">portal</Link>
+          <Link to={{}}>portal</Link>
         </Title>
         {read && <BranchMenu branches={read.branches} shown={read.branch} />}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
@@ -191,7 +191,10 @@ export function App() {
             {listed.length > 0 && (
               <aside ref={pane} className={classes.detail}>
                 {reader ? (
-                  <AsWritten feature={reader}>
+                  <AsWritten
+                    feature={reader}
+                    source={onGitHub(read.repository, read.branch, reader.path)}
+                  >
                     <EpicOf feature={reader} epics={epics} change={change} />
                   </AsWritten>
                 ) : (
@@ -202,6 +205,6 @@ export function App() {
           </>
         )}
       </main>
-    </>
+    </BranchInAddress>
   );
 }

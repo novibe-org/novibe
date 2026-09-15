@@ -350,6 +350,10 @@
   white-space: nowrap;
 }
 
+.where a {
+  font-size: inherit;
+}
+
 .narrative {
   max-width: 70ch;
   margin: 9px 0 0;
