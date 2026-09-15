@@ -12,7 +12,10 @@ async function withThePlan(asked: URLSearchParams, env: Env): Promise<Response> 
   let run: Run | null;
   try {
     const [listed, commit] = await Promise.all([branchesOf(env), commitOf(env, branch)]);
-    const [files, tested] = await Promise.all([featureFilesAt(env, commit), latestTestRun(env)]);
+    const [files, tested] = await Promise.all([
+      featureFilesAt(env, commit),
+      latestTestRun(env, branch),
+    ]);
     branches = listed;
     features = files.map(({ path, text }) => parsed(path, text, tested?.results));
     run = tested ? { finished: tested.finished, earlier: tested.commit !== commit } : null;

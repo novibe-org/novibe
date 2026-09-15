@@ -96,6 +96,18 @@ When("I choose the branch {string}", async function (this: PortalWorld, branch: 
   await choose(this, branch);
 });
 
+Given(
+  "the latest test run of {string} passed {string}",
+  function (this: PortalWorld, branch: string, title: string) {
+    const scenario = "Refunding in full";
+    this.feature = title;
+    this.featurePath = `features/payments/${slug(title)}.feature`;
+    const body = [`  Scenario: ${scenario}`, "    Then it is refunded"];
+    this.branchHolds(branch, this.featurePath, featureFile({ title, body }));
+    this.proved(this.featurePath, scenario, "passed", branch);
+  },
+);
+
 Then("I see {string}", async function (this: PortalWorld, title: string) {
   await notInAnyEpicOn(this.page()).getByRole("link", { name: title, exact: true }).waitFor();
 });

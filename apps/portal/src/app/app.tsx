@@ -1,6 +1,6 @@
 import { Title } from "@mantine/core";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import type { Feature, Readable, Run } from "../feature";
+import type { Feature, Readable } from "../feature";
 import type { Change, Plan, Planned, Refused } from "../plan";
 import classes from "./app.module.css";
 import { BranchMenu } from "./branches";
@@ -93,9 +93,16 @@ function totalsOf(features: Feature[]): string {
   ].join(" · ");
 }
 
-function testsOf(run: Run | null): string {
-  if (!run) return "Main has no test run yet";
-  return `Tests ran ${agoFrom(run.finished)}${run.earlier ? ", for an earlier main" : ""}`;
+const namedOf = ({ branch, branches }: Planned) =>
+  branch === branches.main
+    ? { branch: "Main", commit: "main" }
+    : { branch: "This branch", commit: "commit" };
+
+function testsOf(read: Planned): string {
+  const named = namedOf(read);
+  if (!read.run) return `${named.branch} has no test run yet`;
+  const earlier = read.run.earlier ? `, for an earlier ${named.commit}` : "";
+  return `Tests ran ${agoFrom(read.run.finished)}${earlier}`;
 }
 
 function Notice({ children }: { children: ReactNode }) {
@@ -142,12 +149,12 @@ export function App() {
           parts={listed.flatMap((feature) => (feature.broken ? [] : feature.parts))}
           width={200}
         />
-        {read && <span className={classes.totals}>{testsOf(read.run)}</span>}
+        {read && <span className={classes.totals}>{testsOf(read)}</span>}
       </header>
       <main className={classes.layout} {...dragging}>
         {answer === "failed" && (
           <div className={classes.column}>
-            <Notice>The portal could not read main.</Notice>
+            <Notice>The portal could not read {branch ?? "main"}.</Notice>
           </div>
         )}
         {read && (
@@ -166,7 +173,7 @@ export function App() {
               <fieldset aria-label="not in any epic" className={classes.group} data-unassigned>
                 {epics.length > 0 && <p className={classes.groupTitle}>Not in any epic</p>}
                 {listed.length === 0 ? (
-                  <Notice>Main has no features yet.</Notice>
+                  <Notice>{namedOf(read).branch} has no features yet.</Notice>
                 ) : (
                   <FeatureList
                     features={rest}

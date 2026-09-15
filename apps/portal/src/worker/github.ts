@@ -7,6 +7,7 @@ import { type Results, resultsInArtifact } from "./results";
 const RESULTS_ARTIFACT = "test-results";
 const NEVER_CHANGES = "max-age=31536000, immutable";
 const BRANCHES_A_PAGE = 100;
+const RUNS_A_PAGE = 10;
 
 const ShaSchema = z.string().regex(/^[0-9a-f]{40}$/, "not a git sha");
 
@@ -22,7 +23,15 @@ const TreeSchema = z.object({
 });
 
 const RunsSchema = z.object({
-  workflow_runs: z.array(z.object({ id: z.number(), head_sha: ShaSchema, updated_at: z.string() })),
+  workflow_runs: z.array(
+    z.object({
+      id: z.number(),
+      head_sha: ShaSchema,
+      updated_at: z.string(),
+      repository: z.object({ id: z.number() }),
+      head_repository: z.object({ id: z.number() }).nullable(),
+    }),
+  ),
 });
 
 const ArtifactsSchema = z.object({
@@ -102,16 +111,18 @@ export async function featureFilesAt(env: Env, commit: string) {
   );
 }
 
-export async function latestTestRun(env: Env): Promise<TestRun | undefined> {
+export async function latestTestRun(env: Env, branch: string): Promise<TestRun | undefined> {
   const finished = new URLSearchParams({
-    branch: env.MAIN,
-    event: "push",
+    branch,
+    ...(branch === env.MAIN ? { event: "push" } : {}),
     status: "completed",
-    per_page: "1",
+    per_page: String(RUNS_A_PAGE),
   });
   const workflow = encodeURIComponent(env.WORKFLOW);
   const runs = await fromGitHub(env, `actions/workflows/${workflow}/runs?${finished}`);
-  const [run] = RunsSchema.parse(await runs.json()).workflow_runs;
+  const run = RunsSchema.parse(await runs.json()).workflow_runs.find(
+    ({ repository, head_repository }) => head_repository?.id === repository.id,
+  );
   if (!run) return undefined;
   const listed = await fromGitHub(env, `actions/runs/${run.id}/artifacts?name=${RESULTS_ARTIFACT}`);
   const { artifacts } = ArtifactsSchema.parse(await listed.json());
