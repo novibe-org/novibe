@@ -30,6 +30,7 @@ const TOKEN = "read-only-test-token";
 const WORKFLOW = "ci.yml";
 const RESULTS_ARTIFACT = "test-results";
 const MAIN = "main";
+const BRANCHES_ASKED = /refs\(refPrefix: "refs\/heads\/"[^)]*\)[\s\S]*committedDate/;
 
 const sha1 = (text: string) => createHash("sha1").update(text).digest("hex");
 const blobShaOf = (text: string) => sha1(`blob ${Buffer.byteLength(text)}\0${text}`);
@@ -126,32 +127,57 @@ function runsAsked(asked: URLSearchParams) {
   ];
 }
 
+function answerAsGraphQL(request: IncomingMessage, response: ServerResponse) {
+  let asked = "";
+  request.setEncoding("utf8");
+  request.on("data", (chunk: string) => {
+    asked += chunk;
+  });
+  request.on("end", () => {
+    const { query = "", variables = {} } = JSON.parse(asked) as {
+      query?: string;
+      variables?: Record<string, unknown>;
+    };
+    const [owner, name] = REPOSITORY.split("/");
+    if (!BRANCHES_ASKED.test(query) || variables.owner !== owner || variables.name !== name) {
+      answerJson(response, {
+        data: null,
+        errors: [{ message: "not a query the stand-in answers" }],
+      });
+      return;
+    }
+    const nodes = [...branches]
+      .sort(([one], [other]) => one.localeCompare(other))
+      .map(([branch, { changed }]) => ({
+        name: branch,
+        target: { committedDate: changed.toISOString() },
+      }));
+    const pageInfo = { hasNextPage: false, endCursor: null };
+    answerJson(response, { data: { repository: { refs: { pageInfo, nodes } } } });
+  });
+}
+
 function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
   const url = new URL(request.url ?? "/", "http://github.test");
   if (request.headers.authorization !== `Bearer ${TOKEN}`) {
     response.writeHead(401).end();
     return;
   }
-  const route = url.pathname.startsWith(ROUTES) ? url.pathname.slice(ROUTES.length) : "";
-  const heads = [...branches.keys()].map((name) => ({ name, sha: headOf(name) }));
-  if (route === "branches") {
-    const firstPage = (url.searchParams.get("page") ?? "1") === "1";
-    const listed = firstPage ? [...heads].sort((a, b) => a.name.localeCompare(b.name)) : [];
-    answerJson(
-      response,
-      listed.map(({ name, sha }) => ({ name, commit: { sha }, protected: false })),
-    );
+  if (request.method === "POST" && url.pathname === "/graphql") {
+    answerAsGraphQL(request, response);
     return;
   }
+  const route = url.pathname.startsWith(ROUTES) ? url.pathname.slice(ROUTES.length) : "";
+  const heads = [...branches.keys()].map((name) => ({ name, sha: headOf(name) }));
   const [, ref = ""] = /^commits\/(.+)$/.exec(route) ?? [];
   const named = heads.find(({ name }) => name === decodeURIComponent(ref));
   if (named) {
     response.writeHead(200, { "content-type": "application/vnd.github.sha" }).end(named.sha);
     return;
   }
-  const [, kind, commit] = /^git\/(trees|commits)\/([0-9a-f]{40})$/.exec(route) ?? [];
+  const [, commit] = /^git\/trees\/([0-9a-f]{40})$/.exec(route) ?? [];
   const head = heads.find(({ sha }) => sha === commit);
-  if (head && kind === "trees") {
+  if (head) {
     const { files } = branchNamed(head.name);
     const tree = [
       ...directoriesOf([...files.keys()]).map((path) => ({
@@ -162,11 +188,6 @@ function answerAsGitHub(request: IncomingMessage, response: ServerResponse) {
       ...[...files].map(([path, text]) => ({ path, type: "blob", sha: blobShaOf(text) })),
     ];
     answerJson(response, { sha: sha1(`tree of ${head.sha}`), tree, truncated: false });
-    return;
-  }
-  if (head && kind === "commits") {
-    const date = branchNamed(head.name).changed.toISOString();
-    answerJson(response, { sha: head.sha, committer: { date }, author: { date } });
     return;
   }
   if (route === `actions/workflows/${WORKFLOW}/runs`) {

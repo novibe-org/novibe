@@ -19,10 +19,11 @@ run; each feature and each epic shows how many of its scenarios passed. Results 
 another commit than the one shown are said to be from an earlier main, or an earlier commit of
 another branch.
 
-A feature file, fetched by its content hash, a commit, fetched by its sha, and a results artifact,
-fetched by its id, never change, so they go through the Cache API; under `wrangler dev` it keeps
-them in `apps/portal/.wrangler/state` between runs. The branches, the shown branch's commit, its
-file list and its latest finished run are asked of GitHub on every open.
+The branches, each with the date of its head commit, come from a single query to GitHub's GraphQL
+API, paged only when a repository has more than 100 of them. A feature file, fetched by its content
+hash, and a results artifact, fetched by its id, never change, so they go through the Cache API;
+under `wrangler dev` it keeps them in `apps/portal/.wrangler/state` between runs. The branches, the
+shown branch's commit, its file list and its latest finished run are asked of GitHub on every open.
 
 The plan — the epics and the features picked into them, each in the order the driver puts them —
 is kept in a D1 database, under the repository the Worker reads, so it outlives a restart and is
