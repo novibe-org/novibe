@@ -48,7 +48,7 @@ export async function dragOnto(source: Locator, target: Locator, half: "upper" |
   await source.dragTo(target, { targetPosition: { x: box.width / 2, y } });
 }
 
-export function mainHolds(
+export function defaultBranchHolds(
   world: PortalWorld,
   title: string,
   domain = "payments",
@@ -65,7 +65,7 @@ export async function epicHolding(world: PortalWorld, title: string, ...ids: str
 }
 
 export async function reading(world: PortalWorld, title: string) {
-  if (!world.holdsTitled(title)) mainHolds(world, title);
+  if (!world.holdsTitled(title)) defaultBranchHolds(world, title);
   await world.open();
   await world.page().getByRole("link", { name: title, exact: true }).click();
 }

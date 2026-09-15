@@ -6,14 +6,14 @@ import { featureFile, slug } from "./written";
 const OTHER_SCENARIO = "Paying with the only saved card";
 
 Given(
-  "main holds the feature {string} with the id {string} in the domain {string}",
+  "the default branch holds the feature {string} with the id {string} in the domain {string}",
   function (this: PortalWorld, title: string, id: string, domain: string) {
     this.holds(`features/${domain}/${id}.feature`, featureFile({ title, id }));
   },
 );
 
 Given(
-  "main holds {string} in {string}, {string} in {string} and {string} in {string}",
+  "the default branch holds {string} in {string}, {string} in {string} and {string} in {string}",
   function (
     this: PortalWorld,
     first: string,
@@ -35,7 +35,7 @@ Given(
 );
 
 Given(
-  "main holds the feature {string} with a narrative, a rule and two scenarios",
+  "the default branch holds the feature {string} with a narrative, a rule and two scenarios",
   function (this: PortalWorld, title: string) {
     const written = [
       "  As a returning customer",
@@ -62,28 +62,31 @@ Given(
   },
 );
 
-Given("main holds the feature {string} without an id", function (this: PortalWorld, title: string) {
-  this.holds(`features/payments/${slug(title)}.feature`, featureFile({ title, id: null }));
-});
+Given(
+  "the default branch holds the feature {string} without an id",
+  function (this: PortalWorld, title: string) {
+    this.holds(`features/payments/${slug(title)}.feature`, featureFile({ title, id: null }));
+  },
+);
 
 Given(
-  "main holds {string}, which is not a readable feature",
+  "the default branch holds {string}, which is not a readable feature",
   function (this: PortalWorld, path: string) {
     this.holds(`features/${path}`, "Refunds are not written yet.\n  Given nothing is refunded\n");
   },
 );
 
-Given("main holds no features", () => {});
+Given("the default branch holds no features", () => {});
 
 Given(
-  "main holds the feature {string} tagged {string}",
+  "the default branch holds the feature {string} tagged {string}",
   function (this: PortalWorld, title: string, tag: string) {
     this.holds(`features/rewards/${slug(title)}.feature`, featureFile({ title, tags: [tag] }));
   },
 );
 
 Given(
-  "main holds the feature {string} tagged {string} with the scenario {string}",
+  "the default branch holds the feature {string} tagged {string} with the scenario {string}",
   function (this: PortalWorld, title: string, tag: string, scenario: string) {
     const body = [`  Scenario: ${scenario}`, "    Then points are earned"];
     this.holds(
@@ -285,7 +288,7 @@ const PARTS: Record<string, { body: string[]; written: string[] }> = {
 const PART = Object.keys(PARTS).join("|");
 
 Given(
-  new RegExp(`^main holds the feature "([^"]*)" with a (${PART})$`),
+  new RegExp(`^the default branch holds the feature "([^"]*)" with a (${PART})$`),
   function (this: PortalWorld, title: string, part: string) {
     const { body, written } = PARTS[part] ?? { body: [], written: [] };
     this.holds("features/payments/pay-with-a-saved-card.feature", featureFile({ title, body }));
@@ -310,8 +313,8 @@ Then("I see {string} listed as broken", async function (this: PortalWorld, file:
   await listed.getByText("broken", { exact: true }).waitFor();
 });
 
-Then("I am told main has no features yet", async function (this: PortalWorld) {
-  await this.page().getByText("main has no features yet").waitFor();
+Then("I am told the default branch has no features yet", async function (this: PortalWorld) {
+  await this.page().getByText("The default branch has no features yet").waitFor();
   expect(await this.page().getByRole("listitem").count()).toBe(0);
 });
 
