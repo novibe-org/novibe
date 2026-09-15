@@ -10,6 +10,7 @@ const RUNS_A_PAGE = 10;
 
 const BRANCHES = `query Branches($owner: String!, $name: String!, $after: String) {
   repository(owner: $owner, name: $name) {
+    defaultBranchRef { name }
     refs(refPrefix: "refs/heads/", first: 100, after: $after) {
       pageInfo { hasNextPage endCursor }
       nodes { name target { ... on Commit { committedDate } } }
@@ -22,6 +23,7 @@ const ShaSchema = z.string().regex(/^[0-9a-f]{40}$/, "not a git sha");
 const BranchesPageSchema = z.object({
   data: z.object({
     repository: z.object({
+      defaultBranchRef: z.object({ name: z.string() }),
       refs: z.object({
         pageInfo: z.object({ hasNextPage: z.boolean(), endCursor: z.string().nullable() }),
         nodes: z.array(
@@ -98,18 +100,20 @@ async function neverChanging(env: Env, route: string, accept?: string): Promise<
 export async function branchesOf(env: Env): Promise<Branches> {
   const [owner, name] = env.REPOSITORY.split("/");
   const listed: { name: string; changed: number }[] = [];
+  let byDefault = "";
   let after: string | null = null;
   do {
     const answer = await askedOfGitHub(env, BRANCHES, { owner, name, after });
-    const { refs } = BranchesPageSchema.parse(answer).data.repository;
+    const { defaultBranchRef, refs } = BranchesPageSchema.parse(answer).data.repository;
+    byDefault = defaultBranchRef.name;
     for (const { name, target } of refs.nodes) {
       listed.push({ name, changed: Date.parse(target.committedDate) });
     }
     after = refs.pageInfo.hasNextPage ? refs.pageInfo.endCursor : null;
   } while (after);
-  const others = listed.filter(({ name }) => name !== env.MAIN);
+  const others = listed.filter(({ name }) => name !== byDefault);
   others.sort((one, other) => other.changed - one.changed);
-  return { main: env.MAIN, others: others.map(({ name }) => name) };
+  return { default: byDefault, others: others.map(({ name }) => name) };
 }
 
 export async function commitOf(env: Env, branch: string): Promise<string> {
@@ -131,10 +135,14 @@ export async function featureFilesAt(env: Env, commit: string) {
   );
 }
 
-export async function latestTestRun(env: Env, branch: string): Promise<TestRun | undefined> {
+export async function latestTestRun(
+  env: Env,
+  branch: string,
+  branches: Branches,
+): Promise<TestRun | undefined> {
   const finished = new URLSearchParams({
     branch,
-    ...(branch === env.MAIN ? { event: "push" } : {}),
+    ...(branch === branches.default ? { event: "push" } : {}),
     status: "completed",
     per_page: String(RUNS_A_PAGE),
   });

@@ -30,7 +30,8 @@ const TOKEN = "read-only-test-token";
 const WORKFLOW = "ci.yml";
 const RESULTS_ARTIFACT = "test-results";
 export const DEFAULT_BRANCH = "main";
-const BRANCHES_ASKED = /refs\(refPrefix: "refs\/heads\/"[^)]*\)[\s\S]*committedDate/;
+const BRANCHES_ASKED =
+  /defaultBranchRef \{ name \}[\s\S]*refs\(refPrefix: "refs\/heads\/"[^)]*\)[\s\S]*committedDate/;
 
 const sha1 = (text: string) => createHash("sha1").update(text).digest("hex");
 const blobShaOf = (text: string) => sha1(`blob ${Buffer.byteLength(text)}\0${text}`);
@@ -153,7 +154,8 @@ function answerAsGraphQL(request: IncomingMessage, response: ServerResponse) {
         target: { committedDate: changed.toISOString() },
       }));
     const pageInfo = { hasNextPage: false, endCursor: null };
-    answerJson(response, { data: { repository: { refs: { pageInfo, nodes } } } });
+    const defaultBranchRef = { name: DEFAULT_BRANCH };
+    answerJson(response, { data: { repository: { defaultBranchRef, refs: { pageInfo, nodes } } } });
   });
 }
 
@@ -249,7 +251,6 @@ BeforeAll(async () => {
       vars: {
         GITHUB_API_URL: `http://127.0.0.1:${port}`,
         REPOSITORY,
-        MAIN: DEFAULT_BRANCH,
         WORKFLOW,
         GITHUB_TOKEN: TOKEN,
       },

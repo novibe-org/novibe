@@ -95,7 +95,7 @@ function totalsOf(features: Feature[]): string {
 }
 
 const namedOf = ({ branch, branches }: Planned) =>
-  branch === branches.main ? "The default branch" : "This branch";
+  branch === branches.default ? "The default branch" : "This branch";
 
 function testsOf(read: Planned): string {
   if (!read.run) return `${namedOf(read)} has no test run yet`;
