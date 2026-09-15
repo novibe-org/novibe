@@ -1,7 +1,13 @@
 import { Button, Menu } from "@mantine/core";
+import type { Branches } from "../feature";
 import classes from "./app.module.css";
 
-export function BranchMenu({ shown }: { shown: string }) {
+export function BranchMenu({ branches, shown }: { branches: Branches; shown: string }) {
+  const item = (name: string) => (
+    <Menu.Item key={name} className={classes.branch}>
+      {name}
+    </Menu.Item>
+  );
   return (
     <Menu position="bottom-start">
       <Menu.Target>
@@ -14,8 +20,10 @@ export function BranchMenu({ shown }: { shown: string }) {
           {shown}
         </Button>
       </Menu.Target>
-      <Menu.Dropdown>
-        <Menu.Item className={classes.branch}>{shown}</Menu.Item>
+      <Menu.Dropdown className={classes.branches}>
+        {item(branches.main)}
+        {branches.others.length > 0 && <Menu.Divider role="separator" />}
+        {branches.others.map(item)}
       </Menu.Dropdown>
     </Menu>
   );

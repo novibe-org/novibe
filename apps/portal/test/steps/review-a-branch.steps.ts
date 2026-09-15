@@ -1,4 +1,4 @@
-import { Given, Then } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import type { Page } from "playwright";
 import { eventually, mainHolds, notInAnyEpicOn } from "./plan";
@@ -32,3 +32,32 @@ Given("the branches {string} and {string}", function (this: PortalWorld, main, o
 Then("I see the features on {string}", async function (this: PortalWorld, branch: string) {
   await seeTheFeaturesOn(this, branch);
 });
+
+Given(
+  "{string} changed today and {string} yesterday",
+  function (this: PortalWorld, today: string, yesterday: string) {
+    this.branchChanged(today, new Date());
+    this.branchChanged(yesterday, new Date(Date.now() - 86_400_000));
+  },
+);
+
+When("I look at the branches I can choose", async function (this: PortalWorld) {
+  await this.open();
+  await this.page()
+    .getByRole("button", { name: /^Branch / })
+    .click();
+});
+
+Then(
+  "I see {string} set apart first, then {string}, then {string}",
+  async function (this: PortalWorld, main: string, first: string, second: string) {
+    const menu = this.page().getByRole("menu");
+    await menu.getByRole("menuitem", { name: second, exact: true }).waitFor();
+    const seen = await menu.evaluate((shown) =>
+      [...shown.querySelectorAll('[role="menuitem"], [role="separator"]')].map((each) =>
+        each.getAttribute("role") === "separator" ? "set apart" : each.textContent,
+      ),
+    );
+    expect(seen).toEqual([main, "set apart", first, second]);
+  },
+);

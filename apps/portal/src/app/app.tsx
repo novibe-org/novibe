@@ -125,7 +125,7 @@ export function App() {
         <Title order={1} className={classes.brand}>
           <Link to="/">portal</Link>
         </Title>
-        {read && <BranchMenu shown={read.branch} />}
+        {read && <BranchMenu branches={read.branches} shown={read.branch} />}
         {listed.length > 0 && <span className={classes.totals}>{totalsOf(listed)}</span>}
         <Passed
           parts={listed.flatMap((feature) => (feature.broken ? [] : feature.parts))}

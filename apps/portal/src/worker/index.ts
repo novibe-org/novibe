@@ -1,16 +1,18 @@
-import type { Feature, Run } from "../feature";
+import type { Branches, Feature, Run } from "../feature";
 import { ChangeSchema, type Planned } from "../plan";
 import type { Env } from "./env";
-import { commitOf, featureFilesAt, latestTestRun } from "./github";
+import { branchesOf, commitOf, featureFilesAt, latestTestRun } from "./github";
 import { parsed } from "./parse";
 import { changed, goneFrom, planOf } from "./plan";
 
 async function withThePlan(env: Env): Promise<Response> {
+  let branches: Branches;
   let features: Feature[];
   let run: Run | null;
   try {
-    const commit = await commitOf(env);
+    const [listed, commit] = await Promise.all([branchesOf(env), commitOf(env)]);
     const [files, tested] = await Promise.all([featureFilesAt(env, commit), latestTestRun(env)]);
+    branches = listed;
     features = files.map(({ path, text }) => parsed(path, text, tested?.results));
     run = tested ? { finished: tested.finished, earlier: tested.commit !== commit } : null;
   } catch (failure) {
@@ -20,6 +22,7 @@ async function withThePlan(env: Env): Promise<Response> {
   const plan = await planOf(env.PLAN, env.REPOSITORY);
   return Response.json({
     branch: env.MAIN,
+    branches,
     features,
     run,
     ...plan,

@@ -1,12 +1,20 @@
 import { z } from "zod";
+import type { Branches } from "../feature";
 import type { Env } from "./env";
 import { FEATURE_PATH } from "./parse";
 import { type Results, resultsInArtifact } from "./results";
 
 const RESULTS_ARTIFACT = "test-results";
 const NEVER_CHANGES = "max-age=31536000, immutable";
+const BRANCHES_A_PAGE = 100;
 
 const ShaSchema = z.string().regex(/^[0-9a-f]{40}$/, "not a git sha");
+
+const ListedBranchesSchema = z.array(
+  z.object({ name: z.string(), commit: z.object({ sha: ShaSchema }) }),
+);
+
+const CommitSchema = z.object({ committer: z.object({ date: z.string() }) });
 
 const TreeSchema = z.object({
   truncated: z.boolean(),
@@ -51,6 +59,28 @@ async function neverChanging(env: Env, route: string, accept?: string): Promise<
   const body = await (await fromGitHub(env, route, accept)).arrayBuffer();
   await cache.put(key, new Response(body, { headers: { "cache-control": NEVER_CHANGES } }));
   return new Response(body);
+}
+
+export async function branchesOf(env: Env): Promise<Branches> {
+  const listed: z.infer<typeof ListedBranchesSchema> = [];
+  for (let page = 1; ; page += 1) {
+    const asked = new URLSearchParams({ per_page: String(BRANCHES_A_PAGE), page: String(page) });
+    const answer = await fromGitHub(env, `branches?${asked}`);
+    const onPage = ListedBranchesSchema.parse(await answer.json());
+    listed.push(...onPage);
+    if (onPage.length < BRANCHES_A_PAGE) break;
+  }
+  const others = await Promise.all(
+    listed
+      .filter(({ name }) => name !== env.MAIN)
+      .map(async ({ name, commit }) => {
+        const answer = await neverChanging(env, `git/commits/${commit.sha}`);
+        const { committer } = CommitSchema.parse(await answer.json());
+        return { name, changed: Date.parse(committer.date) };
+      }),
+  );
+  others.sort((one, other) => other.changed - one.changed);
+  return { main: env.MAIN, others: others.map(({ name }) => name) };
 }
 
 export async function commitOf(env: Env): Promise<string> {
