@@ -2,8 +2,7 @@
 
 Where the driver reads the features on main, sees what the tests proved, and plans them into
 epics. Its Worker reads `features/` on main from GitHub's API on every open and parses each file;
-the app lists them and shows any one as written. Only what is pushed to main shows. `portal/` at
-the root is the old portal, until this one replaces it.
+the app lists them and shows any one as written. Only what is pushed to main shows.
 
 What the tests proved comes from main's latest finished CI run. CI writes the scenarios' results
 in Cucumber Messages to `test/results/messages.ndjson` and uploads the file as the `test-results`
