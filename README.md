@@ -28,7 +28,7 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 | | |
 |---|---|
 | [**The plugin**](plugins/novibe/) | a guided flow for Claude Code, and the specialists it runs |
-| [**The portal**](portal/) | the specification, what the last run proved, and the plan — in one page |
+| [**The portal**](apps/portal/) | the specification, what the last run proved, and the plan — in one page |
 | [**Conventions**](docs/conventions/) | the guard rails that keep an agentic workflow honest, checked by git hooks |
 
 ## 🧭 The plugin
@@ -71,9 +71,9 @@ without it.
 
 Features live in the repository by domain; **epics don't** — which feature goes into which epic,
 and in what order, is a decision people keep changing, so it lives in the portal instead. The
-portal reads the feature files straight out of a branch, shows what the last test run proved for
-each scenario, and lets you drag features into epics. It runs locally against your checkouts;
-[`portal/README.md`](portal/README.md) says how.
+portal reads the feature files on a repository's main straight from GitHub, shows what main's
+latest test run proved for each scenario, and lets you drag features into epics. It runs locally
+under `wrangler dev`; [`apps/portal/README.md`](apps/portal/README.md) says how.
 
 ## 🪝 Guard rails
 
