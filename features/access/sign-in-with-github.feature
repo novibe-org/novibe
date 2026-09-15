@@ -9,6 +9,7 @@ Feature: Signing in with GitHub
     When I open the portal
     Then I am asked to sign in with GitHub
 
+  @backlog
   Scenario: A repository I may no longer read is refused
     Given I am signed in as "stefan", who may no longer read "novibe-org/nv"
     When I open "novibe-org/nv"

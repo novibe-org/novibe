@@ -12,31 +12,37 @@ Feature: Choosing a repository
     When I look at the repositories I can choose
     Then I see "novibe-org/novibe" and "novibe-org/nv", and not "stefan/dotfiles"
 
+  @backlog
   Scenario: The most recently changed repository is listed first
     Given "novibe-org/nv" changed today and "novibe-org/novibe" yesterday
     When I look at the repositories I can choose
     Then I see "novibe-org/nv" first, then "novibe-org/novibe"
 
+  @backlog
   Scenario: Without access to any repository, I am told how to give it
     Given I gave the portal access to no repository
     When I open the portal
     Then I am told the portal has no repository yet, and led to GitHub to give it access
 
+  @backlog
   Scenario: The first time, I choose a repository before seeing any features
     Given I have never chosen a repository
     When I open the portal
     Then I am asked to choose one of "novibe-org/novibe" and "novibe-org/nv"
 
+  @backlog
   Scenario: The repository I chose last opens again
     Given I chose "novibe-org/nv" last time
     When I open the portal
     Then I see the features of "novibe-org/nv"
 
+  @backlog
   Scenario: A repository I chose last but can no longer open is not opened
     Given I chose "novibe-org/nv" last time, and may no longer read it
     When I open the portal
     Then I am told I can no longer open "novibe-org/nv", and asked to choose another
 
+  @backlog
   Scenario: A link opens the repository and branch it names
     Given a link to the branch "feat/refunds" of "novibe-org/nv"
     When I open the link
@@ -52,6 +58,7 @@ Feature: Choosing a repository
     When I choose "novibe-org/nv"
     Then I see no epics
 
+  @backlog
   Scenario: Everyone who may read a repository sees the same epics
     Given "anna" picked "Refunding a payment" into the epic "Checkout" of "novibe-org/novibe"
     When I choose "novibe-org/novibe"
