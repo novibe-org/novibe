@@ -4,13 +4,13 @@ Feature: Reviewing a branch
   I choose any branch and see its features, what its tests proved, and the plan
   so that I can review a slice's specification on its branch before it is merged.
 
-  Scenario: Main is shown until I choose another branch
-    Given the branches "main" and "feat/refunds"
+  Scenario: The default branch is shown until I choose another branch
+    Given the default branch "develop" and the branch "feat/refunds"
     When I open the portal
-    Then I see the features on "main"
+    Then I see the features on "develop"
 
-  Scenario: The branches to choose from start with main, then the most recently changed
-    Given "feat/refunds" changed today and "feat/gift-cards" yesterday
+  Scenario: The branches to choose from start with the default branch, then the most recently changed
+    Given the default branch "main", "feat/refunds" changed today and "feat/gift-cards" yesterday
     When I look at the branches I can choose
     Then I see "main" set apart first, then "feat/refunds", then "feat/gift-cards"
 

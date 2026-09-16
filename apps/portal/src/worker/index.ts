@@ -6,19 +6,20 @@ import { parsed } from "./parse";
 import { changed, goneFrom, planOf } from "./plan";
 
 async function withThePlan(asked: URLSearchParams, env: Env): Promise<Response> {
-  const branch = asked.get("branch") || env.MAIN;
+  let branch: string;
   let branches: Branches;
   let features: Feature[];
   let run: Run | null;
   try {
     branches = await branchesOf(env);
-    if (branch !== branches.main && !branches.others.includes(branch)) {
+    branch = asked.get("branch") || branches.default;
+    if (branch !== branches.default && !branches.others.includes(branch)) {
       return Response.json({ error: "there is no such branch" }, { status: 404 });
     }
     const commit = await commitOf(env, branch);
     const [files, tested] = await Promise.all([
       featureFilesAt(env, commit),
-      latestTestRun(env, branch),
+      latestTestRun(env, branch, branches),
     ]);
     features = files.map(({ path, text }) => parsed(path, text, tested?.results));
     run = tested ? { finished: tested.finished, earlier: tested.commit !== commit } : null;

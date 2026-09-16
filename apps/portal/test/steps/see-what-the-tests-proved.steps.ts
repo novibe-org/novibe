@@ -15,14 +15,14 @@ const scenario = (name: string, tags: string[] = []) => [
 
 const times = <T>(count: number, each: T): T[] => Array.from({ length: count }, () => each);
 
-function mainHoldsFeature(world: PortalWorld, title: string, body: string[]): string {
+function defaultBranchHoldsFeature(world: PortalWorld, title: string, body: string[]): string {
   world.feature = title;
   world.featurePath = `features/payments/${slug(title)}.feature`;
   world.holds(world.featurePath, featureFile({ title, body }));
   return world.featurePath;
 }
 
-function mainHoldsProved(
+function defaultBranchHoldsProved(
   world: PortalWorld,
   title: string,
   verdicts: (Verdict | undefined)[],
@@ -30,7 +30,7 @@ function mainHoldsProved(
 ) {
   const names = verdicts.map((_, at) => `${title}, scenario ${at + 1}`);
   const body = names.flatMap((name, at) => scenario(name, tags[at]));
-  const path = mainHoldsFeature(world, title, body);
+  const path = defaultBranchHoldsFeature(world, title, body);
   names.forEach((name, at) => {
     const verdict = verdicts[at];
     if (verdict) world.proved(path, name, verdict);
@@ -51,16 +51,16 @@ const rowOf = (world: PortalWorld, title: string) =>
   world.page().getByRole("listitem").filter({ hasText: title });
 
 Given(
-  /^main's latest test run (passed|failed) the scenario "([^"]*)"$/,
+  /^the default branch's latest test run (passed|failed) the scenario "([^"]*)"$/,
   function (this: PortalWorld, verdict: Verdict, name: string) {
-    this.proved(mainHoldsFeature(this, FEATURE, scenario(name)), name, verdict);
+    this.proved(defaultBranchHoldsFeature(this, FEATURE, scenario(name)), name, verdict);
   },
 );
 
 Given(
-  "main's latest test run did not run the scenario {string}",
+  "the default branch's latest test run did not run the scenario {string}",
   function (this: PortalWorld, name: string) {
-    mainHoldsFeature(this, FEATURE, scenario(name));
+    defaultBranchHoldsFeature(this, FEATURE, scenario(name));
     this.testRun();
   },
 );
@@ -68,20 +68,20 @@ Given(
 Given(
   "the scenario {string} is tagged {string}",
   function (this: PortalWorld, name: string, tag: string) {
-    mainHoldsFeature(this, FEATURE, scenario(name, [tag]));
+    defaultBranchHoldsFeature(this, FEATURE, scenario(name, [tag]));
     this.scenario = name;
   },
 );
 
-Given("main's latest test run passed it", function (this: PortalWorld) {
+Given("the default branch's latest test run passed it", function (this: PortalWorld) {
   this.proved(this.featurePath, this.scenario, "passed");
 });
 
 Given(
-  "main's latest test run passed the outline {string} for {string} and failed it for {string}",
+  "the default branch's latest test run passed the outline {string} for {string} and failed it for {string}",
   function (this: PortalWorld, outline: string, passing: string, failing: string) {
     const [placeholder = ""] = /<[^<>]+>/.exec(outline) ?? [];
-    const path = mainHoldsFeature(this, FEATURE, [
+    const path = defaultBranchHoldsFeature(this, FEATURE, [
       "",
       `  Scenario Outline: ${outline}`,
       `    Then it is paid in ${placeholder}`,
@@ -97,14 +97,14 @@ Given(
 );
 
 Given(
-  "main's latest test run passed {int} and failed {int} of the {int} scenarios of {string}",
+  "the default branch's latest test run passed {int} and failed {int} of the {int} scenarios of {string}",
   function (this: PortalWorld, passed: number, failed: number, of: number, title: string) {
     const verdicts = [
       ...times<Verdict>(passed, "passed"),
       ...times<Verdict>(failed, "failed"),
       ...times(of - passed - failed, undefined),
     ];
-    mainHoldsProved(this, title, verdicts);
+    defaultBranchHoldsProved(this, title, verdicts);
   },
 );
 
@@ -112,7 +112,10 @@ Given(
   "{string} has {int} scenarios the latest run passed and {int} tagged {string} it did not run",
   function (this: PortalWorld, title: string, passed: number, tagged: number, tag: string) {
     const verdicts = [...times<Verdict>(passed, "passed"), ...times(tagged, undefined)];
-    mainHoldsProved(this, title, verdicts, [...times(passed, []), ...times(tagged, [tag])]);
+    defaultBranchHoldsProved(this, title, verdicts, [
+      ...times(passed, []),
+      ...times(tagged, [tag]),
+    ]);
   },
 );
 
@@ -128,14 +131,14 @@ Given(
     secondPassed: number,
     secondOf: number,
   ) {
-    mainHoldsProved(this, first, passedAndFailed(firstPassed, firstOf));
-    mainHoldsProved(this, second, passedAndFailed(secondPassed, secondOf));
+    defaultBranchHoldsProved(this, first, passedAndFailed(firstPassed, firstOf));
+    defaultBranchHoldsProved(this, second, passedAndFailed(secondPassed, secondOf));
     await epicHolding(this, epic, slug(first), slug(second));
   },
 );
 
 Given(
-  "main's latest test run passed {int} of the {int} scenarios on main",
+  "the default branch's latest test run passed {int} of its {int} scenarios",
   function (this: PortalWorld, passed: number, of: number) {
     const verdicts = [
       ...times<Verdict>(passed, "passed"),
@@ -145,28 +148,28 @@ Given(
     const titles = ["Paying with a saved card", "Paying by invoice", "Earning points", "Refunds"];
     const each = Math.ceil(of / titles.length);
     titles.forEach((title, at) => {
-      mainHoldsProved(this, title, verdicts.slice(at * each, (at + 1) * each));
+      defaultBranchHoldsProved(this, title, verdicts.slice(at * each, (at + 1) * each));
     });
   },
 );
 
 Given(
-  "main's latest test run finished {int} hours ago",
+  "the default branch's latest test run finished {int} hours ago",
   function (this: PortalWorld, hours: number) {
     this.testRun().finished = new Date(Date.now() - hours * 3_600_000);
   },
 );
 
 Given(
-  "main's latest test run ran for an earlier commit than the main shown",
+  "the default branch's latest test run ran for an earlier commit than the one shown",
   function (this: PortalWorld) {
     const name = "Paying with a saved card";
-    this.proved(mainHoldsFeature(this, FEATURE, scenario(name)), name, "passed");
-    this.ranForAnEarlierMain();
+    this.proved(defaultBranchHoldsFeature(this, FEATURE, scenario(name)), name, "passed");
+    this.ranForAnEarlierCommit();
   },
 );
 
-Given("main has never had a test run", () => {});
+Given("the default branch has never had a test run", () => {});
 
 When("I read its feature", async function (this: PortalWorld) {
   await this.open();
@@ -208,7 +211,7 @@ Then(
 );
 
 Then(
-  "I see {int} of {int} passed for the whole of main",
+  "I see {int} of {int} passed for the whole of the default branch",
   async function (this: PortalWorld, passed: number, of: number) {
     const shown = `${passed} of ${of} passed`;
     await this.page().getByRole("banner").getByText(shown, { exact: true }).waitFor();
@@ -219,11 +222,11 @@ Then("I see that the tests ran {int} hours ago", async function (this: PortalWor
   await this.page().getByText(`tests ran ${hours} hours ago`).waitFor();
 });
 
-Then("I see its results, said to be from an earlier main", async function (this: PortalWorld) {
+Then("I see its results, said to be from an earlier commit", async function (this: PortalWorld) {
   await rowOf(this, this.feature).getByText("1 of 1 passed", { exact: true }).waitFor();
-  await this.page().getByText("for an earlier main").waitFor();
+  await this.page().getByText("for an earlier commit").waitFor();
 });
 
-Then("I am told main has no test run yet", async function (this: PortalWorld) {
-  await this.page().getByText("main has no test run yet").waitFor();
+Then("I am told the default branch has no test run yet", async function (this: PortalWorld) {
+  await this.page().getByText("The default branch has no test run yet").waitFor();
 });

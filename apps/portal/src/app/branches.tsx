@@ -5,7 +5,7 @@ import { addressOf, go } from "./link";
 
 export function BranchMenu({ branches, shown }: { branches: Branches; shown: string }) {
   const item = (name: string) => {
-    const to = addressOf({ branch: name === branches.main ? undefined : name });
+    const to = addressOf({ branch: name === branches.default ? undefined : name });
     return (
       <Menu.Item
         key={name}
@@ -31,7 +31,7 @@ export function BranchMenu({ branches, shown }: { branches: Branches; shown: str
         </Button>
       </Menu.Target>
       <Menu.Dropdown className={classes.branches}>
-        {item(branches.main)}
+        {item(branches.default)}
         {branches.others.length > 0 && <Menu.Divider role="separator" />}
         {branches.others.map(item)}
       </Menu.Dropdown>

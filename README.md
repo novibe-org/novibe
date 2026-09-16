@@ -71,8 +71,8 @@ without it.
 
 Features live in the repository by domain; **epics don't** — which feature goes into which epic,
 and in what order, is a decision people keep changing, so it lives in the portal instead. The
-portal reads the feature files on any of a repository's branches straight from GitHub, main
-unless you choose another, shows what that branch's latest test run proved for each scenario, and
+portal reads the feature files on any of a repository's branches straight from GitHub, its
+default branch unless you choose another, shows what that branch's latest test run proved for each scenario, and
 lets you drag features into epics. It runs locally under `wrangler dev`;
 [`apps/portal/README.md`](apps/portal/README.md) says how.
 

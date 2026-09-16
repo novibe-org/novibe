@@ -1,7 +1,7 @@
 @id:pick-features-into-epics
 Feature: Picking features into epics
   As the driver of a big project
-  I start epics and pick the features on main into them
+  I start epics and pick the features on the default branch into them
   so that I can decide what gets built next and in which order, without changing the specification.
 
   Scenario: A new epic comes after the epics already started
@@ -42,7 +42,7 @@ Feature: Picking features into epics
 
   Scenario: Features in no epic show in one list after the epics, each with its domain
     Given the epic "Checkout" holds "Paying with a saved card"
-    And main also holds "Earning points" in "rewards" and "Refunding a payment" in "payments"
+    And the default branch also holds "Earning points" in "rewards" and "Refunding a payment" in "payments"
     When I open the portal
     Then after "Checkout" I see not in any epic "Refunding a payment" in "payments", then "Earning points" in "rewards"
 

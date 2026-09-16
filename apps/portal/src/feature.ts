@@ -69,7 +69,7 @@ export const FeatureSchema = z.discriminatedUnion("broken", [ReadableSchema, Bro
 
 export const RunSchema = z.object({ finished: z.string(), earlier: z.boolean() });
 
-export const BranchesSchema = z.object({ main: z.string(), others: z.array(z.string()) });
+export const BranchesSchema = z.object({ default: z.string(), others: z.array(z.string()) });
 
 export const FeaturesSchema = z.object({
   repository: z.string(),

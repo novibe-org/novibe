@@ -1,6 +1,7 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "expect";
 import {
+  defaultBranchHolds,
   dragOnto,
   epicHolding,
   epicOn,
@@ -11,7 +12,6 @@ import {
   featuresIn,
   headOf,
   listedIn,
-  mainHolds,
   notInAnyEpicOn,
   reading,
   rowOf,
@@ -32,24 +32,24 @@ Given("the epic {string}", async function (this: PortalWorld, title: string) {
 });
 
 Given("the epic {string} holds {string}", async function (this: PortalWorld, epic, title) {
-  mainHolds(this, title);
+  defaultBranchHolds(this, title);
   await epicHolding(this, epic, slug(title));
 });
 
 Given(
   "the epic {string} holds {string}, and there is the epic {string}",
   async function (this: PortalWorld, epic: string, title: string, other: string) {
-    mainHolds(this, title);
+    defaultBranchHolds(this, title);
     await epicHolding(this, epic, slug(title));
     await this.change({ change: "start", title: other });
   },
 );
 
 Given(
-  "main also holds {string} in {string} and {string} in {string}",
+  "the default branch also holds {string} in {string} and {string} in {string}",
   function (this: PortalWorld, first: string, firstDomain: string, last: string, lastDomain) {
-    mainHolds(this, first, firstDomain);
-    mainHolds(this, last, lastDomain);
+    defaultBranchHolds(this, first, firstDomain);
+    defaultBranchHolds(this, last, lastDomain);
   },
 );
 
@@ -57,7 +57,7 @@ Given(
   "the epic {string} and the feature {string} without an id",
   async function (this: PortalWorld, epic: string, title: string) {
     await this.change({ change: "start", title: epic });
-    mainHolds(this, title, "payments", { id: null });
+    defaultBranchHolds(this, title, "payments", { id: null });
   },
 );
 
@@ -65,14 +65,14 @@ Given(
   "the epic {string} and the feature {string} tagged {string}",
   async function (this: PortalWorld, epic: string, title: string, tag: string) {
     await this.change({ change: "start", title: epic });
-    mainHolds(this, title, "rewards", { tags: [tag] });
+    defaultBranchHolds(this, title, "rewards", { tags: [tag] });
   },
 );
 
 Given(
   "the epic {string} holds the feature with the id {string}",
   async function (this: PortalWorld, epic: string, id: string) {
-    mainHolds(this, id, "payments", { id });
+    defaultBranchHolds(this, id, "payments", { id });
     await epicHolding(this, epic, id);
     this.picked = id;
   },
@@ -98,7 +98,7 @@ When("I start an epic titled {string}", async function (this: PortalWorld, title
 });
 
 When("I pick {string} into {string}", async function (this: PortalWorld, title, epic) {
-  if (!this.holdsTitled(title)) mainHolds(this, title);
+  if (!this.holdsTitled(title)) defaultBranchHolds(this, title);
   await this.open();
   await dragOnto(listedRowOf(this, title), headOf(this.page(), epic), "lower");
 });
