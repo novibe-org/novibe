@@ -14,15 +14,27 @@ accidents.
 
 **One slice at a time** — specify only the slice agreed; everything else waits for its own turn.
 
+**One scenario at a time** — never write a second scenario before the driver has agreed the
+first. A file that arrives with scenarios the driver has not seen one by one is a guess, however
+good it looks, and accepting it is the only way they will ever find out what you assumed.
+
 1. **Find where it lives** — read `features/` first. If a feature already covers this behaviour,
    the slice extends that file.
-2. **Grill it into the feature file, scenarios first** — as in
+2. **Grill it into the feature file, one scenario at a time** — as in
    [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/): **the feature**
-   (who, what, why), then concrete **examples**, each
-   written as a `Scenario` as soon as it is agreed. Ask in
+   (who, what, why), then one **example**, agreed and written, before asking for the next. Ask in
    [rounds](https://github.com/mattpocock/skills/tree/main/skills/productivity/grilling): the
    questions the file raises next, each with your recommendation; write each answer into the file
    before the next round.
+
+   **Start each example from a case, not from a rule you have spotted.** Ask what happened, or
+   what would: who did what, to what, and what did they see afterwards. Write that down with its
+   values, and only then find the wording that generalises it. A rule noticed while reading code
+   produces scenarios with nothing concrete in them, because there was never a case behind them.
+
+   **Then ask what else is true** — the one that is refused, the one where nothing arrives, the
+   one that goes the other way. A slice whose scenarios all end well is a slice whose rules
+   nobody has stated.
 
    **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
    calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
@@ -46,6 +58,21 @@ CSV a partner imports).
 
 **[BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/) scenarios** — business
 language, real data, only the details that matter, one rule each. Five steps or fewer, one `When`–`Then` pair.
+
+**No value in it, no example in it** — a scenario whose steps name only categories (*"a device in
+another organisation"*, *"a subscriber outside"*) is a rule restated, not an example of one. Put
+the value the driver gave you in the step: *`"A"`*, *`"B"`*, *`3`*, a number they actually use.
+Keep values short enough to read; where the real one is long, name the thing and let the
+`Background` carry the value.
+
+**A `Then` is what someone can see** — name what the sender, the device or the operator observes,
+not a verdict the system reached internally. *"the message is refused"* says nothing about whether
+the sender was told or the message vanished, and those are different products; *"the sender is
+told they may not send there, and nothing reaches the device"* says which one was built.
+
+**The role is someone outside** — the person a scenario serves is whoever gains from it: a
+customer, a subscriber, an operator on call. Never the system, never the team, never a component.
+*"As the operator of the SMSC I want an SRI4SM"* is a design wish wearing a role's clothes.
 
 **One scenario per outcome** — two ways to reach the same outcome are one scenario; a scenario that
 follows necessarily from another is ceremony; something a user will notice with no scenario is a

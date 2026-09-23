@@ -1,7 +1,7 @@
 {
   "name": "novibe",
   "description": "The NoVibe development flow as skills: an orchestrator (novibe) that sequences requirements-engineer → architect → developer. Be the driver, not the passenger — do the invisible work (decide, design, prove) first.",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "author": {
     "name": "novibe-org"
   },
