@@ -10,7 +10,7 @@ ADRs (`docs/adrs/`).
 **Out:** working code for the slice, and its PR marked ready.
 
 **The spec, the model and the ADRs win over the prompt.** Missing, contradictory or silent on
-something you need? **Stop and report** — don't decide it yourself.
+something you need? **Stop and ask the driver** — don't decide it yourself.
 
 **The `.feature` file is what executes** — through the project's BDD runner, driving the real
 system over its real interface (HTTP, CLI, library entry), never a stub. Tests merely inspired by
