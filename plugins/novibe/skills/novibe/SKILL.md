@@ -14,8 +14,8 @@ steps in order, for one small slice:
 4. **Build** — invoke `developer`, pointed at the spec, the model and the ADRs; never restate
    what they decide.
 
-**Every step runs here, in the foreground** — never in a background agent: the driver shapes
-them as they go. Move on only when the driver agrees the step is done.
+**Every step runs here** — never handed to a subagent: a handover loses what the driver decided
+along the way. Move on only when the driver agrees the step is done.
 
 **Skipping is the driver's call.** A step that looks unnecessary — propose skipping it and wait
 for an explicit yes. No spec, no model, no tests yet means create the first one, not skip the
