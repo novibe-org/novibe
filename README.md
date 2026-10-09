@@ -2,10 +2,10 @@
 
 # NoVibe
 
-### Be the driver, not the passenger.
+### Spec-driven development for coding agents — you manage the intent, the machine writes the code.
 
-**A spec-driven development suite** — Claude Code skills that make you decide first, a portal to
-read and plan the specification, and the guard rails that keep it honest.
+**Be the driver, not the passenger.** Skills that make you decide first — packaged as a Claude
+Code plugin — and the conventions and guard rails that keep it honest.
 
 *AI made writing code cheap. The work that matters — deciding what to build, designing it,
 proving it right — didn't change. **NoVibe makes you do it first.***
@@ -27,9 +27,12 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 
 | | |
 |---|---|
-| [**The plugin**](plugins/novibe/) | a guided flow for Claude Code, and the specialists it runs |
-| [**The portal**](apps/portal/) | the specification, what the last run proved, and the plan — in one page |
-| [**Conventions**](docs/conventions/) | the guard rails that keep an agentic workflow honest, checked by git hooks |
+| [**The plugin**](plugins/novibe/) | a guided flow for your coding agent, and the specialists it runs — a Claude Code plugin; the skills are plain `SKILL.md` |
+| [**Conventions**](docs/conventions/) | the rules that keep an agentic workflow honest |
+| [**Guard rails**](.githooks/) | git hooks that enforce them, every time |
+
+Alongside: [the portal](apps/portal/) to plan, [agentbox](https://github.com/novibe-org/agentbox)
+to run sessions.
 
 ## 🧭 The plugin
 
@@ -49,10 +52,9 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 
 Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks the flow one
 step at a time and **pauses for your call between steps** — the spec and the model are the
-contract; code is their consequence. Start each slice in its own
-[Claude Code on the web](https://claude.ai/code) session, so slices run side by side:
+contract; code is their consequence. Give each slice its own session:
 
-1. **Specify** it as business scenarios — then pick the feature into its epic in the portal.
+1. **Specify** it as business scenarios.
 2. **Design** it in the architecture model — look at it with `likec4 serve`.
 3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
    decisions in your prompt, or it builds what you wrote instead of what was reviewed.
@@ -64,17 +66,22 @@ contract; code is their consequence. Start each slice in its own
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
 Skip NoVibe for trivial edits.
 
-## 🗺️ The portal
+## 🖥️ Runtime
 
-**Mostly for big projects and planning in advance** — a small project can pick its next slice
-without it.
+Where your agents run is your choice — locally, in a container, or in the cloud. One slice per
+session keeps slices apart; isolating them, with worktrees or separate sessions, is up to you.
+We use [agentbox](https://github.com/novibe-org/agentbox): one container per session.
 
-Features live in the repository by domain; **epics don't** — which feature goes into which epic,
-and in what order, is a decision people keep changing, so it lives in the portal instead. The
-portal reads the feature files on any of a repository's branches straight from GitHub, its
-default branch unless you choose another, shows what that branch's latest test run proved for each scenario, and
-lets you drag features into epics. It runs locally under `wrangler dev`;
-[`apps/portal/README.md`](apps/portal/README.md) says how.
+## 🗺️ Planning
+
+Feature files live in the repository, grouped by domain — what the system does, never an epic.
+**The plan doesn't:** epics, priorities and how a slice is split change all the time, so they
+belong in a planning tool — Jira, [the portal](apps/portal/), whatever you already use. Tag a feature, or a scenario planned on its own, with its ticket as its id
+(`@id:<ticket>`) and the tool keeps the rest.
+
+The vision, the epic and why it matters usually come first, in that tool; NoVibe splits it down
+into slices. Ask `requirements-engineer` to create the slice's ticket under the epic — or the epic
+itself — when your tool is connected. More of this will be automated.
 
 ## 🪝 Guard rails
 
@@ -93,7 +100,7 @@ itself; take the ones you want:
 | [phases](docs/conventions/phases.md) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
 | [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design, and review skills that flag code contradicting the architecture or creating a security problem |
 
-Claude sessions turn the hooks on themselves, locally and on the web, through
+Claude sessions turn the hooks on themselves, wherever they run, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
 
 ```

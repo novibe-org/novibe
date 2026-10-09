@@ -2,9 +2,9 @@
 
 **Every Claude session turns the guards on.** Git runs a repository's hooks only once
 `core.hooksPath` points at them, and that setting lives in each clone, not in the repository — so
-a cloud session, a fresh clone every time, would push past every guard.
+a session that starts in a fresh clone would push past every guard.
 
-A `SessionStart` hook sets it, locally and on the web alike. Copy this repository's
+A `SessionStart` hook sets it, wherever the session runs. Copy this repository's
 [`.claude/settings.json`](../../.claude/settings.json), or add its hook to yours; point it at
 wherever your hooks live.
 

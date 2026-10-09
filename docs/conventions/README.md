@@ -6,7 +6,7 @@ here first. **Take what you want**; every guard stands alone.
 
 | Convention | Asks for | Enforced by |
 |---|---|---|
-| [Claude Code](claude-code.md) | every Claude session, local or on the web, turns the guards on | [`.claude/settings.json`](../../.claude/settings.json) |
+| [Claude Code](claude-code.md) | every Claude session, wherever it runs, turns the guards on | [`.claude/settings.json`](../../.claude/settings.json) |
 | [Git](git.md) | a branch per slice, and what must not be pushed | [`.githooks/pre-push.d/git.sh`](../../.githooks/pre-push.d/git.sh) |
 | [Code](code.md) | comments state a constraint the code cannot express | [`.githooks/pre-push.d/code.sh`](../../.githooks/pre-push.d/code.sh) |
 | [Gherkin](gherkin.md) | what a feature file carries, and the tag vocabulary | [`.githooks/pre-push.d/gherkin.sh`](../../.githooks/pre-push.d/gherkin.sh), [`.gherkin-lintrc`](../../.gherkin-lintrc) |

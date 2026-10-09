@@ -41,12 +41,14 @@ good it looks, and accepting it is the only way they will ever find out what you
    with nothing to choose between goes in plain text. No such tool in this session? Number the
    questions and put your recommendation under each.
 
-   **Ask only what the product does** — how the spec is written (ids, folders, the split into
-   features, wording) is yours, by the rules below; how it gets built is the architect's.
+   **Ask only what the product does** — how the spec is written (folders, the split into
+   features, wording) is yours, by the rules below; how it gets built is the architect's. The id
+   is the driver's: ask for the ticket the slice is planned under.
 3. **Push and open a draft PR** — re-read the file against the rules below and raise what you find
    as one last round. When the driver agrees: commit as `spec: …` on
    the session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
-   developer step proves the slice. Give the driver the feature's id to pick into an epic.
+   developer step proves the slice. No ticket yet? With the driver's planning tool connected,
+   offer to create it under its epic — or the epic itself; otherwise give them the id to plan.
 
 ## Rules for the spec
 
@@ -91,10 +93,11 @@ at most, never complicated setup.
 that do different things are separate scenarios.
 
 **Folders are feature domains** — what the system does, in the driver's language; never an epic,
-never a technical layer. Epics are transient and live in the portal.
+never a technical layer. Epics are transient and live in the driver's planning tool.
 
-**Every feature carries an `@id:`** — kebab-case, named for the behaviour, not its domain. The
-portal refers to features by id, so **an id never changes once pushed**.
+**Every feature carries an `@id:`** — the ticket in the driver's planning tool (`@id:<ticket>`);
+a scenario planned on its own carries its own. No tool? Kebab-case, named for the behaviour, not
+its domain. The plan refers to features by id, so **an id never changes once pushed**.
 
 **No plan in the files** — no epic or priority tags, no status tag but `@backlog`, no `epic.md`. Tags follow
 [`.gherkin-lintrc`](https://github.com/novibe-org/novibe/blob/main/.gherkin-lintrc).

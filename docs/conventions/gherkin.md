@@ -18,7 +18,7 @@ accident:
 
 | | |
 |---|---|
-| `@id:<slug>` | identity, required on every feature |
+| `@id:<key>` | identity, required on every feature — the planning tool's ticket, or a slug without one; a scenario planned on its own may carry its own |
 | `@backlog` | not built yet: future by declaration, not by absence |
 | `@long-running` | slow enough to want excluding from the inner loop deliberately |
 
