@@ -51,7 +51,7 @@ Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks 
 step at a time and **pauses for your call between steps** — the spec and the model are the
 contract; code is their consequence. Give each slice its own session:
 
-1. **Specify** it as business scenarios — then pick the feature into its epic in the portal.
+1. **Specify** it as business scenarios.
 2. **Design** it in the architecture model — look at it with `likec4 serve`.
 3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
    decisions in your prompt, or it builds what you wrote instead of what was reviewed.
@@ -69,17 +69,17 @@ Where your agents run is your choice — locally, in a container, or in the clou
 session keeps slices apart; isolating them, with worktrees or separate sessions, is up to you.
 We use [agentbox](https://github.com/novibe-org/agentbox): one container per session.
 
-## 🗺️ The portal
+## 🗺️ Planning
 
-**Mostly for big projects and planning in advance** — a small project can pick its next slice
-without it.
+Feature files live in the repository, grouped by domain — what the system does, never an epic.
+**The plan doesn't:** epics, priorities and how a slice is split change all the time, so they
+belong in a planning tool — Jira, the [NoVibe portal](apps/portal/), whatever you already use.
+Tag a feature, or a scenario planned on its own, with its ticket as its id (`@id:<ticket>`) and
+the tool keeps the rest.
 
-Features live in the repository by domain; **epics don't** — which feature goes into which epic,
-and in what order, is a decision people keep changing, so it lives in the portal instead. The
-portal reads the feature files on any of a repository's branches straight from GitHub, its
-default branch unless you choose another, shows what that branch's latest test run proved for each scenario, and
-lets you drag features into epics. It runs locally under `wrangler dev`;
-[`apps/portal/README.md`](apps/portal/README.md) says how.
+The vision, the epic and why it matters usually come first, in that tool; NoVibe splits it down
+into slices. Ask `requirements-engineer` to create the slice's ticket under the epic — or the epic
+itself — when your tool is connected. More of this will be automated.
 
 ## 🪝 Guard rails
 
