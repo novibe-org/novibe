@@ -11,8 +11,9 @@ steps in order, for one small slice:
 1. **Give the slice a branch** — on the default branch? Switch to a branch named for the slice.
 2. **Requirements** — invoke `requirements-engineer`.
 3. **Architecture** — invoke `architect`.
-4. **Build** — invoke `developer`, pointed at the spec, the model and the ADRs; never restate
-   what they decide.
+4. **Build** — only once the driver has selected a small slice, every other scenario tagged
+   `@backlog`: invoke `developer`, pointed at the spec, the model and the ADRs; never restate what
+   they decide.
 
 **Every step runs here** — never handed to a subagent: a handover loses what the driver decided
 along the way. Move on only when the driver agrees the step is done.
