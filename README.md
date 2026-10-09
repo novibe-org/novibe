@@ -56,8 +56,8 @@ contract; code is their consequence. Give each slice its own session:
 
 1. **Specify** it as business scenarios.
 2. **Design** it in the [LikeC4](https://likec4.dev) model, its views layered after
-   [arc42](https://arc42.org/overview/) — keep `npx likec4 serve docs/architecture` running while
-   you do, and watch the design take shape.
+   [arc42](https://arc42.org/overview/). Reviewing a complex design decision? Look at it with
+   `npx likec4 serve docs/architecture`.
 3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
    decisions in your prompt, or it builds what you wrote instead of what was reviewed.
 4. **Ship** it — turn on
