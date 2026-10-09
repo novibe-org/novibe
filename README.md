@@ -43,6 +43,8 @@ the tests proved and the plan; [agentbox](https://github.com/novibe-org/agentbox
 
 ## 🧭 The plugin
 
+<img src=".github/plugin.svg" alt="" width="88" height="88" align="right" />
+
 | Invoke | What it does for you |
 |---|---|
 | **`novibe`** | drives a change end to end — spec → design → tests — one step at a time |
