@@ -32,8 +32,7 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 | [**Guard rails**](.githooks/) | git hooks that enforce them, every time |
 
 Alongside: [cockpit](https://github.com/novibe-org/cockpit) — the driver's view of the spec, what
-the tests proved and the plan, and an example implementation built the NoVibe way;
-[agentbox](https://github.com/novibe-org/agentbox) to run sessions.
+the tests proved and the plan; [agentbox](https://github.com/novibe-org/agentbox) to run sessions.
 
 ## 🧭 The plugin
 
@@ -85,6 +84,12 @@ The vision, the epic and why it matters usually come first, in that tool; NoVibe
 into slices. Ask `requirements-engineer` to create the slice's ticket under the epic — or the epic
 itself — when your tool is connected. More of this will be automated.
 
+## 📚 Examples
+
+| | |
+|---|---|
+| [**cockpit**](https://github.com/novibe-org/cockpit) | a whole project built the NoVibe way — its [features](https://github.com/novibe-org/cockpit/tree/main/features), its [architecture model](https://github.com/novibe-org/cockpit/tree/main/docs/architecture), its [ADRs](https://github.com/novibe-org/cockpit/tree/main/docs/adrs), the guard rails, and every change committed spec → design → tests |
+
 ## 🪝 Guard rails
 
 A skill is guidance: an agent follows it most of the time, not every time. What has to hold every
@@ -118,8 +123,7 @@ Adopting them means copying from where each file already lives:
 | [`.claude/settings.json`](.claude/settings.json) | the hook that turns the guards on, and the plugin |
 | [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`.github/skills/`](.github/skills/) | Copilot's instructions and review skills |
 
-[`docs/conventions/`](docs/conventions/) says what each rule is for. For a whole project set up
-this way — spec, model, ADRs and guard rails — see [cockpit](https://github.com/novibe-org/cockpit).
+[`docs/conventions/`](docs/conventions/) says what each rule is for.
 
 <div align="center">
 
