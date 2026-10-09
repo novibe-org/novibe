@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src=".github/icon.svg" alt="" width="120" height="120" />
+
 # NoVibe
 
 ### Spec-driven development for coding agents — you manage the intent, the machine writes the code.
