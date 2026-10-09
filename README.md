@@ -49,8 +49,7 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 
 Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks the flow one
 step at a time and **pauses for your call between steps** — the spec and the model are the
-contract; code is their consequence. Start each slice in its own
-[Claude Code on the web](https://claude.ai/code) session, so slices run side by side:
+contract; code is their consequence. Give each slice its own session:
 
 1. **Specify** it as business scenarios — then pick the feature into its epic in the portal.
 2. **Design** it in the architecture model — look at it with `likec4 serve`.
@@ -63,6 +62,12 @@ contract; code is their consequence. Start each slice in its own
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
 Skip NoVibe for trivial edits.
+
+## 🖥️ Runtime
+
+Where your agents run is your choice — locally, in a container, or in the cloud. One slice per
+session keeps slices apart; isolating them, with worktrees or separate sessions, is up to you.
+We use [agentbox](https://github.com/novibe-org/agentbox): one container per session.
 
 ## 🗺️ The portal
 
@@ -93,7 +98,7 @@ itself; take the ones you want:
 | [phases](docs/conventions/phases.md) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
 | [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design, and review skills that flag code contradicting the architecture or creating a security problem |
 
-Claude sessions turn the hooks on themselves, locally and on the web, through
+Claude sessions turn the hooks on themselves, wherever they run, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
 
 ```
