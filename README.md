@@ -2,10 +2,10 @@
 
 # NoVibe
 
-### Be the driver, not the passenger.
+### Spec-driven development for coding agents — you manage the intent, the machine writes the code.
 
-**A spec-driven development suite** — Claude Code skills that make you decide first, a portal to
-read and plan the specification, and the guard rails that keep it honest.
+**Be the driver, not the passenger.** Skills that make you decide first — packaged as a Claude
+Code plugin — and the conventions and guard rails that keep it honest.
 
 *AI made writing code cheap. The work that matters — deciding what to build, designing it,
 proving it right — didn't change. **NoVibe makes you do it first.***
@@ -27,9 +27,12 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 
 | | |
 |---|---|
-| [**The plugin**](plugins/novibe/) | a guided flow for Claude Code, and the specialists it runs |
-| [**The portal**](apps/portal/) | the specification, what the last run proved, and the plan — in one page |
-| [**Conventions**](docs/conventions/) | the guard rails that keep an agentic workflow honest, checked by git hooks |
+| [**The plugin**](plugins/novibe/) | a guided flow for your coding agent, and the specialists it runs — a Claude Code plugin; the skills are plain `SKILL.md` |
+| [**Conventions**](docs/conventions/) | the rules that keep an agentic workflow honest |
+| [**Guard rails**](.githooks/) | git hooks that enforce them, every time |
+
+Alongside: [the portal](apps/portal/) to plan, [agentbox](https://github.com/novibe-org/agentbox)
+to run sessions.
 
 ## 🧭 The plugin
 
@@ -73,9 +76,8 @@ We use [agentbox](https://github.com/novibe-org/agentbox): one container per ses
 
 Feature files live in the repository, grouped by domain — what the system does, never an epic.
 **The plan doesn't:** epics, priorities and how a slice is split change all the time, so they
-belong in a planning tool — Jira, the [NoVibe portal](apps/portal/), whatever you already use.
-Tag a feature, or a scenario planned on its own, with its ticket as its id (`@id:<ticket>`) and
-the tool keeps the rest.
+belong in a planning tool — Jira, [the portal](apps/portal/), whatever you already use. Tag a feature, or a scenario planned on its own, with its ticket as its id
+(`@id:<ticket>`) and the tool keeps the rest.
 
 The vision, the epic and why it matters usually come first, in that tool; NoVibe splits it down
 into slices. Ask `requirements-engineer` to create the slice's ticket under the epic — or the epic
