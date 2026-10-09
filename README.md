@@ -31,8 +31,9 @@ proving it right — didn't change. **NoVibe makes you do it first.***
 | [**Conventions**](docs/conventions/) | the rules that keep an agentic workflow honest |
 | [**Guard rails**](.githooks/) | git hooks that enforce them, every time |
 
-Alongside: [the portal](apps/portal/) to plan, [agentbox](https://github.com/novibe-org/agentbox)
-to run sessions.
+Alongside: [cockpit](https://github.com/novibe-org/cockpit) — the driver's view of the spec, what
+the tests proved and the plan, and an example implementation built the NoVibe way;
+[agentbox](https://github.com/novibe-org/agentbox) to run sessions.
 
 ## 🧭 The plugin
 
@@ -76,7 +77,8 @@ We use [agentbox](https://github.com/novibe-org/agentbox): one container per ses
 
 Feature files live in the repository, grouped by domain — what the system does, never an epic.
 **The plan doesn't:** epics, priorities and how a slice is split change all the time, so they
-belong in a planning tool — Jira, [the portal](apps/portal/), whatever you already use. Tag a feature, or a scenario planned on its own, with its ticket as its id
+belong in a planning tool — Jira, [cockpit](https://github.com/novibe-org/cockpit), whatever you
+already use. Tag a feature, or a scenario planned on its own, with its ticket as its id
 (`@id:<ticket>`) and the tool keeps the rest.
 
 The vision, the epic and why it matters usually come first, in that tool; NoVibe splits it down
@@ -107,8 +109,7 @@ Claude sessions turn the hooks on themselves, wherever they run, through
 git config core.hooksPath .githooks
 ```
 
-This repository is set up the way a NoVibe project should be, so adopting means copying from where
-each file already lives:
+Adopting them means copying from where each file already lives:
 
 | Copy | For |
 |---|---|
@@ -117,7 +118,8 @@ each file already lives:
 | [`.claude/settings.json`](.claude/settings.json) | the hook that turns the guards on, and the plugin |
 | [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`.github/skills/`](.github/skills/) | Copilot's instructions and review skills |
 
-[`docs/conventions/`](docs/conventions/) says what each rule is for.
+[`docs/conventions/`](docs/conventions/) says what each rule is for. For a whole project set up
+this way — spec, model, ADRs and guard rails — see [cockpit](https://github.com/novibe-org/cockpit).
 
 <div align="center">
 
