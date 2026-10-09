@@ -1,6 +1,6 @@
 ---
 name: requirements-engineer
-description: Turn a rough idea into a Gherkin requirements spec for one small vertical slice.
+description: Turn a rough idea into a Gherkin requirements spec, cut into small vertical slices.
 ---
 
 # Requirements Engineer
@@ -12,7 +12,24 @@ description: Turn a rough idea into a Gherkin requirements spec for one small ve
 the code.** Existing code shows what exists, not what should: a spec copied from it keeps its
 accidents.
 
-**One slice at a time** — specify only the slice agreed; everything else waits for its own turn.
+**Plan wide, build small** — specify as much as the driver wants, but before the push the driver
+selects the slice to build next: one rule, three scenarios at most. Every other scenario carries
+`@backlog`.
+
+**Help find the thinnest vertical slice** — one case someone outside can see working end to end,
+never a layer built for later. Recommend the slice yourself, and say what you left out:
+
+- **the simplest case first** — one actor, one value, the case that ends well; other roles,
+  values and bulk are later slices
+- **one rule** — with the case it refuses, since that is what states the rule
+- **the extras last** — speed, configurability, polish and the rare edge, each a slice of its own
+
+Splitting further, by [SPIDR](https://www.mountaingoatsoftware.com/blog/five-simple-but-powerful-ways-to-split-user-stories)
+— spike, path, interface, data, rules.
+
+**Park, don't gold-plate** — whatever the driver wants that the selected slice doesn't need goes
+in as its own `@backlog` scenario, or a ticket in the planning tool, never into the slice. Nothing
+gets forgotten, and nothing rides along.
 
 **One scenario at a time** — never write a second scenario before the driver has agreed the
 first. A file that arrives with scenarios the driver has not seen one by one is a guess, however
@@ -80,7 +97,7 @@ missing requirement.
 
 **[`Rule:`](https://cucumber.io/blog/bdd/gherkin-rules/) groups what illustrates one business
 rule** — add one once two or more scenarios illustrate it, never a rule without scenarios. Many
-rules in one feature mean the slice is too big: cut it.
+rules in one feature mean the feature is too big: split it.
 
 **[`Background:`](https://cucumber.io/docs/gherkin/reference/#background) only for what every
 scenario shares** — a `Given` repeated in every scenario that the reader needs to know; four lines
@@ -102,4 +119,4 @@ Picking up a `@backlog` feature or scenario means removing the tag here.
 
 ## Done when
 
-No question is open, and the driver agrees the spec captures the slice.
+No question is open, the driver agrees the spec, and has selected the small slice to build.

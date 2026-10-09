@@ -9,6 +9,10 @@ description: Implement a change test-first — red → green → refactor — tu
 ADRs (`docs/adrs/`).
 **Out:** working code for the slice, and its PR marked ready.
 
+**Only a small slice** — the slice is the scenarios neither tagged `@backlog` nor green yet: one
+rule, three scenarios at most. More than that, or none? Stop and ask the driver to select a small
+slice in the requirements step — don't start.
+
 **The spec, the model and the ADRs win over the prompt.** Missing, contradictory or silent on
 something you need? **Stop and ask the driver** — don't decide it yourself.
 
