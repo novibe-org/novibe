@@ -10,9 +10,14 @@ Code plugin — and the conventions and guard rails that keep it honest.
 *AI made writing code cheap. The work that matters — deciding what to build, designing it,
 proving it right — didn't change. **NoVibe makes you do it first.***
 
+[![Plugin version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnovibe-org%2Fnovibe%2Fmain%2Fplugins%2Fnovibe%2F.claude-plugin%2Fplugin.json&query=%24.version&label=Claude%20Code%20plugin&color=d97757&style=flat-square&logo=claude&logoColor=white)](plugins/novibe/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-3b82f6?style=flat-square)](LICENSE)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-d97757?style=flat-square)](https://code.claude.com)
 [![Manifesto](https://img.shields.io/badge/manifesto-novibe.org-6e56cf?style=flat-square)](https://novibe.org)
+<br>
+[![Agent Skills](https://img.shields.io/badge/Agent_Skills-SKILL.md-555?style=flat-square)](plugins/novibe/skills/)
+[![Gherkin](https://img.shields.io/badge/specs-Gherkin-23d96c?style=flat-square&logo=cucumber&logoColor=white)](docs/conventions/gherkin.md)
+[![LikeC4](https://img.shields.io/badge/architecture-LikeC4_%C2%B7_arc42-6e56cf?style=flat-square)](docs/conventions/likec4.md)
+[![Guard rails](https://img.shields.io/badge/guard_rails-git_hooks-f05032?style=flat-square&logo=git&logoColor=white)](.githooks/)
 
 </div>
 
