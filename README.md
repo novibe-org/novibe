@@ -4,31 +4,35 @@
 
 # NoVibe
 
-### Spec-driven development for coding agents — you manage the intent, the machine writes the code.
+### You manage the intent. The machine writes the code.
 
-**Be the driver, not the passenger.** Skills that make you decide first — packaged as a Claude
-Code plugin — and the conventions and guard rails that keep it honest.
+Spec-driven development for Claude Code, on standards you already know —
+**Gherkin** that runs as the tests, a **C4** design you can look at, and **git hooks** that hold every time.
 
-*AI made writing code cheap. The work that matters — deciding what to build, designing it,
-proving it right — didn't change. **NoVibe makes you do it first.***
+```
+/plugin marketplace add novibe-org/novibe
+/plugin install novibe
+```
+
+Then ask Claude to build something *the NoVibe way*.
 
 [![Plugin version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fnovibe-org%2Fnovibe%2Fmain%2Fplugins%2Fnovibe%2F.claude-plugin%2Fplugin.json&query=%24.version&label=Claude%20Code%20plugin&color=d97757&style=flat-square&logo=claude&logoColor=white)](plugins/novibe/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-3b82f6?style=flat-square)](LICENSE)
 [![Manifesto](https://img.shields.io/badge/manifesto-novibe.org-6e56cf?style=flat-square)](https://novibe.org)
-<br>
-[![Agent Skills](https://img.shields.io/badge/Agent_Skills-SKILL.md-555?style=flat-square)](plugins/novibe/skills/)
-[![Gherkin](https://img.shields.io/badge/specs-Gherkin-23d96c?style=flat-square&logo=cucumber&logoColor=white)](docs/conventions/gherkin.md)
-[![LikeC4](https://img.shields.io/badge/architecture-LikeC4_%C2%B7_arc42-6e56cf?style=flat-square)](docs/conventions/likec4.md)
-[![Guard rails](https://img.shields.io/badge/guard_rails-git_hooks-f05032?style=flat-square&logo=git&logoColor=white)](.githooks/)
 
 </div>
 
----
+**One slice, the NoVibe way:**
 
-> **Vibe coding:** describe it, ship it, audit what the machine made. Trapped in review hell.
-> **NoVibe:** spec-driven — you author the spec and the design; the machine builds to them, and
-> the **executable spec proves it**. The `.feature` file isn't documentation of the code; the
-> code is an implementation of the spec.
+| | You | The agent |
+|---|---|---|
+| **1 · Specify** | answer, one round at a time | asks until a Gherkin feature file holds what to build |
+| **2 · Design** | decide | asks until a LikeC4 model holds the design; an ADR only for a cross-cutting decision |
+| **3 · Build** | watch the scenarios turn green | writes the tests first — the feature file *is* the test |
+| **4 · Ship** | review the spec and the design, not a thousand lines of diff | git hooks and a required check refuse what the conventions forbid |
+
+> **Vibe coding:** describe it, ship it, audit what the machine made — trapped in review hell.
+> **NoVibe:** you author the spec and the design; the machine builds to them, and the executable spec proves it.
 
 ## ✨ What you get
 
