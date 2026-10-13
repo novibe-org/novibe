@@ -7,12 +7,17 @@
 ### You manage the intent. The machine writes the code.
 
 Spec-driven development for Claude Code, on standards you already know —
-**Gherkin** that runs as the tests, a **C4** design you can look at, and **git hooks** that hold every time.
+**Gherkin** that runs as the tests, a **C4** design you can look at, and **git hooks** that hold
+every time.
 
-```
+</div>
+
+```text
 /plugin marketplace add novibe-org/novibe
 /plugin install novibe
 ```
+
+<div align="center">
 
 Then ask Claude to build something *the NoVibe way*.
 
@@ -33,7 +38,8 @@ Then ask Claude to build something *the NoVibe way*.
 
 > **Vibe coding:** describe it, ship it, audit what the machine made — trapped in review hell.
 >
-> **NoVibe:** you author the spec and the design; the machine builds to them, and the executable spec proves it.
+> **NoVibe:** you author the spec and the design; the machine builds to them, and the executable
+> spec proves it.
 
 ## ✨ What you get
 
@@ -55,7 +61,7 @@ the tests proved and the plan; [agentbox](https://github.com/novibe-org/agentbox
 | **`architect`** | asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
 
-```
+```text
 /plugin marketplace add novibe-org/novibe
 /plugin install novibe
 ```
@@ -125,7 +131,7 @@ itself; take the ones you want:
 Claude sessions turn the hooks on themselves, wherever they run, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
 
-```
+```bash
 git config core.hooksPath .githooks
 ```
 
