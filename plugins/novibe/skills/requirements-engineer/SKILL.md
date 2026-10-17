@@ -84,14 +84,27 @@ the value the driver gave you in the step: *`"A"`*, *`"B"`*, *`3`*, a number the
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
+**Build the Cucumber World early** — the first slices set up one end-to-end world the scenarios
+run in: the organisation, its people and its things, with real names and values the driver
+recognises. Later scenarios name its things, never placeholders. A scenario someone outside the
+team cannot picture is fluffy: rewrite it from the World.
+
+**The field's terms** — write in the domain's standard words (*an incident*, ITIL; *the BMC*,
+Redfish), never an invented or generic one (*item*, *entity*, *issue*). The driver's own word
+wins where they have one: a standard is a suggestion, never a gate. Unsure which term? Offer two
+or three candidates with their source and ask; never pick silently.
+
 **A `Then` is what someone can see** — name what the sender, the device or the operator observes,
 not a verdict the system reached internally. *"the message is refused"* says nothing about whether
 the sender was told or the message vanished, and those are different products; *"the sender is
-told they may not send there, and nothing reaches the device"* says which one was built.
+told they may not send there, and nothing reaches the device"* says which one was built. Test each
+phrase: what would the reader do differently after seeing it? Nothing — drop it.
 
 **The role is someone outside** — the person a scenario serves is whoever gains from it: a
 customer, a subscriber, an operator on call. Never the system, never the team, never a component.
 *"As the operator of the SMSC I want an SRI4SM"* is a design wish wearing a role's clothes.
+Before adding an outcome, ask who needs it: one that only a caller's convenience needs belongs in
+the caller, not the product.
 
 **One scenario per outcome** — two ways to reach the same outcome are one scenario; a scenario that
 follows necessarily from another is ceremony; something a user will notice with no scenario is a
@@ -107,7 +120,11 @@ at most, never complicated setup.
 
 **`Scenario Outline:` only for the same behaviour with different values** — every cell a value
 (`failed`, `"EUR"`, `3`), never a phrase, a condition or a step; few rows, chosen with care. Rows
-that do different things are separate scenarios.
+that do different things are separate scenarios. A table of unrelated rules is a list of rules,
+not an outline — and a new rule never joins an old mixed table.
+
+**Removing or loosening a rule changes it everywhere** — list every scenario, table row, ADR
+sentence and skill line that names it, and change them in the same slice.
 
 **Folders are feature domains** — what the system does, in the driver's language; never an epic,
 never a technical layer. Epics are transient and live in the driver's planning tool.
@@ -122,4 +139,6 @@ Picking up a `@backlog` feature or scenario means removing the tag here.
 
 ## Done when
 
-No question is open, the driver agrees the spec, and has selected the small slice to build.
+No question is open, the driver agrees the spec, and has selected the small slice to build. A
+rule removed or loosened? The driver has answered whether data already stored breaks under it,
+before the architect step.

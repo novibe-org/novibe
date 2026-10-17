@@ -20,9 +20,13 @@ something you need? **Stop and ask the driver** — don't decide it yourself.
 system over its real interface (HTTP, CLI, library entry), never a stub. Tests merely inspired by
 the spec don't count. No runner yet? Setting it up is the first task.
 
+**The Cucumber World runs end to end** — it sets up the world the scenarios name, in the real
+system, and grows slice by slice; the first slice builds it.
+
 1. **Run the spec → red** — the undefined scenarios are the work list.
-2. **Write the next scenario's step definitions** — dumb, scenario-specific, disposable. It must
-   fail for the right reason: behaviour missing, not broken glue.
+2. **Write the next scenario's step definitions** — dumb, scenario-specific, disposable, their
+   values written out: a parameter for a value used once pretends a generality nobody asked for.
+   It must fail for the right reason: behaviour missing, not broken glue.
 3. **Minimal implementation → green.**
 4. **Refactor** with the scenario green, and commit.
 5. **Repeat** until every scenario is green or tagged `@backlog`.
@@ -39,6 +43,10 @@ the spec don't count. No runner yet? Setting it up is the first task.
 **The spec is read-only** — a scenario that is wrong or unimplementable goes back to the
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
+
+**Names come from the field's standard** — offer two or three candidate terms with their source and
+ask; never pick silently. Meaning beats source. Never the driver's word twice: the class behind it
+is named after it only if the name adds what the word doesn't say.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.
