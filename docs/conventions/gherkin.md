@@ -37,9 +37,7 @@ npx gherkin-lint-plus -c .gherkin-lintrc features
 ```
 
 It carries `required-feature-tags`, `no-dupe-feature-tags` and `no-comments`, which the rest of
-the flow depends on. They were offered upstream in
-[krrish377/gherkin-lint-plus#1](https://github.com/krrish377/gherkin-lint-plus/pull/1), still
-open; upstream has not moved since, so the fork is the one we maintain.
+the flow depends on.
 
 `pre-push` runs it when the linter is installed and there is a `features/` directory —
 `FEATURES_DIR` if yours is elsewhere, `ALLOW_LINT=1` to override.
