@@ -78,12 +78,11 @@ CSV a partner imports).
 **[BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/) scenarios** — business
 language, real data, only the details that matter, one rule each. Five steps or fewer, one `When`–`Then` pair.
 
-**No value in it, no example in it** — a scenario whose steps name only categories (*"a product
-that is out of stock"*, *"a customer from abroad"*) is a rule restated, not an example of one. Put
-the value the driver gave you in the step: *`"Anna"`*, *`"the blue kettle"`*, *`3`*, a number they
-actually use.
-Keep values short enough to read; where the real one is long, name the thing and let the
-`Background` carry the value.
+**No value in it, no example in it** — a step that names only a category is a rule restated, not
+an example of one. Name the World's thing instead: *"a product that is out of stock"* becomes
+*"the blue kettle, with none left"*; *"a customer from abroad"* becomes *"Anna, ordering from
+Vienna"*. Keep values short enough to read; where the real one is long, name the thing and let
+the `Background` carry the value.
 
 **Build the Cucumber World early** — the first slices set up one end-to-end world the scenarios
 run in: the organisation, its people and its things, with names and values modelled on the
