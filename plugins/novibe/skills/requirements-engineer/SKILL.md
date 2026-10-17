@@ -1,6 +1,6 @@
 ---
 name: requirements-engineer
-description: Turn a rough idea into a Gherkin requirements spec, cut into small vertical slices.
+description: "Turn a rough idea into a Gherkin spec by interviewing the driver, one scenario at a time, and cut it into thin vertical slices. Use to specify what to build before designing or coding it."
 ---
 
 # Requirements Engineer

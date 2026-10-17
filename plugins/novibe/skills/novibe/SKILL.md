@@ -1,6 +1,6 @@
 ---
 name: novibe
-description: Drive a feature, integration, or design-bearing change the NoVibe way — requirements → architecture → TDD, one step at a time. Guards against vibe-coding.
+description: "Drive a change the NoVibe way: a Gherkin spec, then a C4 design, then BDD — one small slice at a time, pausing for the driver's call between steps. Use for any change beyond a typo, or when asked to build something the NoVibe way."
 ---
 
 # NoVibe

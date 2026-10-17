@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Turn a Gherkin spec into a C4 architecture model for one slice — high-level design and flows. Terse ADR only for a crucial cross-cutting decision.
+description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on each design decision: building blocks, and a runtime view for each flow in the spec, in arc42's order. A short MADR only for a cross-cutting decision. Use after the spec, before code."
 ---
 
 # Architect

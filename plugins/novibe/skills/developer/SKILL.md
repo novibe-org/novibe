@@ -1,6 +1,6 @@
 ---
 name: developer
-description: Implement a change test-first — red → green → refactor — turning the spec's scenarios into passing tests. Use when building a feature whose behaviour is specified.
+description: "Build one slice test-first: the Gherkin scenarios run as the tests through the project's BDD runner against the real system, red → green → refactor until they pass. Audits a slice that crosses a trust boundary, then marks the PR ready. Use once the driver has agreed the Gherkin spec and the C4 design."
 ---
 
 # Developer
