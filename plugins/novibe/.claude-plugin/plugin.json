@@ -15,5 +15,8 @@
     "tdd",
     "c4",
     "architecture"
-  ]
+  ],
+  "icon": "./icon.png",
+  "documentationUrl": "https://github.com/novibe-org/novibe#readme",
+  "supportUrl": "https://github.com/novibe-org/novibe/issues"
 }
