@@ -78,6 +78,14 @@ CSV a partner imports).
 **[BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/) scenarios** — business
 language, real data, only the details that matter, one rule each. Five steps or fewer, one `When`–`Then` pair.
 
+**Build the World early** — the World is what the scenarios run in, Cucumber's term; your runner
+may call it `context` (behave), `ScenarioContext` (Reqnroll) or fixtures (pytest-bdd). The first
+slices set up one end-to-end world: the organisation, its people and its things, with names and
+values modelled on the driver's real cases — synthetic, never a customer's data. People appear by
+role or a made-up number, never a person's name, which invites copying a real one in. Later
+scenarios name its things, never placeholders. A scenario someone outside the team cannot picture
+is fluffy: rewrite it from the World.
+
 **No value in it, no example in it** — a step that names only a category is a rule restated, not
 an example of one. Name the World's thing instead:
 
@@ -88,13 +96,6 @@ an example of one. Name the World's thing instead:
 
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
-
-**Build the Cucumber World early** — the first slices set up one end-to-end world the scenarios
-run in: the organisation, its people and its things, with names and values modelled on the
-driver's real cases — synthetic, never a customer's data. People appear by role or a made-up
-number, never a person's name, which invites copying a real one in. Later scenarios name its
-things, never placeholders. A scenario someone outside the team cannot picture is fluffy: rewrite
-it from the World.
 
 **The field's terms** — write in the domain's standard words (*a refund*, *a backorder*), never
 an invented or generic one (*a negative order*, *a pending item*, *an entity*). The driver's own
