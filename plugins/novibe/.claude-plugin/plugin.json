@@ -1,10 +1,19 @@
 {
   "name": "novibe",
-  "description": "The NoVibe development flow as skills: an orchestrator (novibe) that sequences requirements-engineer → architect → developer. Be the driver, not the passenger — do the invisible work (decide, design, prove) first.",
+  "displayName": "NoVibe",
+  "description": "Spec-driven development: you decide the Gherkin spec and the C4 design, Claude builds test-first until the spec passes.",
   "version": "0.9.1",
   "author": {
     "name": "novibe-org"
   },
   "homepage": "https://novibe.org",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "keywords": [
+    "spec-driven-development",
+    "gherkin",
+    "bdd",
+    "tdd",
+    "c4",
+    "architecture"
+  ]
 }

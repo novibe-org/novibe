@@ -8,7 +8,7 @@
     {
       "name": "novibe",
       "source": "./plugins/novibe",
-      "description": "NoVibe — be the driver, not the passenger: feature spec → architecture → TDD as orchestrated skills."
+      "description": "Spec-driven development: you decide the Gherkin spec and the C4 design, Claude builds test-first until the spec passes."
     }
   ]
 }
