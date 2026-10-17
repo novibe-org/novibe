@@ -78,9 +78,10 @@ CSV a partner imports).
 **[BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/) scenarios** — business
 language, real data, only the details that matter, one rule each. Five steps or fewer, one `When`–`Then` pair.
 
-**No value in it, no example in it** — a scenario whose steps name only categories (*"a device in
-another organisation"*, *"a subscriber outside"*) is a rule restated, not an example of one. Put
-the value the driver gave you in the step: *`"A"`*, *`"B"`*, *`3`*, a number they actually use.
+**No value in it, no example in it** — a scenario whose steps name only categories (*"a product
+that is out of stock"*, *"a customer from abroad"*) is a rule restated, not an example of one. Put
+the value the driver gave you in the step: *`"Anna"`*, *`"the blue kettle"`*, *`3`*, a number they
+actually use.
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
@@ -90,20 +91,20 @@ driver's real cases — synthetic, never a customer's data. Later scenarios name
 placeholders. A scenario someone outside the team cannot picture is fluffy: rewrite it from the
 World.
 
-**The field's terms** — write in the domain's standard words (*an incident*, ITIL; *the BMC*,
-Redfish), never an invented or generic one (*item*, *entity*, *issue*). The driver's own word
-wins where they have one: a standard is a suggestion, never a gate. Unsure which term? Offer two
+**The field's terms** — write in the domain's standard words (*a refund*, *a backorder*), never
+an invented or generic one (*a negative order*, *a pending item*, *an entity*). The driver's own
+word wins where they have one: a standard is a suggestion, never a gate. Unsure which term? Offer two
 or three candidates with their source and ask; never pick silently.
 
-**A `Then` is what someone can see** — name what the sender, the device or the operator observes,
-not a verdict the system reached internally. *"the message is refused"* says nothing about whether
-the sender was told or the message vanished, and those are different products; *"the sender is
-told they may not send there, and nothing reaches the device"* says which one was built. Test each
+**A `Then` is what someone can see** — name what the customer, the shop owner or the courier
+observes, not a verdict the system reached internally. *"the order is refused"* says nothing about
+whether Anna was told or the order vanished, and those are different products; *"Anna is told the
+blue kettle is out of stock, and no order is placed"* says which one was built. Test each
 phrase: what would the reader do differently after seeing it? Nothing — drop it.
 
 **The role is someone outside** — the person a scenario serves is whoever gains from it: a
-customer, a subscriber, an operator on call. Never the system, never the team, never a component.
-*"As the operator of the SMSC I want an SRI4SM"* is a design wish wearing a role's clothes.
+customer, a shop owner, a courier on shift. Never the system, never the team, never a component.
+*"As the payment service I want a webhook"* is a design wish wearing a role's clothes.
 Before adding an outcome, ask who needs it: one that only a caller's convenience needs belongs in
 the caller, not the product.
 

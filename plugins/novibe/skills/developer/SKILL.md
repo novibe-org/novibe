@@ -46,8 +46,7 @@ requirements step; never bend the `.feature` file. Scenarios not built in this s
 `@backlog` tag.
 
 **Names come from the field's standard** — offer two or three candidate terms with their source and
-ask; never pick silently. Meaning beats source. Never the driver's word twice: the class behind it
-is named after it only if the name adds what the word doesn't say.
+ask; never pick silently. Meaning beats source.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.
