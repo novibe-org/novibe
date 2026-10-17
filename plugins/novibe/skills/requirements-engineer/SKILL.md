@@ -84,16 +84,17 @@ an example of one. Name the World's thing instead:
 | A rule restated | An example |
 |---|---|
 | `Given a product that is out of stock` | `Given the shop has 0 "Classic Kettle 1.7 l" left` |
-| `Given a customer from abroad` | `Given Anna Weber ships to Vienna, Austria` |
+| `Given a customer from abroad` | `Given customer 10042 ships to Vienna, Austria` |
 
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
 **Build the Cucumber World early** — the first slices set up one end-to-end world the scenarios
 run in: the organisation, its people and its things, with names and values modelled on the
-driver's real cases — synthetic, never a customer's data. Later scenarios name its things, never
-placeholders. A scenario someone outside the team cannot picture is fluffy: rewrite it from the
-World.
+driver's real cases — synthetic, never a customer's data. People appear by role or a made-up
+number, never a person's name, which invites copying a real one in. Later scenarios name its
+things, never placeholders. A scenario someone outside the team cannot picture is fluffy: rewrite
+it from the World.
 
 **The field's terms** — write in the domain's standard words (*a refund*, *a backorder*), never
 an invented or generic one (*a negative order*, *a pending item*, *an entity*). The driver's own
@@ -102,8 +103,8 @@ or three candidates with their source and ask; never pick silently.
 
 **A `Then` is what someone can see** — name what the customer, the shop owner or the courier
 observes, not a verdict the system reached internally. *"the order is refused"* says nothing about
-whether Anna was told or the order vanished, and those are different products; *"Anna is told the
-Classic Kettle is sold out, and no order is placed"* says which one was built. Test each
+whether the customer was told or the order vanished, and those are different products; *"customer
+10042 is told the Classic Kettle is sold out, and no order is placed"* says which one was built. Test each
 phrase: what would the reader do differently after seeing it? Nothing — drop it.
 
 **The role is someone outside** — the person a scenario serves is whoever gains from it: a
