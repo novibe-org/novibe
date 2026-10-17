@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on each design decision: building blocks, and a runtime view for each flow in the spec, in arc42's order. A short MADR only for a cross-cutting decision. Use after the spec, before code."
+description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on each design decision: layer by layer in arc42's views, and a runtime view only for a complex sequence. A short MADR only for a cross-cutting decision. Use after the spec, before code."
 ---
 
 # Architect
@@ -13,9 +13,12 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 
 1. **Read the model** — none yet? This slice starts it, in the layout below, with just enough to
    place the slice.
-2. **Grill the design into the model** — in arc42's order, each box before its parts, a runtime
-   view for each flow in the spec. Ask in rounds: every question the model lets you ask yet, each
-   with your recommendation; write each answer into the model before the next round.
+2. **Grill the design into the model, layer by layer** — in arc42's order: context and scope, then
+   the building blocks level by level, each box before its parts, then deployment. A runtime view
+   only for a complex sequence — many elements, an order that matters, an asynchronous hand-off,
+   what happens when one part fails — never one per scenario: the feature file already tells the
+   story. Ask in rounds: every question the model lets you ask yet, each with your recommendation;
+   write each answer into the model before the next round.
 
    **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
    calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
@@ -43,8 +46,9 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
   appears at two levels in one view.
 - A runtime view holds only the elements that take a step.
 - **Say a fact once.** A description says what an element is, in one sentence. What it does to
-  another element is a relation. How a story runs is a runtime view. Why one feature is built
-  this way needs no record; why every feature must be is an ADR.
+  another element is a relation. How a story runs is the feature file; a runtime view shows only
+  a sequence too complex to read from it. Why one feature is built this way needs no record; why
+  every feature must be is an ADR.
 - An ADR names the views it shaped, by view id; the model never names an ADR.
 - Applications share no storage; one reaches another only through its API.
 - Model your own parts. A library you use is a technology line; a package you write is a
