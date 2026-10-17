@@ -85,9 +85,10 @@ Keep values short enough to read; where the real one is long, name the thing and
 `Background` carry the value.
 
 **Build the Cucumber World early** — the first slices set up one end-to-end world the scenarios
-run in: the organisation, its people and its things, with real names and values the driver
-recognises. Later scenarios name its things, never placeholders. A scenario someone outside the
-team cannot picture is fluffy: rewrite it from the World.
+run in: the organisation, its people and its things, with names and values modelled on the
+driver's real cases — synthetic, never a customer's data. Later scenarios name its things, never
+placeholders. A scenario someone outside the team cannot picture is fluffy: rewrite it from the
+World.
 
 **The field's terms** — write in the domain's standard words (*an incident*, ITIL; *the BMC*,
 Redfish), never an invented or generic one (*item*, *entity*, *issue*). The driver's own word
