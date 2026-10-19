@@ -20,7 +20,7 @@ In Claude Code, open `/plugin` and find **NoVibe** under Discover — it is in t
 </div>
 
 ```text
-/plugin install novibe --marketplace novibe-org/novibe
+claude plugin install novibe --marketplace novibe-org/novibe
 ```
 
 <div align="center">
