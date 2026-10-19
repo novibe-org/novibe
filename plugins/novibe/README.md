@@ -23,8 +23,7 @@ way*, and it walks one slice at a time, pausing for your call between steps.
 
 ## Install
 
-In Claude Code, open `/plugin` and find **NoVibe** under Discover. Or install the latest from
-`main`:
+In Claude Code, open `/plugin` and find **NoVibe** under Discover. Or from the terminal:
 
 ```text
 /plugin install novibe --marketplace novibe-org/novibe

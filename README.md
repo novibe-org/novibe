@@ -15,7 +15,7 @@ every time.
 <div align="center">
 
 In Claude Code, open `/plugin` and find **NoVibe** under Discover — it is in the
-[Anthropic Directory](https://claude.ai/directory). Or install the latest from `main`:
+[Anthropic Directory](https://claude.ai/directory). Or from the terminal:
 
 </div>
 
