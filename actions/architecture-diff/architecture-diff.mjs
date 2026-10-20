@@ -25,34 +25,41 @@ for (const kind of ['elements', 'deployments']) {
 }
 
 const relationsOf = model => [...Object.values(model.relations), ...Object.values(model.deployments?.relations ?? {})]
-const keyOf = new Map()
+const pairOf = new Map()
 const changedRelations = new Set()
 const pool = relationsOf(base)
 for (const r of relationsOf(head)) {
   const same = pool.findIndex(b => relKey(b) === relKey(r) && relProps(b) === relProps(r))
   const near = same >= 0 ? same : pool.findIndex(b => relKey(b) === relKey(r))
-  if (near >= 0 && same < 0) changedRelations.add(r.id)
-  if (near >= 0) pool.splice(near, 1)
+  if (near < 0) continue
+  if (same < 0) changedRelations.add(r.id)
+  pairOf.set(pool.splice(near, 1)[0].id, r.id)
 }
-for (const r of [...relationsOf(base), ...relationsOf(head)]) keyOf.set(r.id, relKey(r))
 
 const nodeRef = n => n.deploymentRef ?? n.modelRef ?? n.id
-const edgeRefs = e => e.relations.map(id => keyOf.get(id) ?? id)
+const relationRefs = (e, side) => e.relations.map(id => (side === 'head' ? id : pairOf.get(id) ?? `base:${id}`))
+const nodeLook = n => JSON.stringify([n.kind, n.title, n.description, n.technology, n.color, n.shape, n.style, n.tags])
+const edgeLook = e => JSON.stringify([e.label, e.color, e.line, e.head, e.tail])
 
 // A view's state per node and edge: present only in one version, or present in both with changed content.
 function marks(view, other, side) {
-  const otherNodes = new Set(other?.nodes.map(nodeRef) ?? [])
-  const otherEdges = new Set(other?.edges.flatMap(edgeRefs) ?? [])
+  const own = side === 'after' ? 'head' : 'base'
+  const otherNodes = new Map(other?.nodes.map(n => [nodeRef(n), n]) ?? [])
+  const otherEdges = new Map(other?.edges.flatMap(e => relationRefs(e, own === 'head' ? 'base' : 'head').map(r => [r, e])) ?? [])
   const gone = side === 'after' ? 'added' : 'removed'
   const nodes = new Map()
   for (const n of view.nodes) {
-    if (!otherNodes.has(nodeRef(n))) nodes.set(n.id, gone)
-    else if (side === 'after' && [n.modelRef, n.deploymentRef, n.id].some(id => changedElements.has(id))) nodes.set(n.id, 'changed')
+    const before = otherNodes.get(nodeRef(n))
+    if (!before) nodes.set(n.id, gone)
+    else if (side === 'after' && ([n.modelRef, n.deploymentRef, n.id].some(id => changedElements.has(id)) || nodeLook(before) !== nodeLook(n))) nodes.set(n.id, 'changed')
   }
   const edges = new Map()
   for (const e of view.edges) {
-    if (!edgeRefs(e).some(k => otherEdges.has(k))) edges.set(e.id, gone)
-    else if (side === 'after' && e.relations.some(id => changedRelations.has(id))) edges.set(e.id, 'changed')
+    const refs = relationRefs(e, own)
+    const found = refs.filter(r => otherEdges.has(r))
+    if (!found.length) edges.set(e.id, gone)
+    else if (side === 'after' && (found.length < refs.length || otherEdges.get(found[0]).relations.length !== refs.length
+      || e.relations.some(id => changedRelations.has(id)) || edgeLook(otherEdges.get(found[0])) !== edgeLook(e))) edges.set(e.id, 'changed')
   }
   return { nodes, edges }
 }
@@ -105,6 +112,8 @@ for (const id of [...new Set([...Object.keys(base.views), ...Object.keys(head.vi
     if (!m.nodes.size && !m.edges.size) continue
     parts.push(`**${label}**`, '', '```mermaid', styled(view, readFileSync(file, 'utf8').trimEnd(), m, unmatched), '```', '')
   }
+  const retitled = h && b && JSON.stringify([h.title, h.description]) !== JSON.stringify([b.title, b.description])
+  if (retitled && !parts.length) parts.push('The view\'s title or description changed.', '')
   if (parts.length) sections.push([id, [`### \`${id}\` — ${!b ? 'new view' : !h ? 'view removed' : 'changed'}`, '', ...parts].join('\n')])
 }
 

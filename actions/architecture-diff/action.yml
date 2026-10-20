@@ -22,7 +22,7 @@ runs:
         MODEL_DIR: ${{ inputs.path }}
         LIKEC4_VERSION: ${{ inputs.likec4-version }}
         BASE: ${{ github.event.pull_request.base.sha }}
-        HEAD: ${{ github.event.pull_request.head.sha }}
+        HEAD: ${{ github.sha }}
       run: |
         set -euo pipefail
         out=$RUNNER_TEMP/architecture-diff
@@ -48,8 +48,9 @@ runs:
       run: |
         set -euo pipefail
         comment=$RUNNER_TEMP/architecture-diff/comment.md
-        id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
-          -q '.[] | select(.body | startswith("<!-- architecture-diff -->")) | .id' | head -n 1)
+        author=$(gh api user -q .login 2>/dev/null || echo 'github-actions[bot]')
+        id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate -q ".[]
+          | select(.user.login == \"$author\" and (.body | startswith(\"<!-- architecture-diff -->\"))) | .id" | head -n 1)
         if [ -n "$id" ]; then
           gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$comment" >/dev/null
         elif ! grep -q '^No view of the architecture model changed' "$comment"; then
