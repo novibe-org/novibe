@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+// Usage: architecture-diff.mjs <base dir> <head dir>, each holding model.json and mermaid/ from LikeC4.
+import { existsSync, readFileSync } from 'node:fs'
+
+const MARKER = '<!-- architecture-diff -->'
+const LIMIT = 60000
+const STROKE = { added: '#1a7f37', changed: '#bf8700', removed: '#cf222e' }
+const FILL = { added: '#dafbe1', changed: '#fff8c5', removed: '#ffebe9' }
+const EMPTY = { elements: {}, relations: {}, deployments: { elements: {} }, views: {} }
+
+const [baseDir, headDir] = process.argv.slice(2)
+const load = dir => (existsSync(`${dir}/model.json`) ? JSON.parse(readFileSync(`${dir}/model.json`, 'utf8')) : EMPTY)
+const base = load(baseDir)
+const head = load(headDir)
+
+const props = e => JSON.stringify([e.kind, e.title, e.description, e.summary, e.technology, e.tags, e.style, e.links, e.metadata, e.element])
+const relKey = r => [r.source.model ?? r.source.deployment, r.target.model ?? r.target.deployment, r.kind ?? ''].join(' ')
+const relProps = r => JSON.stringify([r.title, r.description, r.technology, r.tags, r.links, r.metadata, r.line, r.color])
+
+const changedElements = new Set()
+for (const kind of ['elements', 'deployments']) {
+  const before = kind === 'elements' ? base.elements : base.deployments?.elements ?? {}
+  const after = kind === 'elements' ? head.elements : head.deployments?.elements ?? {}
+  for (const [id, e] of Object.entries(after)) if (before[id] && props(before[id]) !== props(e)) changedElements.add(id)
+}
+
+const relationsOf = model => [...Object.values(model.relations), ...Object.values(model.deployments?.relations ?? {})]
+const keyOf = new Map()
+const changedRelations = new Set()
+const pool = relationsOf(base)
+for (const r of relationsOf(head)) {
+  const same = pool.findIndex(b => relKey(b) === relKey(r) && relProps(b) === relProps(r))
+  const near = same >= 0 ? same : pool.findIndex(b => relKey(b) === relKey(r))
+  if (near >= 0 && same < 0) changedRelations.add(r.id)
+  if (near >= 0) pool.splice(near, 1)
+}
+for (const r of [...relationsOf(base), ...relationsOf(head)]) keyOf.set(r.id, relKey(r))
+
+const nodeRef = n => n.deploymentRef ?? n.modelRef ?? n.id
+const edgeRefs = e => e.relations.map(id => keyOf.get(id) ?? id)
+
+// A view's state per node and edge: present only in one version, or present in both with changed content.
+function marks(view, other, side) {
+  const otherNodes = new Set(other?.nodes.map(nodeRef) ?? [])
+  const otherEdges = new Set(other?.edges.flatMap(edgeRefs) ?? [])
+  const gone = side === 'after' ? 'added' : 'removed'
+  const nodes = new Map()
+  for (const n of view.nodes) {
+    if (!otherNodes.has(nodeRef(n))) nodes.set(n.id, gone)
+    else if (side === 'after' && [n.modelRef, n.deploymentRef, n.id].some(id => changedElements.has(id))) nodes.set(n.id, 'changed')
+  }
+  const edges = new Map()
+  for (const e of view.edges) {
+    if (!edgeRefs(e).some(k => otherEdges.has(k))) edges.set(e.id, gone)
+    else if (side === 'after' && e.relations.some(id => changedRelations.has(id))) edges.set(e.id, 'changed')
+  }
+  return { nodes, edges }
+}
+
+const pascal = s => s.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+function mermaidIds(view) {
+  const byId = new Map(view.nodes.map(n => [n.id, n]))
+  const ids = new Map()
+  const of = n => {
+    if (!ids.has(n.id)) {
+      const parent = n.parent && byId.get(n.parent)
+      ids.set(n.id, parent ? `${of(parent)}.${pascal(n.id.slice(parent.id.length + 1))}` : pascal(n.id))
+    }
+    return ids.get(n.id)
+  }
+  view.nodes.forEach(of)
+  return ids
+}
+
+function styled(view, text, { nodes, edges }, unmatched) {
+  const ids = mermaidIds(view)
+  const links = text.split('\n').filter(l => /^\s*\S+\s+-.*->\s+\S+\s*$/.test(l)).map(l => l.trim().split(/\s+/))
+  const taken = new Set()
+  const lines = [text]
+  for (const [id, state] of nodes) {
+    if (!text.includes(ids.get(id))) unmatched.push(`${view.id}: ${id}`)
+    else lines.push(`  style ${ids.get(id)} fill:${FILL[state]},stroke:${STROKE[state]},stroke-width:3px`)
+  }
+  for (const e of view.edges) {
+    const at = links.findIndex((l, i) => !taken.has(i) && l[0] === ids.get(e.source) && l.at(-1) === ids.get(e.target))
+    if (at >= 0) taken.add(at)
+    if (!edges.has(e.id)) continue
+    if (at < 0) unmatched.push(`${view.id}: ${e.source} -> ${e.target}`)
+    else lines.push(`  linkStyle ${at} stroke:${STROKE[edges.get(e.id)]},stroke-width:3px,color:${STROKE[edges.get(e.id)]}`)
+  }
+  return lines.join('\n').replaceAll('```', "'''")
+}
+
+const out = [MARKER, '## Architecture diff', '']
+const sections = []
+const unmatched = []
+for (const id of [...new Set([...Object.keys(base.views), ...Object.keys(head.views)])].sort()) {
+  const h = head.views[id]
+  const b = base.views[id]
+  const parts = []
+  for (const [label, view, other, dir, side] of [['After', h, b, headDir, 'after'], ['Before', b, h, baseDir, 'before']]) {
+    const file = `${dir}/mermaid/${id}.mmd`
+    if (!view || !existsSync(file)) continue
+    const m = marks(view, other, side)
+    if (!m.nodes.size && !m.edges.size) continue
+    parts.push(`**${label}**`, '', '```mermaid', styled(view, readFileSync(file, 'utf8').trimEnd(), m, unmatched), '```', '')
+  }
+  if (parts.length) sections.push([id, [`### \`${id}\` — ${!b ? 'new view' : !h ? 'view removed' : 'changed'}`, '', ...parts].join('\n')])
+}
+
+if (!sections.length) {
+  out.push('No view of the architecture model changed.')
+} else {
+  out.push(`${sections.length} of ${new Set([...Object.keys(base.views), ...Object.keys(head.views)]).size} views changed · 🟩 added · 🟨 changed · 🟥 removed`, '')
+  let size = out.join('\n').length
+  for (const [n, [, text]] of sections.entries()) {
+    if (size + text.length > LIMIT) {
+      out.push(`…and ${sections.length - n} more: ${sections.slice(n).map(([id]) => `\`${id}\``).join(', ')}.`)
+      break
+    }
+    out.push(text)
+    size += text.length
+  }
+}
+for (const u of unmatched) console.error(`::warning::architecture-diff could not mark ${u} in the Mermaid output`)
+console.log(out.join('\n'))

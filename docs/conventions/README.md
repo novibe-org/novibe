@@ -10,7 +10,7 @@ here first. **Take what you want**; every guard stands alone.
 | [Git](git.md) | a branch per slice, and what must not be pushed | [`.githooks/pre-push.d/git.sh`](../../.githooks/pre-push.d/git.sh) |
 | [Code](code.md) | comments state a constraint the code cannot express | [`.githooks/pre-push.d/code.sh`](../../.githooks/pre-push.d/code.sh) |
 | [Gherkin](gherkin.md) | what a feature file carries, and the tag vocabulary | [`.githooks/pre-push.d/gherkin.sh`](../../.githooks/pre-push.d/gherkin.sh), [`.gherkin-lintrc`](../../.gherkin-lintrc) |
-| [LikeC4](likec4.md) | the architecture model validates | [`.githooks/pre-push.d/likec4.sh`](../../.githooks/pre-push.d/likec4.sh) |
+| [LikeC4](likec4.md) | the architecture model validates, and a pull request shows the reviewer what it changed in it | [`.githooks/pre-push.d/likec4.sh`](../../.githooks/pre-push.d/likec4.sh), [`actions/architecture-diff/`](../../actions/architecture-diff/) |
 | [MADR](madr.md) | an ADR is plain MADR, with a number of its own | [`.githooks/pre-push.d/madr.sh`](../../.githooks/pre-push.d/madr.sh), [`.madrlintrc.json`](../../.madrlintrc.json) |
 | [Phases](phases.md) | a commit is spec, design or code — never a mix | [`.githooks/pre-push.d/phases.sh`](../../.githooks/pre-push.d/phases.sh) |
 | [Copilot](copilot.md) | Copilot ships without touching the spec or the design, and reviews for architecture and security | [`.github/copilot-instructions.md`](../../.github/copilot-instructions.md), [`.github/skills/`](../../.github/skills/) |
