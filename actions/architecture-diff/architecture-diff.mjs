@@ -28,11 +28,16 @@ const relationsOf = model => [...Object.values(model.relations), ...Object.value
 const pairOf = new Map()
 const changedRelations = new Set()
 const pool = relationsOf(base)
+const unpaired = []
 for (const r of relationsOf(head)) {
   const same = pool.findIndex(b => relKey(b) === relKey(r) && relProps(b) === relProps(r))
-  const near = same >= 0 ? same : pool.findIndex(b => relKey(b) === relKey(r))
+  if (same >= 0) pairOf.set(pool.splice(same, 1)[0].id, r.id)
+  else unpaired.push(r)
+}
+for (const r of unpaired) {
+  const near = pool.findIndex(b => relKey(b) === relKey(r))
   if (near < 0) continue
-  if (same < 0) changedRelations.add(r.id)
+  changedRelations.add(r.id)
   pairOf.set(pool.splice(near, 1)[0].id, r.id)
 }
 
