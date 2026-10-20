@@ -1,0 +1,16 @@
+name: architecture-diff
+
+on:
+  pull_request:
+    paths: ['docs/architecture/**']
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  architecture-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: novibe-org/novibe/actions/architecture-diff@main
