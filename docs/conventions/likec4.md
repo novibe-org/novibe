@@ -11,9 +11,9 @@ if yours is elsewhere, `ALLOW_MODEL=1` to override.
 **A pull request shows the reviewer what it changed in the architecture.** The reviewer sees the
 views that changed, not the LikeC4 source behind them.
 
-The [`architecture-diff`](../../actions/architecture-diff/) action compares the model of the
-pull request with its base and comments with each view that changed, as Mermaid that GitHub
-renders in place: added elements and relationships in green, changed ones in amber, and, in a
+The [LikeC4 architecture diff](https://github.com/novibe-org/likec4-architecture-diff-action)
+action compares the model of the pull request with its base and comments with each view that
+changed, as Mermaid that GitHub renders in place: added elements and relationships in green, changed ones in amber, and, in a
 *before* diagram of the base, removed ones in red. A change to a description, a technology or a
 view's include rules counts; a renamed or moved element shows as removed and added. Add it with
 this workflow — `path` if your model is not in `docs/architecture/`:
@@ -34,5 +34,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: novibe-org/novibe/actions/architecture-diff@main
+      - uses: novibe-org/likec4-architecture-diff-action@v1
 ```
