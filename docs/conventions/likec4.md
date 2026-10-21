@@ -14,9 +14,10 @@ views that changed, not the LikeC4 source behind them.
 The [LikeC4 architecture diff](https://github.com/novibe-org/likec4-architecture-diff-action)
 action compares the model of the pull request with its base and comments with each view that
 changed, as one Mermaid diagram that GitHub renders in place: added elements and relationships
-in green, changed ones in amber, and removed ones in red, put back where they were. A change to a description, a technology or a
-view's include rules counts; a renamed or moved element shows as removed and added. Add it with
-this workflow — `path` if your model is not in `docs/architecture/`:
+in green, changed ones in amber, and removed ones in red, put back where they were. A change to a
+description, a technology or a view's include rules counts; a renamed or moved element shows as
+removed and added. Add it with this workflow — `path` if your model is not in
+`docs/architecture/`:
 
 ```yaml
 name: architecture-diff
