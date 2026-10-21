@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Usage: architecture-diff.mjs <base dir> <head dir>, each holding model.json and mermaid/ from LikeC4.
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 
 const MARKER = '<!-- architecture-diff -->'
 const LIMIT = 60000
@@ -9,7 +9,15 @@ const FILL = { added: '#dafbe1', changed: '#fff8c5', removed: '#ffebe9' }
 const EMPTY = { elements: {}, relations: {}, deployments: { elements: {} }, views: {} }
 
 const [baseDir, headDir] = process.argv.slice(2)
-const load = dir => (existsSync(`${dir}/model.json`) ? JSON.parse(readFileSync(`${dir}/model.json`, 'utf8')) : EMPTY)
+// With a likec4.config, the export is a list of projects, and may list one project more than once.
+const load = dir => {
+  if (!existsSync(`${dir}/model.json`)) return EMPTY
+  const model = JSON.parse(readFileSync(`${dir}/model.json`, 'utf8'))
+  if (!Array.isArray(model)) return model
+  const projects = [...new Set(model.map(p => p.projectId))]
+  if (projects.length > 1) throw new Error(`${dir} holds the LikeC4 projects ${projects.join(', ')}; point path at one of them`)
+  return model[0] ?? EMPTY
+}
 const base = load(baseDir)
 const head = load(headDir)
 
@@ -86,7 +94,9 @@ function mermaidIds(view) {
 
 function styled(view, text, { nodes, edges }, unmatched) {
   const ids = mermaidIds(view)
-  const links = text.split('\n').filter(l => /^\s*\S+\s+-.*->\s+\S+\s*$/.test(l)).map(l => l.trim().split(/\s+/))
+  // A long label wraps over lines, so labels are dropped before links are read line by line.
+  const unlabelled = text.replace(/"`[\s\S]*?`"/g, '""')
+  const links = unlabelled.split('\n').filter(l => /^\s*\S+\s+-.*->\s+\S+\s*$/.test(l)).map(l => l.trim().split(/\s+/))
   const taken = new Set()
   const lines = [text]
   for (const [id, state] of nodes) {
@@ -104,6 +114,15 @@ function styled(view, text, { nodes, edges }, unmatched) {
 }
 
 const out = [MARKER, '## Architecture diff', '']
+// LikeC4 writes each view's diagram under the folder of the file that defines the view.
+const diagrams = dir => {
+  const root = `${dir}/mermaid`
+  if (!existsSync(root)) return {}
+  const files = readdirSync(root, { recursive: true }).filter(f => f.endsWith('.mmd'))
+  return Object.fromEntries(files.map(f => [f.split('/').at(-1).slice(0, -'.mmd'.length), `${root}/${f}`]))
+}
+const diagramOf = { [headDir]: diagrams(headDir), [baseDir]: diagrams(baseDir) }
+
 const sections = []
 const unmatched = []
 for (const id of [...new Set([...Object.keys(base.views), ...Object.keys(head.views)])].sort()) {
@@ -111,8 +130,8 @@ for (const id of [...new Set([...Object.keys(base.views), ...Object.keys(head.vi
   const b = base.views[id]
   const parts = []
   for (const [label, view, other, dir, side] of [['After', h, b, headDir, 'after'], ['Before', b, h, baseDir, 'before']]) {
-    const file = `${dir}/mermaid/${id}.mmd`
-    if (!view || !existsSync(file)) continue
+    const file = diagramOf[dir][id]
+    if (!view || !file) continue
     const m = marks(view, other, side)
     if (!m.nodes.size && !m.edges.size) continue
     parts.push(`**${label}**`, '', '```mermaid', styled(view, readFileSync(file, 'utf8').trimEnd(), m, unmatched), '```', '')
