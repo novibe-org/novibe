@@ -98,10 +98,12 @@ function styled(view, text, { nodes, edges }, unmatched) {
   const unlabelled = text.replace(/"`[\s\S]*?`"/g, '""')
   const links = unlabelled.split('\n').filter(l => /^\s*\S+\s+-.*->\s+\S+\s*$/.test(l)).map(l => l.trim().split(/\s+/))
   const taken = new Set()
+  const containers = new Set(view.nodes.filter(n => n.children?.length).map(n => n.id))
   const lines = [text]
   for (const [id, state] of nodes) {
+    const fill = containers.has(id) ? '' : `fill:${FILL[state]},color:#1f2328,`
     if (!text.includes(ids.get(id))) unmatched.push(`${view.id}: ${id}`)
-    else lines.push(`  style ${ids.get(id)} fill:${FILL[state]},stroke:${STROKE[state]},stroke-width:3px,color:#1f2328`)
+    else lines.push(`  style ${ids.get(id)} ${fill}stroke:${STROKE[state]},stroke-width:3px`)
   }
   for (const e of view.edges) {
     const at = links.findIndex((l, i) => !taken.has(i) && l[0] === ids.get(e.source) && l.at(-1) === ids.get(e.target))
