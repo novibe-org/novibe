@@ -101,14 +101,14 @@ function styled(view, text, { nodes, edges }, unmatched) {
   const lines = [text]
   for (const [id, state] of nodes) {
     if (!text.includes(ids.get(id))) unmatched.push(`${view.id}: ${id}`)
-    else lines.push(`  style ${ids.get(id)} fill:${FILL[state]},stroke:${STROKE[state]},stroke-width:3px`)
+    else lines.push(`  style ${ids.get(id)} fill:${FILL[state]},stroke:${STROKE[state]},stroke-width:3px,color:#1f2328`)
   }
   for (const e of view.edges) {
     const at = links.findIndex((l, i) => !taken.has(i) && l[0] === ids.get(e.source) && l.at(-1) === ids.get(e.target))
     if (at >= 0) taken.add(at)
     if (!edges.has(e.id)) continue
     if (at < 0) unmatched.push(`${view.id}: ${e.source} -> ${e.target}`)
-    else lines.push(`  linkStyle ${at} stroke:${STROKE[edges.get(e.id)]},stroke-width:3px,color:${STROKE[edges.get(e.id)]}`)
+    else lines.push(`  linkStyle ${at} stroke:${STROKE[edges.get(e.id)]},stroke-width:3px`)
   }
   return lines.join('\n').replaceAll('```', "'''")
 }
