@@ -48,7 +48,7 @@ runs:
       run: |
         set -euo pipefail
         comment=$RUNNER_TEMP/architecture-diff/comment.md
-        author=$(gh api user -q .login 2>/dev/null || echo 'github-actions[bot]')
+        author=$(gh api user -q .login 2>/dev/null) || author='github-actions[bot]'
         id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate -q ".[]
           | select(.user.login == \"$author\" and (.body | startswith(\"<!-- architecture-diff -->\"))) | .id" | head -n 1)
         if [ -n "$id" ]; then
