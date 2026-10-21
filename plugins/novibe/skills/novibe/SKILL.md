@@ -15,8 +15,10 @@ steps in order, for one small slice:
    `@backlog`: invoke `developer`, pointed at the spec, the model and the ADRs; never restate what
    they decide.
 
-**Every step runs here** — never handed to a subagent: a handover loses what the driver decided
-along the way. Move on only when the driver agrees the step is done.
+**One slice, one session** — every step runs here, never in a subagent: requirements and
+architecture are interviews, and the build needs what the driver decided along the way. To work
+slices in parallel, give each its own session — an [agentbox](https://github.com/novibe-org/agentbox)
+session, or a git worktree each. Move on only when the driver agrees the step is done.
 
 **Skipping is the driver's call.** A step that looks unnecessary — propose skipping it and wait
 for an explicit yes. No spec, no model, no tests yet means create the first one, not skip the

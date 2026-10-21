@@ -21,6 +21,14 @@ way*, and it walks one slice at a time, pausing for your call between steps.
 >
 > **NoVibe:** you author the spec and the design; the machine builds to them, and the executable spec proves it.
 
+## Install
+
+In Claude Code, open `/plugin` and find **NoVibe** under Discover. Or from the terminal:
+
+```text
+claude plugin install novibe --marketplace novibe-org/novibe
+```
+
 ## Skills
 
 | Invoke | What it does for you |

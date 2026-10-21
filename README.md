@@ -12,9 +12,15 @@ every time.
 
 </div>
 
+<div align="center">
+
+In Claude Code, open `/plugin` and find **NoVibe** under Discover — it is in the
+[Anthropic Directory](https://claude.ai/directory). Or from the terminal:
+
+</div>
+
 ```text
-/plugin marketplace add novibe-org/novibe
-/plugin install novibe
+claude plugin install novibe --marketplace novibe-org/novibe
 ```
 
 <div align="center">

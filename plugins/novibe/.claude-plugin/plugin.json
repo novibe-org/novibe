@@ -2,11 +2,12 @@
   "name": "novibe",
   "displayName": "NoVibe",
   "description": "Spec-driven development: you decide the Gherkin spec and the C4 design, Claude builds test-first until the spec passes.",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "author": {
     "name": "novibe-org"
   },
   "homepage": "https://novibe.org",
+  "repository": "https://github.com/novibe-org/novibe",
   "license": "Apache-2.0",
   "keywords": [
     "spec-driven-development",
@@ -15,5 +16,6 @@
     "tdd",
     "c4",
     "architecture"
-  ]
+  ],
+  "icon": "./icon.png"
 }
