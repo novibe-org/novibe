@@ -158,13 +158,14 @@ Each version of the plugin is a [release](https://github.com/novibe-org/novibe/r
 notes list the pull requests since the last one, and those titled as breaking, `feat!: …`, come
 first.
 
-Pin a repository to a release, and a change to a skill or a hook reaches it in a pull request that
-bumps the `ref`, rather than in the next session:
+Pin a repository to a release, and a change to a skill or a hook reaches it when you change the
+`ref`, rather than in the next session. Put the [latest release](https://github.com/novibe-org/novibe/releases/latest)'s
+tag in place of `vX.Y.Z`:
 
 ```json
 "extraKnownMarketplaces": {
   "nv-plugins": {
-    "source": { "source": "github", "repo": "novibe-org/novibe", "ref": "v0.9.5" }
+    "source": { "source": "github", "repo": "novibe-org/novibe", "ref": "vX.Y.Z" }
   }
 }
 ```
