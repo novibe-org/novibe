@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on each design decision: layer by layer in arc42's views, and a runtime view only for a complex sequence. A short MADR only for a cross-cutting decision. Use after the spec, before code."
+description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on the decisions that change its structure, in arc42's views, touching only the layers the slice changes. No runtime view for a sequence a scenario pins, and an ADR only when a later slice would decide differently without it. Use after the spec, before code."
 ---
 
 # Architect
@@ -13,12 +13,12 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 
 1. **Read the model** — none yet? This slice starts it, in the layout below, with just enough to
    place the slice.
-2. **Grill the design into the model, layer by layer** — in arc42's order: context and scope, then
-   the building blocks level by level, each box before its parts, then deployment. A runtime view
-   only for a complex sequence — many elements, an order that matters, an asynchronous hand-off,
-   what happens when one part fails — never one per scenario: the feature file already tells the
-   story. Ask in rounds: every question the model lets you ask yet, each with your recommendation;
-   write each answer into the model before the next round.
+2. **Grill the design into the model, only where the slice changes it** — in arc42's order:
+   context and scope, then the building blocks level by level, each box before its parts, then
+   deployment. Touch only the layers the slice changes, and say in one line which stay as they
+   are. A runtime view only when the order of the steps can be read neither from the relations nor
+   from a scenario — a sequence a scenario pins needs none. Ask in rounds, each question with your
+   recommendation; write each answer into the model before the next round.
 
    **Ask with `AskUserQuestion`** — up to four questions a call, so a bigger round takes several
    calls in a row; your recommendation is the first option, marked *(Recommended)*. A question
@@ -26,13 +26,13 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
    questions and put your recommendation under each.
 
    **Facts are yours, decisions are the driver's** — look up what the code and the model can tell
-   you; ask everything someone could have decided differently. A question about behaviour is the
-   spec's: hand it back to the requirements step, never settle it in the model.
-3. **ADR only if warranted** — an integration pattern, a security boundary, build versus reuse,
-   repo structure: a decision that binds features not yet written. Default to none; never
-   package a feature as an ADR. A choice the driver made for this slice is answered in the model,
-   not recorded again; what a scenario already says is not an ADR decision either. A decision that
-   is cross-cutting? Recommend the ADR and ask the driver first. Then plain
+   you; ask only what changes the structure: a new element, who talks to whom, the mechanism
+   between them, where something runs. A question about behaviour is the spec's: hand it back to
+   the requirements step, never settle it in the model.
+3. **ADR only if warranted** — default to none. Before writing one, ask: would a later slice
+   decide differently without it? If not, there is no ADR. Never one that says how a feature
+   behaves; a choice the driver made for this slice is answered in the model, not recorded again.
+   A decision that is cross-cutting? Recommend the ADR and ask the driver first. Then plain
    [MADR](https://adr.github.io/madr/), kept short, next number in `docs/adrs/`.
 4. **Push** — once no question is open and the driver agrees: commit as `arch: …` to the slice's
    branch and push.
@@ -46,7 +46,8 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
   appears at two levels in one view.
 - A runtime view holds only the elements that take a step.
 - **Say a fact once.** A description says what an element is, in one sentence. What it does to
-  another element is a relation. How a story runs is the feature file; a runtime view shows only
+  another element, and by what mechanism, is a relation — never when, unless, or what the user is
+  told: that is the spec's. How a story runs is the feature file; a runtime view shows only
   a sequence too complex to read from it. Why one feature is built this way needs no record; why
   every feature must be is an ADR.
 - An ADR names the views it shaped, by view id; the model never names an ADR.
@@ -54,8 +55,8 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 - Model your own parts. A library you use is a technology line; a package you write is a
   `library`.
 - Where the system is headed is a view on this model, never a second model.
-- **Names come from the field's standard** — offer two or three candidate terms with their
-  source and ask; never pick silently. Prefer one source, but meaning beats source.
+- **Names come from the field's standard** — use the field's term; when two are in use, offer
+  them with their source and ask. Prefer one source, but meaning beats source.
 
 ## Layout
 
