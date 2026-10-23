@@ -1,0 +1,33 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths: [plugins/novibe/.claude-plugin/plugin.json]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Tag a new plugin version and publish its release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=v$(jq -r .version plugins/novibe/.claude-plugin/plugin.json)
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+            echo "$tag is already released"
+            exit 0
+          fi
+          notes=$(gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$tag" -f target_commitish="$GITHUB_SHA" --jq .body)
+          # A pull request titled with a "!" before its colon, such as "feat!: …", breaks something; those lead the notes.
+          breaking=$(printf '%s\n' "$notes" | grep -E '^\* [a-z]+(\([^)]*\))?!:' || true)
+          if [ -n "$breaking" ]; then
+            notes=$(printf '## Breaking changes\n\n%s\n\n%s\n' "$breaking" "$notes")
+          fi
+          printf '%s\n' "$notes" | gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file -

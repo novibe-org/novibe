@@ -137,7 +137,8 @@ Claude sessions turn the hooks on themselves, wherever they run, through
 git config core.hooksPath .githooks
 ```
 
-Adopting them means copying from where each file already lives:
+Adopting them means copying from where each file already lives, at a [release](#releases) tag
+rather than `main`:
 
 | Copy | For |
 |---|---|
@@ -149,6 +150,28 @@ Adopting them means copying from where each file already lives:
 | [`.github/workflows/security-audit.yml`](.github/workflows/security-audit.yml) | the check that a ready PR records its security audit decision — make it a required check |
 
 [`docs/conventions/`](docs/conventions/) says what each rule is for.
+
+## Releases
+
+Each version of the plugin is a [release](https://github.com/novibe-org/novibe/releases), tagged
+`vX.Y.Z` with the `version` in [`plugin.json`](plugins/novibe/.claude-plugin/plugin.json). Its
+notes list the pull requests since the last one, and those titled as breaking, `feat!: …`, come
+first.
+
+Pin a repository to a release, and a change to a skill or a hook reaches it in a pull request that
+bumps the `ref`, rather than in the next session:
+
+```json
+"extraKnownMarketplaces": {
+  "nv-plugins": {
+    "source": { "source": "github", "repo": "novibe-org/novibe", "ref": "v0.9.5" }
+  }
+}
+```
+
+[`.githooks/VERSION`](.githooks/VERSION) says which release a copy of the hooks came from. Bump it
+with `plugin.json`; a pull request where the two differ fails its check, and merging a new version
+publishes its release.
 
 <div align="center">
 

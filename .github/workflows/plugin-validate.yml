@@ -14,3 +14,8 @@ jobs:
       - run: npm i -g @anthropic-ai/claude-code@2.1.296
       - run: claude plugin validate --strict .
       - run: claude plugin validate --strict plugins/novibe
+      - name: The hooks carry the plugin's version
+        run: |
+          hooks=$(cat .githooks/VERSION)
+          plugin=$(jq -r .version plugins/novibe/.claude-plugin/plugin.json)
+          [ "$hooks" = "$plugin" ] || { echo "::error file=.githooks/VERSION::.githooks/VERSION is $hooks but plugin.json is $plugin; bump them together"; exit 1; }
