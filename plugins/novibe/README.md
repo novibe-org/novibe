@@ -35,7 +35,7 @@ claude plugin install novibe --marketplace novibe-org/novibe
 |---|---|
 | **`novibe`** | drives a change end to end — spec → design → tests — one step at a time |
 | **`requirements-engineer`** | asks you, round by round, until the feature file holds *what* to build |
-| **`architect`** | asks you the same way until the C4 model holds the design; an ADR only when it matters |
+| **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly. Skip

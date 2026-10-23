@@ -1,6 +1,6 @@
 ---
 name: architect
-description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on the decisions that change its structure, in arc42's views, touching only the layers the slice changes. No runtime view for a sequence a scenario pins, and an ADR only when a later slice would decide differently without it. Use after the spec, before code."
+description: "Place one slice in the C4 model (LikeC4) by interviewing the driver on the decisions that change its structure, in arc42's views, touching only the layers the slice changes. No runtime view for a sequence a scenario pins, and an ADR only when a later slice would decide differently without it. Use after the spec, before code, when a slice brings a new component, framework, technology or integration."
 ---
 
 # Architect
