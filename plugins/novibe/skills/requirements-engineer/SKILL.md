@@ -97,18 +97,8 @@ an example of one. Name the World's thing instead:
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
-**The spec decides the words** — Evans'
-[ubiquitous language](https://martinfowler.com/bliki/UbiquitousLanguage.html): the model and the
-code take over every word the spec uses, so a wrong one here spreads to every step after it.
-
-- **The field's standard terms** — *a refund*, *a backorder*, never an invented or generic word
-  (*a negative order*, *a pending item*, *an entity*), and never filler (*info*, *stuff*).
-- **The team's own names for their things** — Grafana and Slack where their material says so,
-  never a tidier word (*dashboards*, *the chat*) that nobody searches for.
-- **One word per concept** — before using a word, search `features/` and the model for the one
-  already in use for that concept: it wins, and a second word for the same concept is refused.
-- **No word introduced silently** — a new term is asked for first: two or three candidates with
-  their source, and the driver picks. The driver's own word wins where they have one.
+**The spec decides the words** — the model and the code take them over; every name follows the
+[ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md).
 
 **A `Then` is what someone can see** — name what the customer, the shop owner or the courier
 observes, not a verdict the system reached internally. *"the order is refused"* says nothing about
@@ -139,19 +129,11 @@ at most, never complicated setup.
 that do different things are separate scenarios. A table of unrelated rules is a list of rules,
 not an outline — and a new rule never joins an old mixed table.
 
-**A feature names the user's goal** — in their field's terms, plain before precise:
-`find-knowledge`, `knowledge-capture` (KCS); never a sentence (`i-tell-the-system-what-i-know`)
-or a gerund (`telling`). A standard's mechanism (SHACL, OAuth) names code, never a feature.
-
-**Renaming a term changes it everywhere** — feature files, step definitions, the model, the ADRs
-and the code, in one slice of its own.
-
 **Removing or loosening a rule changes it everywhere** — list every scenario, table row, ADR
 sentence and skill line that names it, and change them in the same slice.
 
-**Folders are feature domains** — what the system does, in the field's standard terms
-(`retrieval`, `authentication`); never an epic, never a technical layer. Epics are transient and
-live in the driver's planning tool.
+**Folders are feature domains** — what the system does; never an epic, never a technical layer.
+Epics are transient and live in the driver's planning tool.
 
 **Every feature carries an `@id:`** — the ticket in the driver's planning tool (`@id:<ticket>`);
 a scenario planned on its own carries its own. No tool? Kebab-case, named for the behaviour, not

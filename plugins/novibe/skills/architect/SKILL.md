@@ -55,8 +55,7 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 - Model your own parts. A library you use is a technology line; a package you write is a
   `library`.
 - Where the system is headed is a view on this model, never a second model.
-- **Names are the spec's words** — an element the spec names takes its word, never a second
-  one; a part it does not name takes the field's standard term, offered with its source.
+- **Names follow the [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md)** — the spec's words.
 
 ## Layout
 

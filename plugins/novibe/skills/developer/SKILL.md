@@ -26,9 +26,8 @@ slice; the first slice builds it.
 
 1. **Run the spec → red** — the undefined scenarios are the work list.
 2. **Write the next scenario's step definitions** — dumb, scenario-specific, disposable, their
-   values written out, their names the scenario's words: a parameter for a value used once
-   pretends a generality nobody asked for. It must fail for the right reason: behaviour missing,
-   not broken glue.
+   values written out: a parameter for a value used once pretends a generality nobody asked for.
+   It must fail for the right reason: behaviour missing, not broken glue.
 3. **Minimal implementation → green.**
 4. **Refactor** with the scenario green, and commit.
 5. **Repeat** until every scenario is green or tagged `@backlog`.
@@ -53,10 +52,7 @@ slice; the first slice builds it.
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
 
-**Names are the spec's words** — `Subscription` where the spec says *subscription*, never `Plan`.
-A concept the spec and the model don't name takes the field's standard term: offer two or three
-candidates with their source and ask; never pick silently. No filler: `Manager`, `Handler`,
-`Helper`, `Util`, `Data`, `Info`.
+**Names follow the [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md)** — the spec's words.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.
