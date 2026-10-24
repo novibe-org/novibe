@@ -97,8 +97,9 @@ an example of one. Name the World's thing instead:
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
-**The spec decides the words** — Evans' [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md): the model and the code
-take over every word the spec uses, so a wrong one here spreads to every step after it.
+**The spec decides the words** — Evans'
+[ubiquitous language](https://martinfowler.com/bliki/UbiquitousLanguage.html): the model and the
+code take over every word the spec uses, so a wrong one here spreads to every step after it.
 
 - **The field's standard terms** — *a refund*, *a backorder*, never an invented or generic word
   (*a negative order*, *a pending item*, *an entity*), and never filler (*info*, *stuff*).
@@ -149,7 +150,8 @@ and the code, in one slice of its own.
 sentence and skill line that names it, and change them in the same slice.
 
 **Folders are feature domains** — what the system does, in the field's standard terms
-(`retrieval`, `authentication`); never an epic, never a technical layer. Epics are transient and live in the driver's planning tool.
+(`retrieval`, `authentication`); never an epic, never a technical layer. Epics are transient and
+live in the driver's planning tool.
 
 **Every feature carries an `@id:`** — the ticket in the driver's planning tool (`@id:<ticket>`);
 a scenario planned on its own carries its own. No tool? Kebab-case, named for the behaviour, not

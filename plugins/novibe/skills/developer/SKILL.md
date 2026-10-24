@@ -53,11 +53,10 @@ slice; the first slice builds it.
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
 
-**The code speaks the spec's language** — Evans' [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md): every name for a
-domain concept is the word the `.feature` file or the model uses for it (`Subscription` where the
-spec says *subscription*, never `Plan`), one word per concept. A concept they don't name takes the
-field's standard term: offer two or three candidates with their source and ask; never invent
-one, never pick silently. No filler: `Manager`, `Handler`, `Helper`, `Util`, `Data`, `Info`.
+**Names are the spec's words** — `Subscription` where the spec says *subscription*, never `Plan`.
+A concept the spec and the model don't name takes the field's standard term: offer two or three
+candidates with their source and ask; never pick silently. No filler: `Manager`, `Handler`,
+`Helper`, `Util`, `Data`, `Info`.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.

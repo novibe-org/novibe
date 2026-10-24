@@ -11,9 +11,7 @@ from is a tag, which can be queried and linted; a comment can be neither.
 **No solutions in the spec.** A scenario says what someone can do and what they get, not which
 button they press or which status code comes back. `no-restricted-patterns` refuses the words
 that give a solution away — a starter list: a project whose product *is* an API drops the API
-words from its copy. It also refuses the filler words *info* and *stuff*, since the spec decides the words the model
-and the code take over ([Ubiquitous language](ubiquitous-language.md)); *manager* or *handler*
-can be a real role here, so only the code treats them as filler.
+words from its copy.
 
 The vocabulary is three tags, and a tag outside it fails the lint, so it cannot grow by
 accident:
