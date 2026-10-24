@@ -33,11 +33,10 @@ goes ready.
 ## Before the PR goes ready
 
 The `developer` step has the [`security-review`](../../plugins/novibe/agents/security-review.md)
-agent run Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) on
-the slice's diff, but only when that diff crosses a trust boundary: a new entry point,
-authentication, untrusted input reaching an interpreter, per-tenant data, secrets, dependencies
-or deployment config. The audit is thorough and heavy, so a slice that crosses no boundary skips
-it, and the PR says why. How its findings are fixed and recorded is [Code review](code-review.md).
+agent run Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) on a
+slice that crosses a trust boundary — its step 6 lists them — see [Code review](code-review.md).
+The audit is thorough and heavy, so a slice that crosses no boundary skips it, and the PR says
+why.
 
 **A required check on GitHub keeps it from being skipped.** The `developer` step records its
 decision in the PR description, on a line of its own, and
