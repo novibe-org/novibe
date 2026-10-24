@@ -7,9 +7,12 @@ each in a context of its own, not the one that wrote the code:
 | Agent | Runs when the slice | Reviews |
 |---|---|---|
 | [`security-review`](../../plugins/novibe/agents/security-review.md) | crosses a trust boundary — see [Security](security.md#before-the-pr-goes-ready) | the diff, with Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) |
-| [`architecture-review`](../../plugins/novibe/agents/architecture-review.md) | changed the model or an ADR, and changed code | the code against them |
+| [`architecture-review`](../../plugins/novibe/agents/architecture-review.md) | changed the model or an ADR, and changed code | every dependency the slice adds across an element's boundary, against the model's relations and the accepted ADRs |
 
 A slice that meets neither trigger is not reviewed by an agent.
+
+**A finding quotes what it contradicts** — the relation, or the ADR line. One that cannot be
+tied to a quoted line is left out, which keeps a reviewer's taste out of the findings.
 
 **The reviewers only report.** The `developer` step fixes a confirmed finding test-first — never
 by changing the spec, the model or an ADR — and posts one comment on the pull request listing
