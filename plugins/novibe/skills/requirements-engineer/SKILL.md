@@ -131,6 +131,11 @@ at most, never complicated setup.
 that do different things are separate scenarios. A table of unrelated rules is a list of rules,
 not an outline — and a new rule never joins an old mixed table.
 
+**A feature names the user's goal as a term of their field** — plain before precise:
+`find-knowledge`, `knowledge-capture` (KCS), `authentication`. Never a sentence or a phrase made
+of the driver's words (`i-tell-the-system-what-i-know`, `share-what-was-learned`), never a gerund
+(`telling`); the same for a folder.
+
 **Removing or loosening a rule changes it everywhere** — list every scenario, table row, ADR
 sentence and skill line that names it, and change them in the same slice.
 

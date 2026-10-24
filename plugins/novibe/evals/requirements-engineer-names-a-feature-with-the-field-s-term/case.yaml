@@ -1,0 +1,28 @@
+schema_version: "1.1"
+name: requirements-engineer-names-a-feature-with-the-field-s-term
+tags: [ubiquitous-language]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  prompt: |
+    Run the requirements step for this idea from the driver: "When a support engineer has solved
+    a ticket, they should be able to tell the system what they learned, so the next person finds
+    it." There is no driver and no shell in this session: where you would ask the driver, write
+    the question and your recommendation into `outcome.md`, and carry on as you recommend. Write
+    the feature file you would write, with only its first scenario. `outcome.md` repeats that file
+    whole, under its path, and lists every question you would have asked.
+graders:
+  - name: names-it-with-the-field-s-term
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. The feature's file name and its `Feature:` title name the engineer's goal as a short
+         term (such as `knowledge-capture`, KCS's term, or a plain one like `share-knowledge`).
+      2. Neither is a sentence or a gerund made of the driver's words, such as
+         `i-tell-the-system-what-i-learned`, `tell-the-system-what-they-learned` or `telling`.
