@@ -55,8 +55,10 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 - Model your own parts. A library you use is a technology line; a package you write is a
   `library`.
 - Where the system is headed is a view on this model, never a second model.
-- **Names come from the field's standard** — use the field's term; when two are in use, offer
-  them with their source and ask. Prefer one source, but meaning beats source.
+- **Names are the spec's words** — the [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md): an element the spec names
+  takes its word, never a second one. A part the spec does not name takes the field's standard
+  term; when two are in use, offer them with their source and ask. A standard's names are used
+  verbatim, and where ours differ, the ADR that adopts the standard lists them in one table.
 
 ## Layout
 
