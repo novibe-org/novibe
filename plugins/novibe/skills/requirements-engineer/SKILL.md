@@ -97,8 +97,10 @@ an example of one. Name the World's thing instead:
 Keep values short enough to read; where the real one is long, name the thing and let the
 `Background` carry the value.
 
-**The spec decides the words** — the model and the code take them over; every name follows the
-[ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md).
+**The spec decides the words** — the model and the code take them over, by the
+[ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md). Before using a word, search `features/` and the model for the one
+already in use for that concept; a new term is asked for first, with two or three candidates and
+their source.
 
 **A `Then` is what someone can see** — name what the customer, the shop owner or the courier
 observes, not a verdict the system reached internally. *"the order is refused"* says nothing about

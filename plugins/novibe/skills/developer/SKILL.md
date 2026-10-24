@@ -52,7 +52,8 @@ slice; the first slice builds it.
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
 
-**Names follow the [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md)** — the spec's words.
+**Code takes the spec's and the model's words** — types, functions and step definitions alike,
+by the [ubiquitous language](https://github.com/novibe-org/novibe/blob/main/docs/conventions/ubiquitous-language.md). A concept they don't name: offer the field's term and ask.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.
