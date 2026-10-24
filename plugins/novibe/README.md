@@ -37,7 +37,6 @@ claude plugin install novibe --marketplace novibe-org/novibe
 | **`requirements-engineer`** | asks you, round by round, until the feature file holds *what* to build |
 | **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
-| **`clean-code`** | Uncle Bob's heuristics by ID — what `developer` refactors by and `clean-code-review` reviews by |
 
 | Agent | Reviews, before the PR goes ready |
 |---|---|

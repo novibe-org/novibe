@@ -1,12 +1,8 @@
----
-name: clean-code
-description: "Robert C. Martin's Clean Code heuristics (chapter 17, Smells and Heuristics), by ID, for refactoring a slice and for reviewing it. Use in the developer's refactor step and in clean-code-review."
----
-
 # Clean Code
 
-Robert C. Martin, *Clean Code* (2008), chapter 17, *Smells and Heuristics*. A finding names its
-ID; what has no ID here is taste, and taste is not a finding.
+Robert C. Martin, *Clean Code* (2008), chapter 17, *Smells and Heuristics*, by ID and in our own
+words. The `developer` step refactors by every heuristic here; `clean-code-review` reviews by
+them. A finding names its ID; what has no ID here is taste, and taste is not a finding.
 
 ## Names
 
@@ -14,7 +10,7 @@ ID; what has no ID here is taste, and taste is not a finding.
   `Util`, `Data`, `Info`)
 - **N2** · a name says what, at the level of abstraction of its caller, not how it is built
 - **N3** · standard nomenclature: the spec's and the model's word first, by the
-  [ubiquitous language](../../references/ubiquitous-language.md), then the field's or the
+  [ubiquitous language](ubiquitous-language.md), then the field's or the
   pattern's term
 - **N4** · one meaning only; two readings are two names
 - **N5** · the longer the scope, the longer the name

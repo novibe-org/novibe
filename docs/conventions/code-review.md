@@ -9,8 +9,8 @@ each in a context of its own, not the one that wrote the code:
 - [`architecture-review`](../../plugins/novibe/agents/architecture-review.md) — the code against
   the model and the ADRs
 - [`clean-code-review`](../../plugins/novibe/agents/clean-code-review.md) — the code by
-  [Clean Code](../../plugins/novibe/skills/clean-code/SKILL.md)'s heuristics, each finding cited by
-  its ID
+  [Clean Code](../../plugins/novibe/references/clean-code.md)'s heuristics, the same the developer
+  refactors by, each finding cited by its ID
 
 The reviewers only report. Which ones a slice calls for, and how their findings are fixed and
 posted on the pull request, are steps 6 and 7 of the
