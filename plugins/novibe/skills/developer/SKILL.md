@@ -1,6 +1,6 @@
 ---
 name: developer
-description: "Build one slice test-first: the Gherkin scenarios run as the tests through the project's BDD runner against the system under test, red → green → refactor until they pass. Has reviewer agents review a slice where it crosses a trust boundary or changed the design, then marks the PR ready. Use once the driver has agreed the Gherkin spec and the C4 design."
+description: "Build one slice test-first: the Gherkin scenarios run as the tests through the project's BDD runner against the system under test, red → green → refactor until they pass. Refactors by Clean Code, has reviewer agents review the slice, then marks the PR ready. Use once the driver has agreed the Gherkin spec and the C4 design."
 ---
 
 # Developer
@@ -29,7 +29,10 @@ slice; the first slice builds it.
    values written out: a parameter for a value used once pretends a generality nobody asked for.
    It must fail for the right reason: behaviour missing, not broken glue.
 3. **Minimal implementation → green.**
-4. **Refactor** with the scenario green, and commit.
+4. **Refactor** with the scenario green, by the [`clean-code`](../clean-code/SKILL.md) skill —
+   above all names in the spec's words (N1, N3), one thing per function at one level of
+   abstraction (G30, G34), no duplication or dead code (G5, G9), few and no flag arguments (F1,
+   F3), named constants (G25), no swallowed error — and commit.
 5. **Repeat** until every scenario is green or tagged `@backlog`.
 6. **Review** — start the reviewers whose trigger the slice meets, in parallel, in one message:
    - **`security-review`** when it crosses a trust boundary — an entry point, auth or crypto,
@@ -37,8 +40,9 @@ slice; the first slice builds it.
      CI, an LLM prompt or tool. Tests, docs and refactors cross none.
    - **`architecture-review`** when it changed `docs/architecture/` or `docs/adrs/` and changed
      code.
+   - **`clean-code-review`** when it changed code.
 
-   Neither? No review. A reviewer reports `NOT RUN`? Stop and ask the driver: install what it
+   None? No review. A reviewer reports `NOT RUN`? Stop and ask the driver: install what it
    names, or record why not. Fix a confirmed finding test-first, never by changing the spec, the
    model or an ADR; one you leave open needs a reason the driver can judge.
 7. **Push and mark the PR ready** — `gh pr ready`, or `gh pr create` if there is none — its
