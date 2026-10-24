@@ -88,10 +88,8 @@ contract; code is their consequence. Give each slice its own session:
 3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
    decisions in your prompt, or it builds what you wrote instead of what was reviewed. Reviewer
    agents review the slice before its PR goes ready.
-4. **Ship** it — turn on
-   [agent merge](https://docs.github.com/en/copilot/how-tos/github-copilot-app/managing-issues-and-pull-requests#merging-a-pull-request)
-   in the GitHub Copilot app: it reads the pull request, fixes what blocks it, and merges as soon
-   as GitHub allows. Turning it on is your decision to merge.
+4. **Ship** it — read the spec, the design and the review comment on the pull request, and merge
+   it yourself. Merging is your decision; no agent merges.
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
 Skip NoVibe for trivial edits.
@@ -137,7 +135,6 @@ the credential-path check:
 | [likec4](docs/conventions/likec4.md) | an architecture model that does not validate |
 | [madr](docs/conventions/madr.md) | an ADR that is not MADR, or that shares its number with another |
 | [phases](docs/conventions/phases.md) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
-| [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design |
 
 Claude sessions turn the hooks on themselves, wherever they run, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
@@ -155,7 +152,6 @@ rather than `main`:
 | [`.gherkin-lintrc`](.gherkin-lintrc) | the feature-file lint |
 | [`.madrlintrc.json`](.madrlintrc.json) | the ADR lint |
 | [`.claude/settings.json`](.claude/settings.json) | the hook that turns the guards on, and the plugin |
-| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | Copilot's instructions for agent merge |
 | [`.github/workflows/security-audit.yml`](.github/workflows/security-audit.yml) | the check that a ready PR records its security audit decision — make it a required check |
 
 [`docs/conventions/`](docs/conventions/) says what each rule is for.

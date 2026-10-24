@@ -32,17 +32,12 @@ goes ready.
 
 ## Before the PR goes ready
 
-The `developer` step has reviewer agents review the slice locally, on the driver's Claude
-subscription, in parallel and each in a context of its own — not the one that wrote the code:
-
-| Agent | Runs when the slice | Reviews |
-|---|---|---|
-| [`security-review`](../../plugins/novibe/agents/security-review.md) | crosses a trust boundary: a new entry point, authentication, untrusted input reaching an interpreter, per-tenant data, secrets, dependencies or deployment config | the diff, with Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) |
-| [`architecture-review`](../../plugins/novibe/agents/architecture-review.md) | changed the model or an ADR, and changed code | the code against them |
-
-The audit is thorough and heavy, so a slice that crosses no boundary skips it, and the PR says
-why. The reviewers only report; the `developer` step fixes a confirmed finding test-first and
-posts one comment on the PR listing every finding — fixed in which commit, or open and why.
+The `developer` step has the [`security-review`](../../plugins/novibe/agents/security-review.md)
+agent run Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) on
+the slice's diff, but only when that diff crosses a trust boundary: a new entry point,
+authentication, untrusted input reaching an interpreter, per-tenant data, secrets, dependencies
+or deployment config. The audit is thorough and heavy, so a slice that crosses no boundary skips
+it, and the PR says why. How its findings are fixed and recorded is [Code review](code-review.md).
 
 **A required check on GitHub keeps it from being skipped.** The `developer` step records its
 decision in the PR description, on a line of its own, and
@@ -62,8 +57,7 @@ in its ruleset.
 
 [`plugins/novibe/evals/`](../../plugins/novibe/evals/) checks the developer step's judgment. The `security-audit` cases
 check that the developer step audits a slice adding an unguarded route and skips one that only
-renames; the `architecture-review` case, that it fixes code contradicting the model the slice
-just changed, rather than the model.
+renames.
 
 ```bash
 cd plugins/novibe
