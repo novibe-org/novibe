@@ -67,6 +67,14 @@ the tests proved and the plan; [agentbox](https://github.com/novibe-org/agentbox
 | **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
 
+The `developer` step starts the reviewer agents a slice calls for, in parallel, on your Claude
+subscription, and fixes what they find before the PR goes ready.
+
+| Agent | Reviews, before the PR goes ready |
+|---|---|
+| **`security-review`** | a slice that crosses a trust boundary, with Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) |
+| **`architecture-review`** | a slice that changed the C4 model or an ADR: its code against them |
+
 ## 🚀 Use
 
 Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks the flow one
@@ -78,7 +86,8 @@ contract; code is their consequence. Give each slice its own session:
    [arc42](https://arc42.org/overview/). A complex design decision? Visualize and review it with
    `npx likec4 serve docs/architecture`.
 3. **Build** it test-first — point it at the spec, the model and the ADRs; don't restate the
-   decisions in your prompt, or it builds what you wrote instead of what was reviewed.
+   decisions in your prompt, or it builds what you wrote instead of what was reviewed. Reviewer
+   agents review the slice before its PR goes ready.
 4. **Ship** it — turn on
    [agent merge](https://docs.github.com/en/copilot/how-tos/github-copilot-app/managing-issues-and-pull-requests#merging-a-pull-request)
    in the GitHub Copilot app: it reads the pull request, fixes what blocks it, and merges as soon
@@ -128,7 +137,7 @@ the credential-path check:
 | [likec4](docs/conventions/likec4.md) | an architecture model that does not validate |
 | [madr](docs/conventions/madr.md) | an ADR that is not MADR, or that shares its number with another |
 | [phases](docs/conventions/phases.md) | a `spec:` commit touching more than the spec, an `arch:` commit more than the model and ADRs, and any other commit touching either |
-| [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design, and review skills that flag code contradicting the architecture or creating a security problem |
+| [copilot](docs/conventions/copilot.md) | — instructions that keep agent merge off the spec and the design |
 
 Claude sessions turn the hooks on themselves, wherever they run, through
 [`.claude/settings.json`](.claude/settings.json). Pushing without Claude? Once per clone:
@@ -146,7 +155,7 @@ rather than `main`:
 | [`.gherkin-lintrc`](.gherkin-lintrc) | the feature-file lint |
 | [`.madrlintrc.json`](.madrlintrc.json) | the ADR lint |
 | [`.claude/settings.json`](.claude/settings.json) | the hook that turns the guards on, and the plugin |
-| [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`.github/skills/`](.github/skills/) | Copilot's instructions and review skills |
+| [`.github/copilot-instructions.md`](.github/copilot-instructions.md) | Copilot's instructions for agent merge |
 | [`.github/workflows/security-audit.yml`](.github/workflows/security-audit.yml) | the check that a ready PR records its security audit decision — make it a required check |
 
 [`docs/conventions/`](docs/conventions/) says what each rule is for.

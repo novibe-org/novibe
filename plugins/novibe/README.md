@@ -29,7 +29,7 @@ In Claude Code, open `/plugin` and find **NoVibe** under Discover. Or from the t
 claude plugin install novibe --marketplace novibe-org/novibe
 ```
 
-## Skills
+## Skills and agents
 
 | Invoke | What it does for you |
 |---|---|
@@ -38,13 +38,21 @@ claude plugin install novibe --marketplace novibe-org/novibe
 | **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
 
+| Agent | Reviews, before the PR goes ready |
+|---|---|
+| **`security-review`** | a slice that crosses a trust boundary, with Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) |
+| **`architecture-review`** | a slice that changed the C4 model or an ADR: its code against them |
+
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly. Skip
 NoVibe for trivial edits.
 
 ## What it touches
 
-The skills are plain `SKILL.md` instructions. The plugin ships no MCP server, hook or script,
-and sends nothing anywhere of its own. It works through the tools your session already has: files
+The skills are plain `SKILL.md` instructions, and the reviewer agents plain agent files that
+read and report, never change. The plugin ships no MCP server, hook or script, and sends nothing
+anywhere of its own. `security-review` runs Cloudflare's `security-audit`: installing NoVibe from
+its marketplace installs it too; from the Directory, install it with
+`npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global`. It works through the tools your session already has: files
 in your repository, and a planning tool such as Jira only if you connected one.
 
 ## More
