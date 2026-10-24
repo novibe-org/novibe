@@ -13,7 +13,7 @@ here first. **Take what you want**; every guard stands alone.
 | [LikeC4](likec4.md) | the architecture model validates, and a pull request shows the reviewer what it changed in it | [`.githooks/pre-push.d/likec4.sh`](../../.githooks/pre-push.d/likec4.sh), [`novibe-org/likec4-architecture-diff-action`](https://github.com/novibe-org/likec4-architecture-diff-action) |
 | [MADR](madr.md) | an ADR is plain MADR, with a number of its own | [`.githooks/pre-push.d/madr.sh`](../../.githooks/pre-push.d/madr.sh), [`.madrlintrc.json`](../../.madrlintrc.json) |
 | [Phases](phases.md) | a commit is spec, design or code — never a mix | [`.githooks/pre-push.d/phases.sh`](../../.githooks/pre-push.d/phases.sh) |
-| [Ubiquitous language](ubiquitous-language.md) | one word per concept, decided in the spec and taken over by the model and the code | the `requirements-engineer`, `architect` and `developer` steps |
+| [Ubiquitous language](../../plugins/novibe/references/ubiquitous-language.md) | one word per concept, decided in the spec and taken over by the model and the code | the `requirements-engineer`, `architect` and `developer` steps |
 | [Code review](code-review.md) | a slice is reviewed by agents before its pull request goes ready, and the driver merges | the [`developer`](../../plugins/novibe/skills/developer/SKILL.md) step, checked by [its evals](../../plugins/novibe/evals/) |
 | [Security](security.md) | a credential is never committed in the first place, and every slice records whether it needed a security audit | [`.githooks/pre-commit.d/security.sh`](../../.githooks/pre-commit.d/security.sh), [`.github/workflows/security-audit.yml`](../../.github/workflows/security-audit.yml) |
 

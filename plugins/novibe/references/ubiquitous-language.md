@@ -9,7 +9,7 @@ element, a class, a table and an API, and renaming it later touches every one of
 
 | What is named | Its word |
 |---|---|
-| a feature, a folder of features | the user's goal as a term of their field — the [`requirements-engineer`](../../plugins/novibe/skills/requirements-engineer/SKILL.md) says how |
+| a feature, a folder of features | the user's goal as a term of their field — the [`requirements-engineer`](../skills/requirements-engineer/SKILL.md) says how |
 | a concept of the domain | the field's standard term — *a refund*, *a backorder* — never an invented or generic one (*a negative order*, *a pending item*, *an entity*) |
 | a thing in the team's world: their tools, products, parts | the team's own word, as their own material writes it: Grafana and Slack, not *dashboards* and *the chat*. A tidier word is one nobody searches for |
 | a kind of thing a standard defines | the standard's name, verbatim; where ours differs, the ADR that adopted the standard lists the differences in one table |
