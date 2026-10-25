@@ -39,8 +39,7 @@ slice; the first slice builds it.
      CI, an LLM prompt or tool. Tests, docs and refactors cross none.
    - **`architecture-review`** when it changed `docs/architecture/` or `docs/adrs/` and changed
      code.
-   - **`clean-code-review`** when it changed code — give it the path of
-     [Clean Code](../../references/clean-code.md), which it reviews by.
+   - **`clean-code-review`** when it changed code.
 
    None? No review. A reviewer reports `NOT RUN`? Stop and ask the driver: install what it
    names, or record why not. Fix a confirmed finding test-first, never by changing the spec, the
