@@ -76,6 +76,9 @@ subscription, and fixes what they find before the PR goes ready.
 | **`architecture-review`** | a slice that changed the C4 model or an ADR: its code against them |
 | **`clean-code-review`** | a slice that changed code: by Clean Code's heuristics, each finding cited by its ID |
 
+In a repository with a `features/` folder, a `SessionStart` hook tells each session which skill
+a spec, the architecture or code goes through, so a request that names the fix doesn't skip it.
+
 ## 🚀 Use
 
 Ask Claude to build something **the NoVibe way** (or invoke `novibe`). It walks the flow one
