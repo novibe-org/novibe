@@ -35,8 +35,9 @@ gets forgotten, and nothing rides along.
 first. A file that arrives with scenarios the driver has not seen one by one is a guess, however
 good it looks, and accepting it is the only way they will ever find out what you assumed.
 
-1. **Find where it lives** — read `features/` first. If a feature already covers this behaviour,
-   the slice extends that file.
+1. **Find where it lives** — read `features/` first, and the
+   [ubiquitous language](../../references/ubiquitous-language.md) before naming anything; can't?
+   Stop and ask the driver. If a feature already covers this behaviour, the slice extends that file.
 2. **Grill it into the feature file, one scenario at a time** — as in
    [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/): **the feature**
    (who, what, why), then one **example**, agreed and written, before asking for the next. Ask in

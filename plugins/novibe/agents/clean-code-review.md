@@ -11,7 +11,8 @@ tools: Read, Glob, Grep, Bash
 comment.
 
 1. **Read `${CLAUDE_PLUGIN_ROOT}/references/clean-code.md`** — its heuristics, by ID, are what
-   you review by. Can't read it? Stop, and report only `NOT RUN: no Clean Code reference`.
+   you review by — **and `${CLAUDE_PLUGIN_ROOT}/references/ubiquitous-language.md`**, where each
+   name comes from (N3). Can't read one? Stop, and report only `NOT RUN: no <file>`.
 2. **Read the slice** — `git diff <default branch>...HEAD`, and the spec and the model it
    names, for the words a name must take (N3).
 3. **Report** the slice's own lines only, never what was already there:
