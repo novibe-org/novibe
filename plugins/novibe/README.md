@@ -29,6 +29,9 @@ In Claude Code, open `/plugin` and find **NoVibe** under Discover. Or from the t
 claude plugin install novibe --marketplace novibe-org/novibe
 ```
 
+In each repository that works the NoVibe way, add a `.novibe.yml` at its root; a comment is enough:
+`# This repository works the NoVibe way`.
+
 ## Skills and agents
 
 | Invoke | What it does for you |
@@ -47,7 +50,7 @@ claude plugin install novibe --marketplace novibe-org/novibe
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly. Skip
 NoVibe for trivial edits.
 
-In a repository with a `features/` folder, a `SessionStart` hook tells each session which skill
+In a repository with a `.novibe.yml` at its root, a `SessionStart` hook tells each session which skill
 a spec, the architecture or code goes through, so a request that names the fix doesn't skip it.
 
 ## What it touches

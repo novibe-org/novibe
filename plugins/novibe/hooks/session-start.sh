@@ -1,6 +1,6 @@
 #!/bin/sh
-# Only in a repository that works the NoVibe way: one with Gherkin specs.
-[ -d "${CLAUDE_PROJECT_DIR:-.}/features" ] || exit 0
+# Only in a repository that says it works the NoVibe way.
+[ -f "${CLAUDE_PROJECT_DIR:-.}/.novibe.yml" ] || exit 0
 
 cat <<'TEXT'
 This repository works the NoVibe way. Before writing a spec, the architecture or code, invoke the
