@@ -2,7 +2,7 @@
   "name": "novibe",
   "displayName": "NoVibe",
   "description": "Spec-driven development: you decide the Gherkin spec and the C4 design, Claude builds test-first until the spec passes.",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": {
     "name": "novibe-org"
   },
