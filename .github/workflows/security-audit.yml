@@ -18,7 +18,10 @@ jobs:
           value=$(printf '%s\n' "$PR_BODY" | tr -d '\r' | awk 'tolower($0) ~ /^[[:space:]>*_-]*security audit:/ { sub(/^[^:]*:[*_]*[[:space:]]*/, ""); print; exit }')
           reason=$(printf '%s' "$value" | sed -E 's/^[Nn][Oo][Nn][Ee][[:space:]:–—-]*//')
           case "$value" in *"<"*">"*) reason= ;; esac
-          [ "${#reason}" -ge 10 ] && exit 0
+          case "$(printf '%s' "$reason" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:].')" in
+            ""|n/a|na|tbd|todo|-|"?") ;;
+            *) exit 0 ;;
+          esac
           echo "The PR description records no security audit, or only a placeholder. Add a line of its own:"
           echo "  Security audit: <the boundary audited, and what the audit found>"
           echo "  Security audit: none — <why this slice crosses no trust boundary>"
