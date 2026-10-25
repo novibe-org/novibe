@@ -1,6 +1,6 @@
 ---
 name: developer
-description: "Build one slice test-first: the Gherkin scenarios run as the tests through the project's BDD runner against the system under test, red → green → refactor until they pass. Audits a slice that crosses a trust boundary, then marks the PR ready. Use once the driver has agreed the Gherkin spec and the C4 design."
+description: "Build one slice test-first: the Gherkin scenarios run as the tests through the project's BDD runner against the system under test, red → green → refactor until they pass. Refactors by Clean Code, has reviewer agents review the slice, then marks the PR ready. Use once the driver has agreed the Gherkin spec and the C4 design."
 ---
 
 # Developer
@@ -29,24 +29,35 @@ slice; the first slice builds it.
    values written out: a parameter for a value used once pretends a generality nobody asked for.
    It must fail for the right reason: behaviour missing, not broken glue.
 3. **Minimal implementation → green.**
-4. **Refactor** with the scenario green, and commit.
+4. **Refactor** with the scenario green, by every heuristic in
+   [Clean Code](../../references/clean-code.md) — read it before the first refactor; can't? Stop
+   and ask the driver — and commit.
 5. **Repeat** until every scenario is green or tagged `@backlog`.
-6. **Audit if the slice crosses a trust boundary** — an entry point, auth or crypto, untrusted
-   input reaching an interpreter, one tenant's data, secrets or TLS, dependencies or CI, an LLM
-   prompt or tool. Then run [`security-audit`](https://github.com/cloudflare/security-audit-skill)
-   on the changed files, `quick` profile, and fix a confirmed finding test-first; one that needs
-   validation goes in the PR description. Otherwise none — the default for tests, docs and
-   refactors. Not installed? Stop and ask the driver: install it, or record why not.
+6. **Review** — start the reviewers whose trigger the slice meets, in parallel, in one message:
+   - **`security-review`** when it crosses a trust boundary — an entry point, auth or crypto,
+     untrusted input reaching an interpreter, one tenant's data, secrets or TLS, dependencies or
+     CI, an LLM prompt or tool. Tests, docs and refactors cross none.
+   - **`architecture-review`** when it changed `docs/architecture/` or `docs/adrs/` and changed
+     code.
+   - **`clean-code-review`** when it changed code.
+
+   None? No review. A reviewer reports `NOT RUN`? Stop and ask the driver: install what it
+   names, or record why not. Fix a confirmed finding test-first, never by changing the spec, the
+   model or an ADR; one you leave open needs a reason the driver can judge.
 7. **Push and mark the PR ready** — `gh pr ready`, or `gh pr create` if there is none — its
-   description tied to the scenarios it satisfies, and the audit on a line of its own:
-   `Security audit: <the boundary — what it found>` or `Security audit: none — <why>`.
+   description tied to the scenarios it satisfies, and the security decision on a line of its
+   own: `Security audit: <the boundary — what it found>` or `Security audit: none — <why>`.
+   Reviewed? Post one comment listing every finding — reviewer, severity, `file:line`, and fixed
+   in which commit or open and why — and edit that comment, never add another, when the slice
+   is reviewed again.
 
 **The spec is read-only** — a scenario that is wrong or unimplementable goes back to the
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
 
-**Names come from the field's standard** — offer two or three candidate terms with their source and
-ask; never pick silently. Meaning beats source.
+**Code takes the spec's and the model's words** — types, functions and step definitions alike, by
+the [ubiquitous language](../../references/ubiquitous-language.md). A concept they don't name takes
+the field's term; unsure which, offer two or three with their source and ask.
 
 **Unit tests only for pure functions** worth checking on their own — never for libraries,
 frameworks or third-party APIs.
@@ -54,4 +65,5 @@ frameworks or third-party APIs.
 ## Done when
 
 Every scenario is green or tagged `@backlog`, the suite passes, there is no code the scenarios
-don't need, the audit ran if the slice crosses a trust boundary, and the PR is ready.
+don't need, the reviewers its triggers call for ran, their findings are fixed or open with a
+reason, and the PR is ready.

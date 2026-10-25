@@ -27,16 +27,16 @@ ones need GitHub's security products:
 - **Dependency review** — a new dependency with a known vulnerability.
 
 What a scanner cannot see — a new entry point without an authorization check, input used before
-the boundary validates it, one tenant's data reachable by another — is for review:
-[`.github/skills/security-review`](../../.github/skills/security-review/).
+the boundary validates it, one tenant's data reachable by another — is for review, before the PR
+goes ready.
 
 ## Before the PR goes ready
 
-The `developer` step runs Cloudflare's
-[`security-audit`](https://github.com/cloudflare/security-audit-skill) on the slice's diff, but
-only when that diff crosses a trust boundary: a new entry point, authentication, untrusted input
-reaching an interpreter, per-tenant data, secrets, dependencies or deployment config. The audit
-is thorough and heavy, so a slice that crosses no boundary skips it, and the PR says why.
+The `developer` step has the [`security-review`](../../plugins/novibe/agents/security-review.md)
+agent run Cloudflare's [`security-audit`](https://github.com/cloudflare/security-audit-skill) on a
+slice that crosses a trust boundary — its step 6 lists them — see [Code review](code-review.md).
+The audit is thorough and heavy, so a slice that crosses no boundary skips it, and the PR says
+why.
 
 **A required check on GitHub keeps it from being skipped.** The `developer` step records its
 decision in the PR description, on a line of its own, and
@@ -63,13 +63,16 @@ cd plugins/novibe
 claude plugin eval . --scaffold --allow-tools Write --tag security-audit
 ```
 
-NoVibe does not ship the skill; install it from Cloudflare, and update it the same way:
+Installing NoVibe from its marketplace, `nv-plugins`, installs the skill with it, pinned to a
+commit of Cloudflare's repository; moving it is a pull request here. The Anthropic Directory
+installs the plugin alone; there, install the skill from Cloudflare:
 
 ```bash
 npx skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global
 ```
 
-Without it, the `developer` step says how to install it.
+Without it, `security-review` reports that it did not run, and the `developer` step stops and
+says how to install it.
 
 ## If you add a gitleaks allowlist
 

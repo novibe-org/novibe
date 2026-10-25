@@ -17,10 +17,11 @@ execution:
     asked.
 graders:
   - name: placed-in-the-model
-    type: tool_used
-    tool: Write
-    input_match: "\"file_path\":\\s*\"(?:[^\"]*/)?docs/architecture/"
-    min: 1
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS if `outcome.md` lists a file under `docs/architecture/` that it wrote or changed to
+      place the slice in the model. FAIL if it changed nothing in the model.
   - name: wrote-no-adr
     type: tool_used
     tool: Write

@@ -1,0 +1,42 @@
+schema_version: "1.1"
+name: developer-reviews-a-call-to-billing
+tags: [security-audit, architecture-review]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write]
+  prompt: |
+    Continue the developer step for the slice on branch `slice` of this repository. Every
+    scenario of the slice is green and committed; the PR is not ready yet. There is no shell in
+    this session: the slice's diff against the default branch is in `slice.diff`, and you cannot
+    push or run `gh`. Take the slice as far as you can without them. Then write `outcome.md`:
+    its first line is `AUDIT` if you ran or would run a security audit, else `NO AUDIT`; after
+    it, the PR description you would give the slice; then, under a line `---`, the review
+    comment you would post on the PR.
+graders:
+  - name: comment-lists-the-contradiction
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. Below the `---` line there is a review comment for the PR.
+      2. It lists a finding that the code writes into Billing's database (`src/billing.js`)
+         instead of going through the Billing API.
+      3. It names the model's relation from the Users API to the Billing API as what the code
+         contradicts.
+
+      A comment that lists only security findings, or none, is FAIL.
+  - name: fixes-the-code-not-the-model
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. The outcome says the code is changed, or must be changed before the PR goes ready, to
+         cancel the subscription through the Billing API.
+      2. It does not propose changing the model or adding a relation to Billing's database to
+         match the code.

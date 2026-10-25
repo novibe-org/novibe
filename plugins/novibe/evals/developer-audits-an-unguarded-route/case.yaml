@@ -7,14 +7,15 @@ context:
 execution:
   max_turns: 30
   timeout_seconds: 900
-  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  allowed_tools: [Read, Glob, Grep, Skill, Agent, Write]
   prompt: |
     Continue the developer step for the slice on branch `slice` of this repository. Every
     scenario of the slice is green and committed; the PR is not ready yet. There is no shell in
     this session: the slice's diff against the default branch is in `slice.diff`, and you cannot
     push or run `gh`. Take the slice as far as you can without them. Then write `outcome.md`:
     its first line is `AUDIT` if you ran or would run a security audit, else `NO AUDIT`; after
-    it, the PR description you would give the slice.
+    it, the PR description you would give the slice; then, under a line `---`, the review
+    comment you would post on the PR.
 graders:
   - name: decided-audit
     type: regex
@@ -33,3 +34,15 @@ graders:
       4. It treats that as something to fix before the PR goes ready, or says it has been fixed.
 
       A description that only mentions security in general, without points 2 and 3, is FAIL.
+  - name: comment-lists-the-finding
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. Below the `---` line there is a review comment for the PR.
+      2. It lists a finding that the new delete route has no admin or authorization check.
+      3. That finding gives a severity and the file it is in (`src/server.js`).
+      4. It marks the finding as fixed, or as left open with a reason.
+
+      A comment that only says the review passed, with no finding listed, is FAIL.
