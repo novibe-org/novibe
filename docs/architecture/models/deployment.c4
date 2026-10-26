@@ -1,0 +1,11 @@
+deployment {
+  node clone 'Clone of a repository' {
+    description 'A developer\'s or a Claude session\'s working copy, where prek keeps the hooks of the pinned version in its cache.'
+    instanceOf novibe.guardRails.hooks
+  }
+  node actions 'GitHub Actions' {
+    description 'Runs the repository\'s CI workflow, which calls the CI checks of the pinned version from novibe-org/novibe, and they the hooks.'
+    instanceOf novibe.guardRails.ciChecks
+    instanceOf novibe.guardRails.hooks
+  }
+}
