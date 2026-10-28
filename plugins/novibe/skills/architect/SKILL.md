@@ -29,13 +29,21 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
    you; ask only what changes the structure: a new element, who talks to whom, the mechanism
    between them, where something runs. A question about behaviour is the spec's: hand it back to
    the requirements step, never settle it in the model.
+
+   **What nobody in the session can decide goes to its owner, never into a guess** — recommend
+   asking them, never a guessed choice marked *(Recommended)*. Ask the driver who decides, then
+   offer to record it in the planning tool, a child of the slice's ticket, assigned to them; no
+   tool connected, give the driver the question and its owner to plan. Place only what is decided:
+   the element it concerns waits for the answer, and nothing is modelled as if the driver had
+   chosen. The selected slice needs it? The slice waits too: hand back to the requirements step to
+   select one that doesn't.
 3. **ADR only if warranted** — default to none. Before writing one, ask: would a later slice
    decide differently without it? If not, there is no ADR. Never one that says how a feature
    behaves; a choice the driver made for this slice is answered in the model, not recorded again.
    A decision that is cross-cutting? Recommend the ADR and ask the driver first. Then plain
    [MADR](https://adr.github.io/madr/), kept short, next number in `docs/adrs/`.
-4. **Push** — once no question is open and the driver agrees: commit as `arch: …` to the slice's
-   branch and push.
+4. **Push** — once no question is open that someone in the session could decide, and the driver
+   agrees: commit as `arch: …` to the slice's branch and push.
 
 ## Rules for the model
 
@@ -70,5 +78,6 @@ description: "Place one slice in the C4 model (LikeC4) by interviewing the drive
 
 ## Done when
 
-No question is open, the driver agrees the model places the slice, and an ADR exists only if a
-crucial decision was made — often none.
+No question is open that someone in the session could decide; a decision waiting for its owner has
+kept its element out of the model. The driver agrees the model places the slice, and an ADR exists
+only if a crucial decision was made — often none.

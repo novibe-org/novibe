@@ -10,6 +10,7 @@ repository the agent works in. The name says what the skill is expected to do.
 | `ubiquitous-language` | the requirements engineer names a feature with the field's term, not the driver's loose phrasing |
 | `slice-size` | the developer stops on a slice too big to build at once, and starts a small one |
 | `adr` | the architect keeps a feature out of ADRs, and asks before an ADR for a cross-cutting decision |
+| `open-question` | the requirements engineer specifies what the driver knows, gives what nobody in the session knows to its owner, and writes nothing the driver did not say |
 
 ```bash
 claude plugin eval plugins/novibe --scaffold --allow-tools Write --trust-plugin --judge-model sonnet

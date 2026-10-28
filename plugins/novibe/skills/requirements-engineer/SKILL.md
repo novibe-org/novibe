@@ -10,7 +10,8 @@ description: "Turn a rough idea into a Gherkin spec by interviewing the driver, 
 
 **Requirements come from the driver — elicit them, don't invent them, and don't read them out of
 the code.** Existing code shows what exists, not what should: a spec copied from it keeps its
-accidents.
+accidents. Another system's code tells how that system behaves today: a fact, never a
+requirement.
 
 **Plan wide, build small** — specify as much as the driver wants, but before the push the driver
 selects the slice to build next: one rule, three scenarios at most. Every other scenario carries
@@ -62,6 +63,19 @@ good it looks, and accepting it is the only way they will ever find out what you
    **Ask only what the product does** — how the spec is written (folders, the split into
    features, wording) is yours, by the rules below; how it gets built is the architect's. The id
    is the driver's: ask for the ticket the slice is planned under.
+
+   **What nobody in the session knows goes to its owner, never into a guess** — the driver knows
+   some answers and not others. Look first where it may be written: the ticket and its links,
+   `features/`, and another system's code or docs for how that system behaves today. Still
+   unknown? Recommend asking its owner, never a guessed answer marked *(Recommended)*. Decided now,
+   on your recommendation? The scenario is the record. Needs someone else, or more time? Ask the
+   driver who decides, then offer to record one item per open rule in the planning tool, a child
+   of the feature's ticket (none yet? create that first, as in step 3), assigned to them; no tool
+   connected, give the driver the question and its owner to plan. One line under `Feature:` names
+   it (*Open question: may a courier leave the parcel with a neighbour?*) until the answer is in.
+   Its rule gets no scenario, not even `@backlog`; the slice is picked from the known rules, and
+   waits while none is known. Nothing the driver has not said is written as if they had — no
+   scenario, description line or assumption.
 3. **Push and open a draft PR** — re-read the file against the rules below and raise what you find
    as one last round. When the driver agrees: commit as `spec: …` on
    the session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
@@ -153,6 +167,7 @@ Picking up a `@backlog` feature or scenario means removing the tag here.
 
 ## Done when
 
-No question is open, the driver agrees the spec, and has selected the small slice to build. A
-rule removed or loosened? The driver has answered whether data already stored breaks under it,
-before the architect step.
+No question is open that someone in the session could answer; what nobody present knows has an
+owner, recorded or handed to the driver to plan, and no scenario rests on it. The driver agrees the
+spec, and has selected the small slice to build. A rule removed or loosened? The driver has answered
+whether data already stored breaks under it, before the architect step.

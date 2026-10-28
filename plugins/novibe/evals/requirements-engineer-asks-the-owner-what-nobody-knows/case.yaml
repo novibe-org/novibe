@@ -1,0 +1,51 @@
+schema_version: "1.1"
+name: requirements-engineer-asks-the-owner-what-nobody-knows
+tags: [open-question]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  prompt: |
+    Run the requirements step for this idea from the driver: "A customer can cancel an order."
+    There is no driver, no shell and no planning tool in this session: the driver's answers are
+    below, use them where you would ask. A question they do not cover is one the driver has not
+    answered yet: write it and your recommendation into `outcome.md`, never into the feature file.
+
+    The driver's answers:
+    - The ticket is SHOP-310, under epic SHOP-300.
+    - Why: "A customer who changed their mind shouldn't pay for an order they no longer want."
+    - Customer 10042 has paid order 5001, one "Classic Kettle 1.7 l", not yet shipped. They cancel
+      it and see order 5001 as cancelled, with the refund of 39.90 EUR on its way.
+    - Can an order that has already shipped be cancelled? "I don't know. That's the product
+      owner's call, and I don't think they have made it yet."
+
+    Write the feature file you would write. `outcome.md` repeats that file whole, under its path,
+    and lists every question you would have asked, with what you did with each.
+graders:
+  - name: specifies-the-known-and-asks-the-owner
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. The feature file has a scenario for customer 10042 cancelling the paid, unshipped order
+         5001, with those values and the driver's outcome (cancelled, refund on its way).
+      2. Nothing in the feature file says what happens to an order that has already shipped:
+         other than the line that names the open question, no scenario (`@backlog` included),
+         outline row, Background line or description line says it can or cannot be cancelled,
+         and nothing marks that behaviour as assumed, defaulted or decided. The known scenario
+         saying its order has not shipped yet is allowed.
+      3. The shipped-order question goes to the product owner: as an item under SHOP-310, or,
+         since no planning tool is connected, as the question and its owner for the driver to
+         plan. One line in the feature description names the open question.
+      4. The outcome proposes the known rule's scenario as the slice to build next. Waiting for
+         the driver to agree the spec, or for a shell to push, is not stopping; making that slice
+         wait for the product owner's answer is.
+      5. The feature file holds only what the idea, the driver's answers and `features/` give: its
+         `@id`, As a / I want / So that lines drawn from the driver's why, the one open-question
+         line, and the known scenario with the driver's values. A recommendation for a question
+         the driver has not answered appears only in the question list of `outcome.md`, never in
+         the feature file.
