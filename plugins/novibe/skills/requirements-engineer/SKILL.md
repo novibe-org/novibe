@@ -67,15 +67,16 @@ good it looks, and accepting it is the only way they will ever find out what you
    **What nobody in the session knows goes to its owner, never into a guess** — the driver knows
    some answers and not others. Look first where it may be written: the ticket and its links,
    `features/`, and another system's code or docs for how that system behaves today. Still
-   unknown? Recommend asking its owner, never a guessed answer marked *(Recommended)*. Decided now,
-   on your recommendation? The scenario is the record. Needs someone else, or more time? Ask the
+   unknown? Recommend asking its owner, never a guessed answer marked *(Recommended)*. The driver
+   decides it now? The scenario is the record. Needs someone else, or more time? Ask the
    driver who decides, then offer to record one item per open rule in the planning tool, a child
    of the feature's ticket (none yet? create that first, as in step 3), assigned to them; no tool
    connected, give the driver the question and its owner to plan. One line under `Feature:` names
    it (*Open question: may a courier leave the parcel with a neighbour?*) until the answer is in.
-   Its rule gets no scenario, not even `@backlog`; the slice is picked from the known rules, and
-   waits while none is known. Nothing the driver has not said is written as if they had — no
-   scenario, description line or assumption.
+   Its rule gets no scenario, not even `@backlog`, which parks only what the driver has said; the
+   slice is picked from the known rules. None known yet? Nothing is pushed: the spec waits for the
+   answer. Nothing the driver has not said is written as if they had — no scenario, description
+   line or assumption.
 3. **Push and open a draft PR** — re-read the file against the rules below and raise what you find
    as one last round. When the driver agrees: commit as `spec: …` on
    the session's branch (or `feat/<slug>`), push, `gh pr create --draft`. It stays draft until the
