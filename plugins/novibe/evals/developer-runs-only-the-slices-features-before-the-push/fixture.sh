@@ -96,6 +96,7 @@ test('day 30 is within the window', () => assert.ok(withinRefundWindow(0, 30 * D
 test('day 31 is not', () => assert.ok(!withinRefundWindow(0, 31 * DAY)));
 JS
 git add . && git commit -qm "feat: a customer is refunded within 30 days"
+git diff main..slice > slice.diff
 cat > review-fixes.diff <<'DIFF'
 --- a/src/refunds.js
 +++ b/src/refunds.js

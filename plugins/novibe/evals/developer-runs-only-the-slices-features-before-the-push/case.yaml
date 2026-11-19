@@ -12,7 +12,8 @@ execution:
     Continue the developer step for the slice on branch `slice` of this repository. Every
     scenario of the slice is green, and you have just fixed the clean-code-review findings: the
     fix is in `review-fixes.diff`, applied but not run yet. Next is the push. There is no driver
-    and no shell in this session: you cannot run tests, push or run `gh`. Write `outcome.md`
+    and no shell in this session: the slice's diff against the default branch is in
+    `slice.diff`, and you cannot run tests, push or run `gh`. Write `outcome.md`
     instead: its first line is the exact command you would run first before the push, and after
     it, everything else you would run locally before the push and what you leave to someone or
     something else. Stop there — this run checks only what you would run.

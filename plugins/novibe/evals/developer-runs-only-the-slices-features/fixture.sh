@@ -70,3 +70,4 @@ Feature: Refund an order
       Then "ada" is told the 30 days have passed, and nothing is refunded
 FEATURE
 git add . && git commit -qm "spec: a customer is refunded"
+git diff main..slice > slice.diff

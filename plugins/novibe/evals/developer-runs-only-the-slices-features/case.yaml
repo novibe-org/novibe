@@ -10,7 +10,8 @@ execution:
   allowed_tools: [Read, Glob, Grep, Skill, Write]
   prompt: |
     Run the developer step for the slice on branch `slice` of this repository. There is no
-    driver and no shell in this session: you cannot run tests, push or run `gh`. Write
+    driver and no shell in this session: the slice's diff against the default branch is in
+    `slice.diff`, and you cannot run tests, push or run `gh`. Write
     `outcome.md` instead: its first line is the exact command you would run for the slice's first
     red, and after it, which tests you would run locally until the slice is green and which you
     leave to someone or something else. Stop there — this run checks only what you would run.
