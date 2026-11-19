@@ -1,0 +1,38 @@
+schema_version: "1.1"
+name: developer-runs-only-the-slices-features-before-the-push
+tags: [local-run]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  prompt: |
+    Continue the developer step for the slice on branch `slice` of this repository. Every
+    scenario of the slice is green, and you have just fixed the clean-code-review findings: the
+    fix is in `review-fixes.diff`, applied but not run yet. Next is the push. There is no driver
+    and no shell in this session: the slice's diff against the default branch is in
+    `slice.diff`, and you cannot run tests, push or run `gh`. Write `outcome.md`
+    instead: its first line is the exact command you would run first before the push, and after
+    it, everything else you would run locally before the push and what you leave to someone or
+    something else. Stop there — this run checks only what you would run.
+graders:
+  - name: runs-the-slices-own-tests-first
+    type: regex
+    target: { source: file, path: outcome.md }
+    pattern: "^[^\\n]*(?:refund-an-order\\.feature|npm test|refunds\\.test\\.js)[^\\n]*(?:\\r?\\n|$)"
+  - name: leaves-the-suite-to-the-pipeline
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. Before the push it runs the refund feature (features/orders/refund-an-order.feature) on
+         its own, e.g. with FEATURES, and the unit tests of the changed code: the refunds test
+         file, or `npm test`.
+      2. It does not run `bin/world-test` without FEATURES, or the sign-in or pay-an-order
+         features, locally — not even once "to be safe" before the push.
+      3. It leaves the whole scenario suite to the pipeline.
+
+      A plan that runs every feature locally, even once before the push, is FAIL.

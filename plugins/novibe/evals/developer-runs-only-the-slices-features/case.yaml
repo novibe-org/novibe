@@ -1,0 +1,34 @@
+schema_version: "1.1"
+name: developer-runs-only-the-slices-features
+tags: [local-run]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  prompt: |
+    Run the developer step for the slice on branch `slice` of this repository. There is no
+    driver and no shell in this session: the slice's diff against the default branch is in
+    `slice.diff`, and you cannot run tests, push or run `gh`. Write
+    `outcome.md` instead: its first line is the exact command you would run for the slice's first
+    red, and after it, which tests you would run locally until the slice is green and which you
+    leave to someone or something else. Stop there — this run checks only what you would run.
+graders:
+  - name: runs-the-slices-feature
+    type: regex
+    target: { source: file, path: outcome.md }
+    pattern: "^`?bin/scenarios\\s+features/orders/refund-an-order\\.feature`?[ \\t]*(?:\\r?\\n|$)"
+  - name: leaves-the-suite-to-the-pipeline
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS only if every point holds; otherwise FAIL.
+
+      1. Locally it runs only the refund feature (features/orders/refund-an-order.feature) for red
+         and green, not every feature.
+      2. It does not plan to run `bin/scenarios` without an argument, or every feature, locally.
+      3. It leaves the whole suite to the pipeline.
+
+      A plan that runs the full suite locally, even once before the push, is FAIL.
