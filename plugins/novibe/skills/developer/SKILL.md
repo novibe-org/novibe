@@ -24,11 +24,12 @@ Tests merely inspired by the spec don't count. No runner yet? Setting it up is t
 name in the system under test, from synthetic data, never customer data, and grows slice by
 slice; the first slice builds it.
 
-1. **Run the spec → red** — the undefined scenarios are the work list.
+1. **Run the slice's features → red** — only the features the slice touches; the undefined
+   scenarios are the work list.
 2. **Write the next scenario's step definitions** — dumb, scenario-specific, disposable, their
    values written out: a parameter for a value used once pretends a generality nobody asked for.
    It must fail for the right reason: behaviour missing, not broken glue.
-3. **Minimal implementation → green.**
+3. **Minimal implementation → green**, by the same run.
 4. **Refactor** with the scenario green, by every heuristic in
    [Clean Code](../../references/clean-code.md) — read it before the first refactor; can't? Stop
    and ask the driver — and commit.
@@ -51,6 +52,11 @@ slice; the first slice builds it.
    in which commit or open and why — and edit that comment, never add another, when the slice
    is reviewed again.
 
+**The whole suite is the pipeline's** — locally, run the features the slice touches and the unit
+tests of the code it changed, never the full suite: not after the refactor, not after the review
+fixes, not once more before the push. It is slow, and the pipeline runs it on every push; a red
+there is fixed like any other red.
+
 **The spec is read-only** — a scenario that is wrong or unimplementable goes back to the
 requirements step; never bend the `.feature` file. Scenarios not built in this slice keep their
 `@backlog` tag.
@@ -64,6 +70,6 @@ frameworks or third-party APIs.
 
 ## Done when
 
-Every scenario is green or tagged `@backlog`, the suite passes, there is no code the scenarios
-don't need, the reviewers its triggers call for ran, their findings are fixed or open with a
-reason, and the PR is ready.
+Every scenario is green or tagged `@backlog`, the pipeline's suite passes, there is no code the
+scenarios don't need, the reviewers its triggers call for ran, their findings are fixed or open
+with a reason, and the PR is ready.
