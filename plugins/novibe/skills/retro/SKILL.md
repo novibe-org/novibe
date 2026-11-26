@@ -49,7 +49,9 @@ and ask for the session's log; a summary is no moment to quote.
    Mechanical beats prose: when a check can catch it, the fix is the check, never a line in a doc.
    Prefer wiring up a check the project already has over writing a new one.
 4. **Propose** — per finding: what happened, its moments, the fix and where it goes. Most severe
-   first: what cost the driver most, or would again. Then stop: the driver picks.
+   first: what cost the driver most, or would again. Propose only what you would have the driver
+   take: a finding you would call optional, "if you want" or "on top" is dropped. Then stop and ask
+   the driver which to take — even with one finding.
 5. **Hand each picked finding to its owner** — a spec or model change lands on this slice's branch,
    through `requirements-engineer` or `architect`, before the driver merges; merged already, it is
    a new slice from the default branch. A guard, heuristic or tooling fix is a slice of its own:
