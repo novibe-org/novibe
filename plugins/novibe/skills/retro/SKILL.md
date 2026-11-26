@@ -30,7 +30,8 @@ and ask for the session's log; a summary is no moment to quote.
    dropped, however true it sounds.
 3. **Route each by whose rule it is, then by what went wrong.** A NoVibe skill, reviewer agent or
    reference, or a guard copied from NoVibe — `.githooks/VERSION` names the NoVibe release it came
-   from — is NoVibe's. In a repository that uses NoVibe, its fix is an issue for
+   from — is NoVibe's, and so is a rule a NoVibe skill states, even where the project writes it
+   down too. In a repository that uses NoVibe, its fix is an issue for
    [novibe-org/novibe](https://github.com/novibe-org/novibe/issues), drafted for the driver, with
    the eval case that reproduces it — never a workaround in that repository. In NoVibe's own
    repository, it is the eval case in `plugins/novibe/evals/`, then the fix that makes it pass.
