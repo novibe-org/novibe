@@ -1,0 +1,24 @@
+model {
+  extend novibe.guardRails {
+    hooks = library 'Hooks' {
+      description 'One guard per rule, run on commit and push: git, code, gherkin, likec4, madr, phases and credentials, and the GitHub files guard.'
+      technology 'POSIX shell behind a Node entry point; .pre-commit-hooks.yaml'
+    }
+    ciChecks = library 'CI checks' {
+      description 'The checks run on each pull request: the hooks again, the security audit record and the architecture diff.'
+      technology 'GitHub Actions reusable workflow and composite action'
+    }
+
+    hooks -> ciChecks 'pins the repository\'s CI workflow to its own version of'
+    ciChecks -> hooks 'runs on a pull request\'s commits, for those made where no hook ran' {
+      technology 'prek'
+    }
+  }
+
+  prek -> novibe.guardRails.hooks 'fetches by the pinned guard-rails tag, with Node, and runs on every commit and push' {
+    technology 'git'
+  }
+  novibe.guardRails.hooks -> repository 'checks each commit and push of; writes its CI workflow, Copilot instructions and update filter at the hooks\' version'
+  github -> novibe.guardRails.ciChecks 'runs on each pull request, by the pinned guard-rails tag'
+  novibe.guardRails.ciChecks -> github 'records whether a pull request may be merged, and comments on it'
+}

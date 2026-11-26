@@ -1,0 +1,43 @@
+views {
+  view context {
+    title 'System context'
+    include maintainer, repository, prek, github, novibe
+  }
+
+  view containers of novibe {
+    title 'NoVibe: building blocks'
+    include *
+  }
+
+  view guardRails of novibe.guardRails {
+    title 'Guard rails: building blocks'
+    include *
+  }
+
+  dynamic view installGuardRails {
+    title 'Install the guard rails in a repository without hooks'
+    maintainer -> repository 'adds .pre-commit-config.yaml, pinning guard-rails-v1.0.0'
+    maintainer -> prek 'prek install, then prek run --all-files'
+    prek -> novibe.guardRails.hooks 'fetches guard-rails-v1.0.0, with Node, and runs it'
+    novibe.guardRails.hooks -> repository 'writes the CI workflow, Copilot instructions and update filter of 1.0.0'
+    maintainer -> repository 'commits and pushes them'
+    github -> novibe.guardRails.ciChecks 'runs 1.0.0 on each pull request'
+    novibe.guardRails.ciChecks -> novibe.guardRails.hooks 'runs the hooks of 1.0.0 on its commits'
+  }
+
+  dynamic view updateGuardRails {
+    title 'Take up a new version of the guard rails'
+    maintainer -> prek 'prek update, then prek run --all-files'
+    prek -> repository 'moves the pinned tag to the newest guard-rails tag, guard-rails-v1.1.0'
+    prek -> novibe.guardRails.hooks 'fetches guard-rails-v1.1.0, and runs it'
+    novibe.guardRails.hooks -> repository 'moves the CI workflow and Copilot instructions to 1.1.0'
+    maintainer -> repository 'commits and pushes them'
+    github -> novibe.guardRails.ciChecks 'runs 1.1.0 on each pull request'
+    novibe.guardRails.ciChecks -> novibe.guardRails.hooks 'runs the hooks of 1.1.0 on its commits'
+  }
+
+  deployment view deployment {
+    title 'Deployment'
+    include clone, actions
+  }
+}

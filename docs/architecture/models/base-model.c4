@@ -1,0 +1,42 @@
+specification {
+  element person
+  element system
+  element external
+  element application
+  element library
+  deploymentNode node
+}
+
+model {
+  maintainer = person 'Maintainer' {
+    description 'Keeps a repository that follows NoVibe.'
+  }
+
+  repository = external 'Repository' {
+    description 'A repository that follows NoVibe, such as acme/shop.'
+  }
+
+  prek = external 'prek' {
+    description 'The hook manager on each clone of a repository; runs hooks in pre-commit\'s format, with the toolchains they need.'
+  }
+
+  github = external 'GitHub' {
+    description 'Hosts the repositories, runs their workflows on pull requests, and reviews them with Copilot.'
+  }
+
+  novibe = system 'NoVibe' {
+    description 'Skills that guide coding agents, and guard rails that hold whatever they make of them.'
+
+    plugin = application 'Claude Code plugin' {
+      description 'The NoVibe skills, from requirements engineer to developer.'
+      technology 'Claude Code plugin, released on its own as plugin-v<version>'
+    }
+    guardRails = library 'Guard rails' {
+      description 'NoVibe\'s rules, enforced on every commit, push and pull request, released on their own as guard-rails-v<version>.'
+    }
+  }
+
+  maintainer -> prek 'installs and updates the guard rails with'
+  maintainer -> repository 'commits and pushes to'
+  github -> repository 'hosts'
+}
