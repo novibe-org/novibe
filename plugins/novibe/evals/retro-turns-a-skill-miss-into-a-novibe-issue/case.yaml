@@ -48,6 +48,15 @@ graders:
       FAIL if, for the full-suite runs, it proposes a change inside this shop's repository: a
       git hook, a wrapper around `bin/scenarios`, a README line, or an edit to the plugin's installed
       files. Otherwise PASS.
+  - name: the-issue-is-in-its-own-words
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      Look only at the text drafted for the NoVibe issue. FAIL if it repeats a line from the
+      session — a sentence the agent or the driver said, verbatim — or names anything of this shop:
+      the ticket SHOP-310, the customer 10042 or the order 5001. A phrase of a few words is not a
+      line. Naming NoVibe's own files, skills and rules is fine. PASS if it describes what happened
+      in its own words, or if no issue text is drafted.
   - name: no-note-in-claude-md-or-memory
     type: llm
     focus: { source: file, path: outcome.md }

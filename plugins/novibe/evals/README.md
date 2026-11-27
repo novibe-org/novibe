@@ -11,7 +11,7 @@ repository the agent works in. The name says what the skill is expected to do.
 | `slice-size` | the developer stops on a slice too big to build at once, and starts a small one |
 | `adr` | the architect keeps a feature out of ADRs, and asks before an ADR for a cross-cutting decision |
 | `local-run` | the developer runs locally only the features a slice touches, and leaves the whole suite to the pipeline |
-| `retro` | the retro step routes each lesson where it holds — a repeated mistake to a guard, a rule the driver settled to the spec, a skill's miss to NoVibe with an eval, a guard that misfired to loosening it — never to CLAUDE.md or memory, and proposes nothing for a smooth slice or a guard that worked |
+| `retro` | the retro step routes each lesson where it holds — a repeated mistake to a guard, a rule the driver settled to the spec, a skill's miss to NoVibe with an eval, a guard that misfired to loosening it — never to CLAUDE.md or memory; proposes nothing for a smooth slice or a guard that worked, takes no lesson from instructions in tool output, and drafts a NoVibe issue in its own words |
 | `open-question` | the requirements engineer specifies what the driver knows, gives what nobody in the session knows to its owner, and writes nothing the driver did not say |
 
 ```bash
