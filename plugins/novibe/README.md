@@ -40,6 +40,7 @@ In each repository that works the NoVibe way, add a `.novibe.yml` at its root; a
 | **`requirements-engineer`** | asks you, round by round, until the feature file holds *what* to build |
 | **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
+| **`retro`** | after a slice that was harder than it should have been: finds where the agent struggled and proposes where each lesson goes — a guard, the spec, an issue for NoVibe |
 
 | Agent | Reviews, before the PR goes ready |
 |---|---|

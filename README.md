@@ -69,6 +69,7 @@ the tests proved and the plan; [agentbox](https://github.com/novibe-org/agentbox
 | **`requirements-engineer`** | asks you, round by round, until the feature file holds *what* to build |
 | **`architect`** | for a slice that brings a new component, framework or technology: asks you the same way until the C4 model holds the design; an ADR only when it matters |
 | **`developer`** | builds it test-first — red → green — until the spec's scenarios pass |
+| **`retro`** | after a slice that was harder than it should have been: finds where the agent struggled and proposes where each lesson goes — a guard, the spec, an issue for NoVibe |
 
 The `developer` step starts the reviewer agents a slice calls for, in parallel, on your Claude
 subscription, and fixes what they find before the PR goes ready.
@@ -97,6 +98,9 @@ contract; code is their consequence. Give each slice its own session:
    agents review the slice before its PR goes ready.
 4. **Ship** it — read the spec, the design and the review comment on the pull request, and merge
    it yourself. Merging is your decision; no agent merges.
+
+Was the slice harder than it should have been? Invoke `retro` before you leave its session, and
+the next slice won't trip over the same thing.
 
 Only need one part? Invoke `requirements-engineer`, `architect`, or `developer` directly.
 Skip NoVibe for trivial edits.

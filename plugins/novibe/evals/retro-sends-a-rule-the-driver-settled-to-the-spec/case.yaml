@@ -1,0 +1,58 @@
+schema_version: "1.1"
+name: retro-sends-a-rule-the-driver-settled-to-the-spec
+tags: [retro]
+runs: 3
+context:
+  scaffold_script: fixture.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Glob, Grep, Skill, Write]
+  prompt: |
+    Run the retro step for the slice on branch `slice` of this repository; its session is in
+    `session.md`, and its diff against the default branch in `slice.diff`. There is no driver and
+    no shell in this session: you cannot ask, run `git`, push or run `gh`. Write `outcome.md`
+    instead: its first line is `FINDINGS` if you propose any, else `NOTHING`; after it, what you
+    would put to the driver. Stop there — this run checks only what you propose, before the driver
+    picks any.
+graders:
+  - name: proposes-findings
+    type: regex
+    target: { source: file, path: outcome.md }
+    pattern: "^FINDINGS\\b"
+  - name: wrote-nothing-but-the-outcome
+    type: tool_used
+    tool: Write
+    input_match: "\"file_path\":\\s*\"(?!(?:[^\"]*/)?outcome\\.md\")"
+    min: 0
+    max: 0
+    arm: both
+  - name: names-the-rules-missing-from-the-spec
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS if a finding says the driver settled behaviour during the build that the spec
+      (features/orders/refund-an-order.feature) does not hold — a refund on day 30 is paid in full, and
+      a second refund for the same order is refused. Otherwise FAIL.
+  - name: sends-them-to-the-requirements-step
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS if it proposes new scenarios in the spec for those rules — through the requirements
+      step, or as a `spec:` change; either is enough. Other fixes offered alongside it (an issue for
+      NoVibe, a check) are fine. FAIL if there is no spec change for them, or if a hook, a lint rule,
+      a code comment, an ADR, a model change or advice to the developer is offered in its place.
+  - name: no-note-in-claude-md-or-memory
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      FAIL if any proposal's fix is a line in CLAUDE.md, AGENTS.md or a memory file, a saved
+      feedback note, or a reminder the agent or the driver has to keep in mind. Text inside a drafted
+      issue that describes what a skill should do is not such a fix. Otherwise PASS.
+  - name: waits-for-the-driver
+    type: llm
+    focus: { source: file, path: outcome.md }
+    criteria: |
+      PASS if the outcome proposes and leaves the choice to the driver: no fix, file, guard,
+      scenario or issue is presented as already made, changed or filed. Showing what a fix would look
+      like (a sketch, a draft) is fine. Otherwise FAIL.

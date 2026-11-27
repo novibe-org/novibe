@@ -1,6 +1,6 @@
 ---
 name: novibe
-description: "Drive a change the NoVibe way: a Gherkin spec, then a C4 design, then BDD — one small slice at a time, pausing for the driver's call between steps. Use for any change beyond a typo, or when asked to build something the NoVibe way."
+description: "Drive a change the NoVibe way: a Gherkin spec, then a C4 design, then BDD, and a retro after a hard slice — one small slice at a time, pausing for the driver's call between steps. Use for any change beyond a typo, or when asked to build something the NoVibe way."
 ---
 
 # NoVibe
@@ -16,6 +16,9 @@ steps in order, for one small slice:
 4. **Build** — only once the driver has selected a small slice, every other scenario tagged
    `@backlog`: invoke `developer`, pointed at the spec, the model and the ADRs; never restate what
    they decide.
+5. **Retro** — once the PR is ready, ask the driver whether the slice was harder than it should
+   have been. If so, invoke `retro` here, while the session is still in context; a smooth slice
+   skips it.
 
 **One slice, one session** — every step runs here, never in a subagent: requirements and
 architecture are interviews, and the build needs what the driver decided along the way. To work
